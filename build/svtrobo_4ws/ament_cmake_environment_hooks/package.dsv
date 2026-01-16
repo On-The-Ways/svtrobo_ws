@@ -1,0 +1,4 @@
+source;share/svtrobo_4ws/local_setup.bash
+source;share/svtrobo_4ws/local_setup.dsv
+source;share/svtrobo_4ws/local_setup.sh
+source;share/svtrobo_4ws/local_setup.zsh

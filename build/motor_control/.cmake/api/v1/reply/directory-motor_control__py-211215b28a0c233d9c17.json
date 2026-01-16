@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "motor_control__py",
+		"source" : "/home/openarm/svtrobo_ws/build/motor_control/motor_control__py"
+	}
+}

@@ -1,0 +1,24 @@
+[  2%] Built target motor_control__cpp
+[ 11%] Built target motor_control__rosidl_generator_c
+[ 11%] Built target ament_cmake_python_copy_motor_control
+[ 19%] Built target motor_control__rosidl_typesupport_introspection_cpp
+[ 27%] Built target motor_control__rosidl_typesupport_cpp
+[ 36%] Built target motor_control__rosidl_typesupport_fastrtps_cpp
+[ 44%] Built target motor_control__rosidl_typesupport_fastrtps_c
+[ 52%] Built target motor_control__rosidl_typesupport_c
+[ 61%] Built target motor_control__rosidl_typesupport_introspection_c
+[ 69%] Built target motor_control_lib
+[ 69%] Built target motor_control
+[ 72%] Built target motor_control__py
+[ 75%] [32mBuilding CXX object CMakeFiles/motor_control_test.dir/src/motor_control_test.cpp.o[0m
+[ 80%] Built target motor_control__rosidl_generator_py
+[ 86%] Built target motor_control__rosidl_typesupport_introspection_c__pyext
+[ 91%] Built target motor_control__rosidl_typesupport_c__pyext
+[ 97%] Built target motor_control__rosidl_typesupport_fastrtps_c__pyext
+running egg_info
+writing motor_control.egg-info/PKG-INFO
+writing dependency_links to motor_control.egg-info/dependency_links.txt
+writing top-level names to motor_control.egg-info/top_level.txt
+reading manifest file 'motor_control.egg-info/SOURCES.txt'
+writing manifest file 'motor_control.egg-info/SOURCES.txt'
+[ 97%] Built target ament_cmake_python_build_motor_control_egg

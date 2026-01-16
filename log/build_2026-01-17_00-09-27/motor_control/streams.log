@@ -1,0 +1,38 @@
+[0.047s] Invoking command in '/home/openarm/svtrobo_ws/build/motor_control': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --build /home/openarm/svtrobo_ws/build/motor_control -- -j4 -l4
+[0.205s] [  2%] Built target motor_control__cpp
+[0.271s] [ 11%] Built target motor_control__rosidl_generator_c
+[0.312s] [ 11%] Built target ament_cmake_python_copy_motor_control
+[0.328s] [ 19%] Built target motor_control__rosidl_typesupport_introspection_cpp
+[0.329s] [ 27%] Built target motor_control__rosidl_typesupport_cpp
+[0.355s] [ 36%] Built target motor_control__rosidl_typesupport_fastrtps_cpp
+[0.411s] [ 44%] Built target motor_control__rosidl_typesupport_fastrtps_c
+[0.448s] [ 52%] Built target motor_control__rosidl_typesupport_c
+[0.451s] [ 61%] Built target motor_control__rosidl_typesupport_introspection_c
+[0.495s] [ 69%] Built target motor_control_lib
+[0.496s] [ 69%] Built target motor_control
+[0.560s] [ 72%] Built target motor_control__py
+[0.567s] [ 75%] [32mBuilding CXX object CMakeFiles/motor_control_test.dir/src/motor_control_test.cpp.o[0m
+[0.611s] [ 80%] Built target motor_control__rosidl_generator_py
+[0.676s] [ 86%] Built target motor_control__rosidl_typesupport_introspection_c__pyext
+[0.720s] [ 91%] Built target motor_control__rosidl_typesupport_c__pyext
+[0.730s] [ 97%] Built target motor_control__rosidl_typesupport_fastrtps_c__pyext
+[1.061s] running egg_info
+[1.107s] writing motor_control.egg-info/PKG-INFO
+[1.108s] writing dependency_links to motor_control.egg-info/dependency_links.txt
+[1.108s] writing top-level names to motor_control.egg-info/top_level.txt
+[1.252s] reading manifest file 'motor_control.egg-info/SOURCES.txt'
+[1.255s] writing manifest file 'motor_control.egg-info/SOURCES.txt'
+[1.326s] [ 97%] Built target ament_cmake_python_build_motor_control_egg
+[5.232s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:[m[K In function ‘[01m[Kvoid can_read_loop()[m[K’:
+[5.232s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:205:25:[m[K [01;31m[Kerror: [m[K‘[01m[Kusing _data_type = struct std::array<unsigned char, 8>[m[K’ {aka ‘[01m[Kstruct std::array<unsigned char, 8>[m[K’} has no member named ‘[01m[Kassign[m[K’
+[5.232s]   205 |         ros_frame->data.[01;31m[Kassign[m[K(can_frame.data, can_frame.data + can_frame.can_dlc);
+[5.233s]       |                         [01;31m[K^~~~~~[m[K
+[11.259s] In file included from [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:24[m[K:
+[11.259s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/include/motor_control/motor_config.h:[m[K In member function ‘[01m[KRobStrite_Motor& MotorControlSet::getMotor(uint8_t)[m[K’:
+[11.259s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/include/motor_control/motor_config.h:80:17:[m[K [01;35m[Kwarning: [m[Kcontrol reaches end of non-void function [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreturn-type-Wreturn-type]8;;[m[K]
+[11.259s]    80 |                 [01;35m[K}[m[K
+[11.259s]       |                 [01;35m[K^[m[K
+[11.350s] gmake[2]: *** [CMakeFiles/motor_control_test.dir/build.make:76：CMakeFiles/motor_control_test.dir/src/motor_control_test.cpp.o] 错误 1
+[11.351s] gmake[1]: *** [CMakeFiles/Makefile2:623：CMakeFiles/motor_control_test.dir/all] 错误 2
+[11.351s] gmake: *** [Makefile:146：all] 错误 2
+[11.354s] Invoked command in '/home/openarm/svtrobo_ws/build/motor_control' returned '2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --build /home/openarm/svtrobo_ws/build/motor_control -- -j4 -l4

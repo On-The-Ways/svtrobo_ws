@@ -1,0 +1,251 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-3cf380886edcc4332ab5.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19
+					]
+				},
+				{
+					"build" : "motor_control__py",
+					"jsonFile" : "directory-motor_control__py-211215b28a0c233d9c17.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/openarm/svtrobo_ws/build/motor_control/motor_control__py",
+					"targetIndexes" : 
+					[
+						4
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1
+					],
+					"name" : "motor_control",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_build_motor_control_egg::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_build_motor_control_egg-965543a80d92822fcf99.json",
+					"name" : "ament_cmake_python_build_motor_control_egg",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_copy_motor_control::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_copy_motor_control-962d16f498b94bcfadc8.json",
+					"name" : "ament_cmake_python_copy_motor_control",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control-95e7078e8bd00402d470.json",
+					"name" : "motor_control",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control__cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control__cpp-be798bd9ffa3f31b76cb.json",
+					"name" : "motor_control__cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "motor_control__py::@04a9dfa56ad3690b861e",
+					"jsonFile" : "target-motor_control__py-eb5d7f8fdd9324f7cb78.json",
+					"name" : "motor_control__py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control__rosidl_generator_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control__rosidl_generator_c-9fdd3027640e845659c4.json",
+					"name" : "motor_control__rosidl_generator_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control__rosidl_generator_py::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control__rosidl_generator_py-146ada47b4d35ecf96ef.json",
+					"name" : "motor_control__rosidl_generator_py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control__rosidl_typesupport_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control__rosidl_typesupport_c-6988f01a69a7d302f80b.json",
+					"name" : "motor_control__rosidl_typesupport_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control__rosidl_typesupport_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control__rosidl_typesupport_c__pyext-cb59a09a01057c362f06.json",
+					"name" : "motor_control__rosidl_typesupport_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control__rosidl_typesupport_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control__rosidl_typesupport_cpp-29e1979ac79762e979cb.json",
+					"name" : "motor_control__rosidl_typesupport_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control__rosidl_typesupport_fastrtps_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control__rosidl_typesupport_fastrtps_c-27dad61048b3bb42436e.json",
+					"name" : "motor_control__rosidl_typesupport_fastrtps_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control__rosidl_typesupport_fastrtps_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control__rosidl_typesupport_fastrtps_c__pyext-1b298106d09d3a4cf39a.json",
+					"name" : "motor_control__rosidl_typesupport_fastrtps_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control__rosidl_typesupport_fastrtps_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control__rosidl_typesupport_fastrtps_cpp-3f5a0a0a10bdde49938f.json",
+					"name" : "motor_control__rosidl_typesupport_fastrtps_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control__rosidl_typesupport_introspection_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control__rosidl_typesupport_introspection_c-5992b6f91f020c7a065a.json",
+					"name" : "motor_control__rosidl_typesupport_introspection_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control__rosidl_typesupport_introspection_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control__rosidl_typesupport_introspection_c__pyext-0e32a96fed589658621b.json",
+					"name" : "motor_control__rosidl_typesupport_introspection_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control__rosidl_typesupport_introspection_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control__rosidl_typesupport_introspection_cpp-d79ca4bd0cbcea4d7883.json",
+					"name" : "motor_control__rosidl_typesupport_introspection_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control_lib::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control_lib-0f601baeed7d1d51ffae.json",
+					"name" : "motor_control_lib",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control_test-3b36836da968d2383815.json",
+					"name" : "motor_control_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "motor_control_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motor_control_uninstall-89f6e1cb339331a8deee.json",
+					"name" : "motor_control_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-fb94d4775015142c3630.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/openarm/svtrobo_ws/build/motor_control",
+		"source" : "/home/openarm/svtrobo_ws/src/robstride_actuator_bridge"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

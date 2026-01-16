@@ -1,0 +1,35 @@
+[0.043s] Invoking command in '/home/openarm/svtrobo_ws/build/chassis': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake /home/openarm/svtrobo_ws/src/chassis -DCMAKE_INSTALL_PREFIX=/home/openarm/svtrobo_ws/install/chassis
+[0.069s] -- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.781s] -- Found rclcpp: 16.0.16 (/opt/ros/humble/share/rclcpp/cmake)
+[0.860s] -- Found rosidl_generator_c: 3.1.7 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.867s] -- Found rosidl_adapter: 3.1.7 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.876s] -- Found rosidl_generator_cpp: 3.1.7 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.898s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.924s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.996s] -- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[0.998s] -- Found rmw_fastrtps_cpp: 6.2.9 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)
+[1.196s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[1.323s] -- Found urdf: 2.6.1 (/opt/ros/humble/share/urdf/cmake)
+[1.378s] -- Found robot_state_publisher: 3.0.3 (/opt/ros/humble/share/robot_state_publisher/cmake)
+[1.427s] -- Found eigen3_cmake_module: 0.1.1 (/opt/ros/humble/share/eigen3_cmake_module/cmake)
+[1.430s] -- Ensuring Eigen3 include directory is part of orocos-kdl CMake target
+[1.707s] [31mCMake Error at CMakeLists.txt:19 (find_package):
+[1.707s]   By not providing "Findjoint_state_publisher_gui.cmake" in CMAKE_MODULE_PATH
+[1.707s]   this project has asked CMake to find a package configuration file provided
+[1.707s]   by "joint_state_publisher_gui", but CMake did not find one.
+[1.708s] 
+[1.708s]   Could not find a package configuration file provided by
+[1.708s]   "joint_state_publisher_gui" with any of the following names:
+[1.708s] 
+[1.708s]     joint_state_publisher_guiConfig.cmake
+[1.708s]     joint_state_publisher_gui-config.cmake
+[1.708s] 
+[1.709s]   Add the installation prefix of "joint_state_publisher_gui" to
+[1.709s]   CMAKE_PREFIX_PATH or set "joint_state_publisher_gui_DIR" to a directory
+[1.709s]   containing one of the above files.  If "joint_state_publisher_gui" provides
+[1.709s]   a separate development package or SDK, be sure it has been installed.
+[1.709s] 
+[1.709s] [0m
+[1.709s] -- Configuring incomplete, errors occurred!
+[1.709s] See also "/home/openarm/svtrobo_ws/build/chassis/CMakeFiles/CMakeOutput.log".
+[1.721s] Invoked command in '/home/openarm/svtrobo_ws/build/chassis' returned '1': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake /home/openarm/svtrobo_ws/src/chassis -DCMAKE_INSTALL_PREFIX=/home/openarm/svtrobo_ws/install/chassis

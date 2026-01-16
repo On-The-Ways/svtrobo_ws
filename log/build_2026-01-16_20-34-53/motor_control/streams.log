@@ -1,0 +1,33 @@
+[0.024s] Invoking command in '/home/openarm/svtrobo_ws/build/motor_control': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --build /home/openarm/svtrobo_ws/build/motor_control -- -j4 -l4
+[0.188s] [  8%] Built target motor_control__rosidl_generator_c
+[0.199s] [ 11%] Built target motor_control__cpp
+[0.242s] [ 11%] Built target ament_cmake_python_copy_motor_control
+[0.262s] [ 19%] Built target motor_control__rosidl_typesupport_fastrtps_c
+[0.283s] [ 27%] Built target motor_control__rosidl_typesupport_introspection_c
+[0.313s] [ 36%] Built target motor_control__rosidl_typesupport_c
+[0.314s] [ 44%] Built target motor_control__rosidl_typesupport_introspection_cpp
+[0.371s] [ 52%] Built target motor_control__rosidl_typesupport_cpp
+[0.394s] [ 61%] Built target motor_control__rosidl_typesupport_fastrtps_cpp
+[0.446s] [ 61%] Built target motor_control
+[0.484s] [ 69%] Built target motor_control_lib
+[0.498s] [ 72%] Built target motor_control__py
+[0.561s] [ 77%] Built target motor_control__rosidl_generator_py
+[0.576s] [ 80%] [32mBuilding CXX object CMakeFiles/motor_control_test.dir/src/motor_control_test.cpp.o[0m
+[0.635s] [ 86%] Built target motor_control__rosidl_typesupport_fastrtps_c__pyext
+[0.660s] [ 91%] Built target motor_control__rosidl_typesupport_introspection_c__pyext
+[0.706s] [ 97%] Built target motor_control__rosidl_typesupport_c__pyext
+[0.905s] running egg_info
+[0.938s] writing motor_control.egg-info/PKG-INFO
+[0.939s] writing dependency_links to motor_control.egg-info/dependency_links.txt
+[0.946s] writing top-level names to motor_control.egg-info/top_level.txt
+[1.047s] reading manifest file 'motor_control.egg-info/SOURCES.txt'
+[1.055s] writing manifest file 'motor_control.egg-info/SOURCES.txt'
+[1.127s] [ 97%] Built target ament_cmake_python_build_motor_control_egg
+[1.253s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:11:10:[m[K [01;31m[Kfatal error: [m[Kgeometry_msgs/msg/twist.hpp: 没有那个文件或目录
+[1.254s]    11 | #include [01;31m[K<geometry_msgs/msg/twist.hpp>[m[K
+[1.254s]       |          [01;31m[K^~~~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[1.254s] compilation terminated.
+[1.266s] gmake[2]: *** [CMakeFiles/motor_control_test.dir/build.make:76：CMakeFiles/motor_control_test.dir/src/motor_control_test.cpp.o] 错误 1
+[1.267s] gmake[1]: *** [CMakeFiles/Makefile2:623：CMakeFiles/motor_control_test.dir/all] 错误 2
+[1.267s] gmake: *** [Makefile:146：all] 错误 2
+[1.271s] Invoked command in '/home/openarm/svtrobo_ws/build/motor_control' returned '2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --build /home/openarm/svtrobo_ws/build/motor_control -- -j4 -l4

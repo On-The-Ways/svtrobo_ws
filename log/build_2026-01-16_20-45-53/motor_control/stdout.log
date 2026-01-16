@@ -1,0 +1,150 @@
+[  8%] Built target motor_control__rosidl_generator_c
+[ 11%] Built target motor_control__cpp
+[ 11%] Built target ament_cmake_python_copy_motor_control
+[ 19%] Built target motor_control__rosidl_typesupport_introspection_c
+[ 27%] Built target motor_control__rosidl_typesupport_fastrtps_c
+[ 36%] Built target motor_control__rosidl_typesupport_c
+[ 44%] Built target motor_control__rosidl_typesupport_introspection_cpp
+[ 52%] Built target motor_control__rosidl_typesupport_cpp
+[ 61%] Built target motor_control__rosidl_typesupport_fastrtps_cpp
+[ 69%] Built target motor_control_lib
+[ 69%] Built target motor_control
+[ 72%] Built target motor_control__py
+[ 77%] Built target motor_control_test
+[ 83%] Built target motor_control__rosidl_generator_py
+[ 88%] Built target motor_control__rosidl_typesupport_c__pyext
+[ 94%] Built target motor_control__rosidl_typesupport_introspection_c__pyext
+[100%] Built target motor_control__rosidl_typesupport_fastrtps_c__pyext
+running egg_info
+writing motor_control.egg-info/PKG-INFO
+writing dependency_links to motor_control.egg-info/dependency_links.txt
+writing top-level names to motor_control.egg-info/top_level.txt
+reading manifest file 'motor_control.egg-info/SOURCES.txt'
+writing manifest file 'motor_control.egg-info/SOURCES.txt'
+[100%] Built target ament_cmake_python_build_motor_control_egg
+-- Install configuration: ""
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/ament_index/resource_index/rosidl_interfaces/motor_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__functions.c
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__type_support.h
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__functions.h
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__struct.h
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/motor_feedback.h
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/rosidl_generator_c__visibility_control.h
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/library_path.sh
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/library_path.dsv
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_generator_c.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__rosidl_typesupport_fastrtps_c.h
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_fastrtps_c.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__struct.hpp
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__traits.hpp
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__type_support.hpp
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__builder.hpp
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/motor_feedback.hpp
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/rosidl_generator_cpp__visibility_control.hpp
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__rosidl_typesupport_fastrtps_cpp.hpp
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/dds_fastrtps
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_fastrtps_cpp.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__rosidl_typesupport_introspection_c.h
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__type_support.c
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/rosidl_typesupport_introspection_c__visibility_control.h
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_introspection_c.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_c.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__type_support.cpp
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__rosidl_typesupport_introspection_cpp.hpp
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_introspection_cpp.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_cpp.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/pythonpath.sh
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/pythonpath.dsv
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control-2.0.0-py3.10.egg-info
+-- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control-2.0.0-py3.10.egg-info/dependency_links.txt
+-- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control-2.0.0-py3.10.egg-info/top_level.txt
+-- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control-2.0.0-py3.10.egg-info/PKG-INFO
+-- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control-2.0.0-py3.10.egg-info/SOURCES.txt
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/__init__.py
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg/__init__.py
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg/_motor_feedback_s.c
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg/_motor_feedback.py
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/libmotor_control__rosidl_generator_py.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/_motor_control_s.ep.rosidl_typesupport_introspection_c.c
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/_motor_control_s.ep.rosidl_typesupport_fastrtps_c.c
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/_motor_control_s.ep.rosidl_typesupport_c.c
+Listing '/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control'...
+Listing '/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg'...
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_generator_py.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/msg/MotorFeedback.idl
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/msg/MotorFeedback.msg
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control_lib.so
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/motor_control/motor_control_test
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/robstride.h
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_config.h
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/launch
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/launch/motor_test.launch.py
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/ament_index/resource_index/package_run_dependencies/motor_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/ament_index/resource_index/parent_prefix_path/motor_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/ament_prefix_path.sh
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/ament_prefix_path.dsv
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/path.sh
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/path.dsv
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/local_setup.bash
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/local_setup.sh
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/local_setup.zsh
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/local_setup.dsv
+-- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/package.dsv
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/ament_index/resource_index/packages/motor_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_generator_cExport.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_generator_cExport-noconfig.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_typesupport_fastrtps_cExport.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_generator_cppExport.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_typesupport_fastrtps_cppExport.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_introspection_cExport.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_introspection_cExport-noconfig.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_cExport.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_cExport-noconfig.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_introspection_cppExport.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_cppExport.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_cppExport-noconfig.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_generator_pyExport.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_generator_pyExport-noconfig.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/rosidl_cmake-extras.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/ament_cmake_export_dependencies-extras.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/ament_cmake_export_include_directories-extras.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/ament_cmake_export_libraries-extras.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/ament_cmake_export_targets-extras.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_controlConfig.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_controlConfig-version.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/package.xml

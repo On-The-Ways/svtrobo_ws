@@ -1,0 +1,169 @@
+[0.027s] Invoking command in '/home/openarm/svtrobo_ws/build/motor_control': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --build /home/openarm/svtrobo_ws/build/motor_control -- -j4 -l4
+[0.089s] -- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.618s] -- Found rclcpp: 16.0.16 (/opt/ros/humble/share/rclcpp/cmake)
+[0.680s] -- Found rosidl_generator_c: 3.1.7 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.686s] -- Found rosidl_adapter: 3.1.7 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.698s] -- Found rosidl_generator_cpp: 3.1.7 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.725s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.756s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.828s] -- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[0.832s] -- Found rmw_fastrtps_cpp: 6.2.9 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)
+[1.029s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[1.167s] -- Found can_msgs: 2.0.0 (/opt/ros/humble/share/can_msgs/cmake)
+[1.199s] -- Found geometry_msgs: 4.9.0 (/opt/ros/humble/share/geometry_msgs/cmake)
+[1.235s] -- Found rosidl_default_generators: 1.2.0 (/opt/ros/humble/share/rosidl_default_generators/cmake)
+[2.137s] -- Found ament_cmake_ros: 0.10.0 (/opt/ros/humble/share/ament_cmake_ros/cmake)
+[3.451s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[3.994s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[4.092s] -- Found python_cmake_module: 0.10.0 (/opt/ros/humble/share/python_cmake_module/cmake)
+[4.190s] -- Using PYTHON_EXECUTABLE: /usr/bin/python3
+[4.190s] -- Using PYTHON_INCLUDE_DIRS: /usr/include/python3.10
+[4.190s] -- Using PYTHON_LIBRARIES: /usr/lib/x86_64-linux-gnu/libpython3.10.so
+[4.262s] -- Found ament_lint_auto: 0.12.14 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[4.288s] -- Added test 'copyright' to check source files copyright and LICENSE
+[4.296s] -- Added test 'cppcheck' to perform static code analysis on C / C++ code
+[4.298s] -- Configured cppcheck include dirs: /home/openarm/svtrobo_ws/src/robstride_actuator_bridge/include
+[4.299s] -- Configured cppcheck exclude dirs and/or files: 
+[4.304s] -- Added test 'cpplint' to check C / C++ code against the Google style
+[4.305s] -- Configured cpplint exclude dirs and/or files: 
+[4.306s] -- Added test 'flake8' to check Python code syntax and style conventions
+[4.308s] -- Added test 'lint_cmake' to check CMake code style
+[4.309s] -- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+[4.315s] -- Added test 'uncrustify' to check C / C++ code style
+[4.315s] -- Configured uncrustify additional arguments: 
+[4.316s] -- Added test 'xmllint' to check XML markup files
+[4.319s] -- Configuring done
+[4.413s] -- Generating done
+[4.440s] -- Build files have been written to: /home/openarm/svtrobo_ws/build/motor_control
+[4.507s] [35m[1mConsolidate compiler generated dependencies of target motor_control__rosidl_generator_c[0m
+[4.531s] [  2%] Built target motor_control__cpp
+[4.532s] [ 11%] Built target motor_control__rosidl_generator_c
+[4.570s] [35m[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_introspection_cpp[0m
+[4.576s] [35m[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_fastrtps_cpp[0m
+[4.577s] [35m[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_cpp[0m
+[4.579s] [ 11%] Built target ament_cmake_python_copy_motor_control
+[4.628s] [ 19%] Built target motor_control__rosidl_typesupport_introspection_cpp
+[4.628s] [35m[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_fastrtps_c[0m
+[4.631s] [ 27%] Built target motor_control__rosidl_typesupport_cpp
+[4.636s] [35m[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_introspection_c[0m
+[4.637s] [ 36%] Built target motor_control__rosidl_typesupport_fastrtps_cpp
+[4.649s] [ 44%] Built target motor_control__rosidl_typesupport_fastrtps_c
+[4.680s] [ 52%] Built target motor_control__rosidl_typesupport_introspection_c
+[4.694s] [35m[1mConsolidate compiler generated dependencies of target motor_control_lib[0m
+[4.698s] [35m[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_c[0m
+[4.722s] [ 61%] Built target motor_control__rosidl_typesupport_c
+[4.743s] [ 63%] [32mBuilding CXX object CMakeFiles/motor_control_lib.dir/src/motor_config.cpp.o[0m
+[4.745s] [ 66%] [32mBuilding CXX object CMakeFiles/motor_control_lib.dir/src/robstride.cpp.o[0m
+[4.828s] [ 66%] Built target motor_control
+[4.944s] [ 69%] Built target motor_control__py
+[5.002s] [35m[1mConsolidate compiler generated dependencies of target motor_control__rosidl_generator_py[0m
+[5.069s] [ 75%] Built target motor_control__rosidl_generator_py
+[5.128s] [35m[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_fastrtps_c__pyext[0m
+[5.201s] [ 80%] Built target motor_control__rosidl_typesupport_fastrtps_c__pyext
+[5.251s] [35m[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_introspection_c__pyext[0m
+[5.320s] [ 86%] Built target motor_control__rosidl_typesupport_introspection_c__pyext
+[5.372s] [35m[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_c__pyext[0m
+[5.450s] [ 91%] Built target motor_control__rosidl_typesupport_c__pyext
+[5.663s] running egg_info
+[5.723s] writing motor_control.egg-info/PKG-INFO
+[5.723s] writing dependency_links to motor_control.egg-info/dependency_links.txt
+[5.725s] writing top-level names to motor_control.egg-info/top_level.txt
+[5.898s] reading manifest file 'motor_control.egg-info/SOURCES.txt'
+[5.904s] writing manifest file 'motor_control.egg-info/SOURCES.txt'
+[5.995s] [ 91%] Built target ament_cmake_python_build_motor_control_egg
+[23.920s] [ 94%] [32m[1mLinking CXX shared library libmotor_control_lib.so[0m
+[24.898s] [ 94%] Built target motor_control_lib
+[24.917s] [35m[1mConsolidate compiler generated dependencies of target motor_control_test[0m
+[24.950s] [ 97%] [32mBuilding CXX object CMakeFiles/motor_control_test.dir/src/motor_control_test.cpp.o[0m
+[29.451s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:[m[K In function ‘[01m[Kint main(int, char**)[m[K’:
+[29.451s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:141:65:[m[K [01;31m[Kerror: [m[K‘[01m[KInt32[m[K’ is not a member of ‘[01m[Kstd_msgs::msg[m[K’
+[29.451s]   141 |     auto pub_front_left = node->create_publisher<std_msgs::msg::[01;31m[KInt32[m[K>("/front_left_cmd", 10);
+[29.451s]       |                                                                 [01;31m[K^~~~~[m[K
+[29.451s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:141:71:[m[K [01;31m[Kerror: [m[Kno matching function for call to ‘[01m[Krclcpp::Node::create_publisher<<expression error> >(const char [16], int)[m[K’
+[29.451s]   141 |     auto pub_front_left = [01;31m[Knode->create_publisher<std_msgs::msg::Int32>("/front_left_cmd", 10)[m[K;
+[29.451s]       |                           [01;31m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~[m[K
+[29.451s] In file included from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executors/single_threaded_executor.hpp:28[m[K,
+[29.452s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executors.hpp:22[m[K,
+[29.452s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/rclcpp.hpp:155[m[K,
+[29.452s]                  from [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:7[m[K:
+[29.453s] [01m[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Ktemplate<class MessageT, class AllocatorT, class PublisherT> std::shared_ptr<PublisherT> rclcpp::Node::create_publisher(const string&, const rclcpp::QoS&, const rclcpp::PublisherOptionsWithAllocator<AllocatorT>&)[m[K’
+[29.453s]   195 |   [01;36m[Kcreate_publisher[m[K(
+[29.453s]       |   [01;36m[K^~~~~~~~~~~~~~~~[m[K
+[29.453s] [01m[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:[m[K [01;36m[Knote: [m[K  template argument deduction/substitution failed:
+[29.454s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:141:71:[m[K [01;31m[Kerror: [m[Ktemplate argument 1 is invalid
+[29.454s]   141 |     auto pub_front_left = [01;31m[Knode->create_publisher<std_msgs::msg::Int32>("/front_left_cmd", 10)[m[K;
+[29.454s]       |                           [01;31m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~[m[K
+[29.454s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:142:66:[m[K [01;31m[Kerror: [m[K‘[01m[KInt32[m[K’ is not a member of ‘[01m[Kstd_msgs::msg[m[K’
+[29.455s]   142 |     auto pub_front_right = node->create_publisher<std_msgs::msg::[01;31m[KInt32[m[K>("/front_right_cmd", 10);
+[29.455s]       |                                                                  [01;31m[K^~~~~[m[K
+[29.455s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:142:72:[m[K [01;31m[Kerror: [m[Kno matching function for call to ‘[01m[Krclcpp::Node::create_publisher<<expression error> >(const char [17], int)[m[K’
+[29.455s]   142 |     auto pub_front_right = [01;31m[Knode->create_publisher<std_msgs::msg::Int32>("/front_right_cmd", 10)[m[K;
+[29.455s]       |                            [01;31m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[29.455s] In file included from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executors/single_threaded_executor.hpp:28[m[K,
+[29.456s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executors.hpp:22[m[K,
+[29.456s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/rclcpp.hpp:155[m[K,
+[29.456s]                  from [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:7[m[K:
+[29.456s] [01m[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Ktemplate<class MessageT, class AllocatorT, class PublisherT> std::shared_ptr<PublisherT> rclcpp::Node::create_publisher(const string&, const rclcpp::QoS&, const rclcpp::PublisherOptionsWithAllocator<AllocatorT>&)[m[K’
+[29.456s]   195 |   [01;36m[Kcreate_publisher[m[K(
+[29.456s]       |   [01;36m[K^~~~~~~~~~~~~~~~[m[K
+[29.456s] [01m[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:[m[K [01;36m[Knote: [m[K  template argument deduction/substitution failed:
+[29.456s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:142:72:[m[K [01;31m[Kerror: [m[Ktemplate argument 1 is invalid
+[29.457s]   142 |     auto pub_front_right = [01;31m[Knode->create_publisher<std_msgs::msg::Int32>("/front_right_cmd", 10)[m[K;
+[29.457s]       |                            [01;31m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[29.457s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:143:64:[m[K [01;31m[Kerror: [m[K‘[01m[KInt32[m[K’ is not a member of ‘[01m[Kstd_msgs::msg[m[K’
+[29.457s]   143 |     auto pub_rear_left = node->create_publisher<std_msgs::msg::[01;31m[KInt32[m[K>("/rear_left_cmd", 10);
+[29.457s]       |                                                                [01;31m[K^~~~~[m[K
+[29.457s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:143:70:[m[K [01;31m[Kerror: [m[Kno matching function for call to ‘[01m[Krclcpp::Node::create_publisher<<expression error> >(const char [15], int)[m[K’
+[29.457s]   143 |     auto pub_rear_left = [01;31m[Knode->create_publisher<std_msgs::msg::Int32>("/rear_left_cmd", 10)[m[K;
+[29.457s]       |                          [01;31m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~[m[K
+[29.457s] In file included from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executors/single_threaded_executor.hpp:28[m[K,
+[29.458s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executors.hpp:22[m[K,
+[29.458s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/rclcpp.hpp:155[m[K,
+[29.458s]                  from [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:7[m[K:
+[29.458s] [01m[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Ktemplate<class MessageT, class AllocatorT, class PublisherT> std::shared_ptr<PublisherT> rclcpp::Node::create_publisher(const string&, const rclcpp::QoS&, const rclcpp::PublisherOptionsWithAllocator<AllocatorT>&)[m[K’
+[29.458s]   195 |   [01;36m[Kcreate_publisher[m[K(
+[29.458s]       |   [01;36m[K^~~~~~~~~~~~~~~~[m[K
+[29.458s] [01m[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:[m[K [01;36m[Knote: [m[K  template argument deduction/substitution failed:
+[29.458s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:143:70:[m[K [01;31m[Kerror: [m[Ktemplate argument 1 is invalid
+[29.458s]   143 |     auto pub_rear_left = [01;31m[Knode->create_publisher<std_msgs::msg::Int32>("/rear_left_cmd", 10)[m[K;
+[29.458s]       |                          [01;31m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~[m[K
+[29.459s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:144:65:[m[K [01;31m[Kerror: [m[K‘[01m[KInt32[m[K’ is not a member of ‘[01m[Kstd_msgs::msg[m[K’
+[29.459s]   144 |     auto pub_rear_right = node->create_publisher<std_msgs::msg::[01;31m[KInt32[m[K>("/rear_right_cmd", 10);
+[29.459s]       |                                                                 [01;31m[K^~~~~[m[K
+[29.459s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:144:71:[m[K [01;31m[Kerror: [m[Kno matching function for call to ‘[01m[Krclcpp::Node::create_publisher<<expression error> >(const char [16], int)[m[K’
+[29.459s]   144 |     auto pub_rear_right = [01;31m[Knode->create_publisher<std_msgs::msg::Int32>("/rear_right_cmd", 10)[m[K;
+[29.459s]       |                           [01;31m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~[m[K
+[29.459s] In file included from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executors/single_threaded_executor.hpp:28[m[K,
+[29.459s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/executors.hpp:22[m[K,
+[29.459s]                  from [01m[K/opt/ros/humble/include/rclcpp/rclcpp/rclcpp.hpp:155[m[K,
+[29.459s]                  from [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:7[m[K:
+[29.459s] [01m[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Ktemplate<class MessageT, class AllocatorT, class PublisherT> std::shared_ptr<PublisherT> rclcpp::Node::create_publisher(const string&, const rclcpp::QoS&, const rclcpp::PublisherOptionsWithAllocator<AllocatorT>&)[m[K’
+[29.459s]   195 |   [01;36m[Kcreate_publisher[m[K(
+[29.460s]       |   [01;36m[K^~~~~~~~~~~~~~~~[m[K
+[29.460s] [01m[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:[m[K [01;36m[Knote: [m[K  template argument deduction/substitution failed:
+[29.460s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:144:71:[m[K [01;31m[Kerror: [m[Ktemplate argument 1 is invalid
+[29.460s]   144 |     auto pub_rear_right = [01;31m[Knode->create_publisher<std_msgs::msg::Int32>("/rear_right_cmd", 10)[m[K;
+[29.460s]       |                           [01;31m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~[m[K
+[29.461s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:166:24:[m[K [01;31m[Kerror: [m[K‘[01m[KInt32[m[K’ is not a member of ‘[01m[Kstd_msgs::msg[m[K’
+[29.461s]   166 |         std_msgs::msg::[01;31m[KInt32[m[K fl_msg, fr_msg, rl_msg, rr_msg;
+[29.461s]       |                        [01;31m[K^~~~~[m[K
+[29.466s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:167:9:[m[K [01;31m[Kerror: [m[K‘[01m[Kfl_msg[m[K’ was not declared in this scope
+[29.466s]   167 |         [01;31m[Kfl_msg[m[K.data = static_cast<int32_t>(chassis_control_para.front_left_speed);
+[29.466s]       |         [01;31m[K^~~~~~[m[K
+[29.470s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:168:9:[m[K [01;31m[Kerror: [m[K‘[01m[Kfr_msg[m[K’ was not declared in this scope
+[29.470s]   168 |         [01;31m[Kfr_msg[m[K.data = static_cast<int32_t>(chassis_control_para.front_right_speed);
+[29.470s]       |         [01;31m[K^~~~~~[m[K
+[29.476s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:169:9:[m[K [01;31m[Kerror: [m[K‘[01m[Krl_msg[m[K’ was not declared in this scope
+[29.476s]   169 |         [01;31m[Krl_msg[m[K.data = static_cast<int32_t>(chassis_control_para.rear_left_speed);
+[29.476s]       |         [01;31m[K^~~~~~[m[K
+[29.482s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:170:9:[m[K [01;31m[Kerror: [m[K‘[01m[Krr_msg[m[K’ was not declared in this scope
+[29.482s]   170 |         [01;31m[Krr_msg[m[K.data = static_cast<int32_t>(chassis_control_para.rear_right_speed);
+[29.482s]       |         [01;31m[K^~~~~~[m[K
+[33.721s] In file included from [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:12[m[K:
+[33.722s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/include/motor_control/motor_config.h:[m[K In member function ‘[01m[KRobStrite_Motor& MotorControlSet::getMotor(uint8_t)[m[K’:
+[33.722s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/include/motor_control/motor_config.h:80:17:[m[K [01;35m[Kwarning: [m[Kcontrol reaches end of non-void function [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreturn-type-Wreturn-type]8;;[m[K]
+[33.722s]    80 |                 [01;35m[K}[m[K
+[33.722s]       |                 [01;35m[K^[m[K
+[33.793s] gmake[2]: *** [CMakeFiles/motor_control_test.dir/build.make:76：CMakeFiles/motor_control_test.dir/src/motor_control_test.cpp.o] 错误 1
+[33.793s] gmake[1]: *** [CMakeFiles/Makefile2:623：CMakeFiles/motor_control_test.dir/all] 错误 2
+[33.794s] gmake: *** [Makefile:146：all] 错误 2

@@ -1,0 +1,6 @@
+[35m[1mConsolidate compiler generated dependencies of target lift_RS485_control[0m
+[ 16%] [32mBuilding CXX object CMakeFiles/lift_RS485_control.dir/src/lift_RS485_control.cpp.o[0m
+[ 50%] Built target zlac8015d_canopen_node
+[ 83%] Built target zlac8015d_rpm_node
+[100%] [32m[1mLinking CXX executable lift_RS485_control[0m
+[100%] Built target lift_RS485_control

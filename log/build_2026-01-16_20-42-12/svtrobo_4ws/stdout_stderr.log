@@ -1,0 +1,33 @@
+[35m[1mConsolidate compiler generated dependencies of target lift_RS485_control[0m
+[ 33%] Built target zlac8015d_rpm_node
+[ 66%] Built target lift_RS485_control
+[100%] Built target zlac8015d_canopen_node
+-- Install configuration: ""
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/zlac8015d_rpm_node
+-- Set runtime path of "/home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/zlac8015d_rpm_node" to ""
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/zlac8015d_canopen_node
+-- Set runtime path of "/home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/zlac8015d_canopen_node" to ""
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/lift_RS485_control
+-- Set runtime path of "/home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/lift_RS485_control" to ""
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/output_4s.py
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/canfd_init.bash
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/launch
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/launch/svtrobo_bringup.launch.py
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/scripts
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/scripts/output_4s.py
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/scripts/canfd_init.bash
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/ament_index/resource_index/package_run_dependencies/svtrobo_4ws
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/ament_index/resource_index/parent_prefix_path/svtrobo_4ws
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/environment/ament_prefix_path.sh
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/environment/ament_prefix_path.dsv
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/environment/path.sh
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/environment/path.dsv
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/local_setup.bash
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/local_setup.sh
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/local_setup.zsh
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/local_setup.dsv
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/package.dsv
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/ament_index/resource_index/packages/svtrobo_4ws
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/cmake/svtrobo_4wsConfig.cmake
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/cmake/svtrobo_4wsConfig-version.cmake
+-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/package.xml

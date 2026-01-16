@@ -1,0 +1,400 @@
+[0.000000] (-) TimerEvent: {}
+[0.000309] (chassis) JobQueued: {'identifier': 'chassis', 'dependencies': OrderedDict()}
+[0.000428] (motor_control) JobQueued: {'identifier': 'motor_control', 'dependencies': OrderedDict()}
+[0.000503] (svtrobo_4ws) JobQueued: {'identifier': 'svtrobo_4ws', 'dependencies': OrderedDict()}
+[0.001553] (chassis) JobStarted: {'identifier': 'chassis'}
+[0.013970] (motor_control) JobStarted: {'identifier': 'motor_control'}
+[0.024026] (svtrobo_4ws) JobStarted: {'identifier': 'svtrobo_4ws'}
+[0.037489] (chassis) JobProgress: {'identifier': 'chassis', 'progress': 'cmake'}
+[0.038853] (chassis) Command: {'cmd': ['/usr/bin/cmake', '/home/openarm/svtrobo_ws/src/chassis', '-DCMAKE_INSTALL_PREFIX=/home/openarm/svtrobo_ws/install/chassis'], 'cwd': '/home/openarm/svtrobo_ws/build/chassis', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'zh_CN:zh'), ('USER', 'openarm'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/openarm/ros2_ws/install/openarm_hardware/lib:/home/openarm/ros2_ws/install/openarm_can/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/openarm'), ('DESKTOP_SESSION', 'ubuntu-xorg'), ('NVM_BIN', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin'), ('NVM_INC', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/include/node'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('DBUS_STARTER_BUS_TYPE', 'session'), ('SYSTEMD_EXEC_PID', '15134'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus,guid=c4d4ae53492655c8a77b9c916969bb4c'), ('COLORTERM', 'truecolor'), ('NVM_DIR', '/home/openarm/.nvm/nvm-0.38.0'), ('MANDATORY_PATH', '/usr/share/gconf/ubuntu-xorg.mandatory.path'), ('COLCON_PREFIX_PATH', '/home/openarm/ros2_ws/install'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'openarm'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('DEFAULTS_PATH', '/usr/share/gconf/ubuntu-xorg.default.path'), ('USERNAME', 'openarm'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin:/opt/ros/humble/bin:/home/openarm/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/openarm:@/tmp/.ICE-unix/15134,unix/openarm:/tmp/.ICE-unix/15134'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/c7183a01_c87a_4f92_b658_43a8f8dd14f3'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('LANG', 'zh_CN.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu-xorg'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.145'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/openarm/ros2_ws/install/qnbot_teleoperator:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu-xorg'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/openarm/svtrobo_ws/build/chassis'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu-xorg:/etc/xdg'), ('NVM_CD_FLAGS', ''), ('DBUS_STARTER_ADDRESS', 'unix:path=/run/user/1000/bus,guid=c4d4ae53492655c8a77b9c916969bb4c'), ('XDG_DATA_DIRS', '/usr/share/ubuntu-xorg:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/openarm/ros2_ws/install/qnbot_teleoperator/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble')]), 'shell': False}
+[0.044837] (motor_control) JobProgress: {'identifier': 'motor_control', 'progress': 'cmake'}
+[0.045891] (motor_control) JobProgress: {'identifier': 'motor_control', 'progress': 'build'}
+[0.047810] (motor_control) Command: {'cmd': ['/usr/bin/cmake', '--build', '/home/openarm/svtrobo_ws/build/motor_control', '--', '-j4', '-l4'], 'cwd': '/home/openarm/svtrobo_ws/build/motor_control', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'zh_CN:zh'), ('USER', 'openarm'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/openarm/ros2_ws/install/openarm_hardware/lib:/home/openarm/ros2_ws/install/openarm_can/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/openarm'), ('DESKTOP_SESSION', 'ubuntu-xorg'), ('NVM_BIN', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin'), ('NVM_INC', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/include/node'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('DBUS_STARTER_BUS_TYPE', 'session'), ('SYSTEMD_EXEC_PID', '15134'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus,guid=c4d4ae53492655c8a77b9c916969bb4c'), ('COLORTERM', 'truecolor'), ('NVM_DIR', '/home/openarm/.nvm/nvm-0.38.0'), ('MANDATORY_PATH', '/usr/share/gconf/ubuntu-xorg.mandatory.path'), ('COLCON_PREFIX_PATH', '/home/openarm/ros2_ws/install'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'openarm'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('DEFAULTS_PATH', '/usr/share/gconf/ubuntu-xorg.default.path'), ('USERNAME', 'openarm'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin:/opt/ros/humble/bin:/home/openarm/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/openarm:@/tmp/.ICE-unix/15134,unix/openarm:/tmp/.ICE-unix/15134'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/c7183a01_c87a_4f92_b658_43a8f8dd14f3'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('LANG', 'zh_CN.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu-xorg'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.145'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/openarm/ros2_ws/install/qnbot_teleoperator:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu-xorg'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/openarm/svtrobo_ws/build/motor_control'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu-xorg:/etc/xdg'), ('NVM_CD_FLAGS', ''), ('DBUS_STARTER_ADDRESS', 'unix:path=/run/user/1000/bus,guid=c4d4ae53492655c8a77b9c916969bb4c'), ('XDG_DATA_DIRS', '/usr/share/ubuntu-xorg:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/openarm/ros2_ws/install/qnbot_teleoperator/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble')]), 'shell': False}
+[0.054843] (svtrobo_4ws) JobProgress: {'identifier': 'svtrobo_4ws', 'progress': 'cmake'}
+[0.056236] (svtrobo_4ws) JobProgress: {'identifier': 'svtrobo_4ws', 'progress': 'build'}
+[0.057124] (svtrobo_4ws) Command: {'cmd': ['/usr/bin/cmake', '--build', '/home/openarm/svtrobo_ws/build/svtrobo_4ws', '--', '-j4', '-l4'], 'cwd': '/home/openarm/svtrobo_ws/build/svtrobo_4ws', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'zh_CN:zh'), ('USER', 'openarm'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/openarm/ros2_ws/install/openarm_hardware/lib:/home/openarm/ros2_ws/install/openarm_can/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/openarm'), ('DESKTOP_SESSION', 'ubuntu-xorg'), ('NVM_BIN', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin'), ('NVM_INC', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/include/node'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('DBUS_STARTER_BUS_TYPE', 'session'), ('SYSTEMD_EXEC_PID', '15134'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus,guid=c4d4ae53492655c8a77b9c916969bb4c'), ('COLORTERM', 'truecolor'), ('NVM_DIR', '/home/openarm/.nvm/nvm-0.38.0'), ('MANDATORY_PATH', '/usr/share/gconf/ubuntu-xorg.mandatory.path'), ('COLCON_PREFIX_PATH', '/home/openarm/ros2_ws/install'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'openarm'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('DEFAULTS_PATH', '/usr/share/gconf/ubuntu-xorg.default.path'), ('USERNAME', 'openarm'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin:/opt/ros/humble/bin:/home/openarm/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/openarm:@/tmp/.ICE-unix/15134,unix/openarm:/tmp/.ICE-unix/15134'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/c7183a01_c87a_4f92_b658_43a8f8dd14f3'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('LANG', 'zh_CN.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu-xorg'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.145'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/openarm/ros2_ws/install/qnbot_teleoperator:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu-xorg'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/openarm/svtrobo_ws/build/svtrobo_4ws'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu-xorg:/etc/xdg'), ('NVM_CD_FLAGS', ''), ('DBUS_STARTER_ADDRESS', 'unix:path=/run/user/1000/bus,guid=c4d4ae53492655c8a77b9c916969bb4c'), ('XDG_DATA_DIRS', '/usr/share/ubuntu-xorg:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/openarm/ros2_ws/install/qnbot_teleoperator/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble')]), 'shell': False}
+[0.068442] (chassis) StdoutLine: {'line': b'-- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)\n'}
+[0.099474] (-) TimerEvent: {}
+[0.157522] (motor_control) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target motor_control__rosidl_generator_c\x1b[0m\n'}
+[0.191512] (motor_control) StdoutLine: {'line': b'[  8%] Built target motor_control__rosidl_generator_c\n'}
+[0.201358] (motor_control) StdoutLine: {'line': b'[ 11%] Built target motor_control__cpp\n'}
+[0.201701] (-) TimerEvent: {}
+[0.235803] (motor_control) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_introspection_c\x1b[0m\n'}
+[0.256914] (motor_control) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_c\x1b[0m\n'}
+[0.290707] (motor_control) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_fastrtps_c\x1b[0m\n'}
+[0.301834] (-) TimerEvent: {}
+[0.313672] (motor_control) StdoutLine: {'line': b'[ 11%] Built target ament_cmake_python_copy_motor_control\n'}
+[0.324302] (motor_control) StdoutLine: {'line': b'[ 19%] Built target motor_control__rosidl_typesupport_introspection_c\n'}
+[0.342255] (motor_control) StdoutLine: {'line': b'[ 27%] Built target motor_control__rosidl_typesupport_c\n'}
+[0.354827] (svtrobo_4ws) StdoutLine: {'line': b'[ 16%] \x1b[32mBuilding CXX object CMakeFiles/lift_RS485_control.dir/src/lift_RS485_control.cpp.o\x1b[0m\n'}
+[0.355202] (svtrobo_4ws) StdoutLine: {'line': b'[ 50%] Built target zlac8015d_rpm_node\n'}
+[0.364898] (motor_control) StdoutLine: {'line': b'[ 36%] Built target motor_control__rosidl_typesupport_fastrtps_c\n'}
+[0.380378] (motor_control) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_introspection_cpp\x1b[0m\n'}
+[0.380823] (svtrobo_4ws) StdoutLine: {'line': b'[ 83%] Built target zlac8015d_canopen_node\n'}
+[0.398397] (motor_control) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_fastrtps_cpp\x1b[0m\n'}
+[0.401454] (motor_control) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_cpp\x1b[0m\n'}
+[0.401917] (-) TimerEvent: {}
+[0.441758] (motor_control) StdoutLine: {'line': b'[ 44%] Built target motor_control__rosidl_typesupport_introspection_cpp\n'}
+[0.463949] (motor_control) StdoutLine: {'line': b'[ 52%] Built target motor_control__rosidl_typesupport_fastrtps_cpp\n'}
+[0.470398] (motor_control) StdoutLine: {'line': b'[ 61%] Built target motor_control__rosidl_typesupport_cpp\n'}
+[0.502031] (-) TimerEvent: {}
+[0.515136] (motor_control) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target motor_control_lib\x1b[0m\n'}
+[0.580431] (motor_control) StdoutLine: {'line': b'[ 69%] Built target motor_control_lib\n'}
+[0.596558] (motor_control) StdoutLine: {'line': b'[ 69%] Built target motor_control\n'}
+[0.604280] (-) TimerEvent: {}
+[0.628408] (motor_control) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target motor_control_test\x1b[0m\n'}
+[0.690884] (motor_control) StdoutLine: {'line': b'[ 72%] \x1b[32mBuilding CXX object CMakeFiles/motor_control_test.dir/src/motor_control_test.cpp.o\x1b[0m\n'}
+[0.704386] (-) TimerEvent: {}
+[0.708135] (motor_control) StdoutLine: {'line': b'[ 75%] Built target motor_control__py\n'}
+[0.763467] (motor_control) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target motor_control__rosidl_generator_py\x1b[0m\n'}
+[0.804514] (-) TimerEvent: {}
+[0.829304] (motor_control) StdoutLine: {'line': b'[ 80%] Built target motor_control__rosidl_generator_py\n'}
+[0.851925] (chassis) StdoutLine: {'line': b'-- Found rclcpp: 16.0.16 (/opt/ros/humble/share/rclcpp/cmake)\n'}
+[0.881352] (motor_control) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_fastrtps_c__pyext\x1b[0m\n'}
+[0.893705] (motor_control) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_introspection_c__pyext\x1b[0m\n'}
+[0.906262] (-) TimerEvent: {}
+[0.944528] (motor_control) StdoutLine: {'line': b'[ 86%] Built target motor_control__rosidl_typesupport_fastrtps_c__pyext\n'}
+[0.968270] (chassis) StdoutLine: {'line': b'-- Found rosidl_generator_c: 3.1.7 (/opt/ros/humble/share/rosidl_generator_c/cmake)\n'}
+[0.968585] (motor_control) StdoutLine: {'line': b'[ 91%] Built target motor_control__rosidl_typesupport_introspection_c__pyext\n'}
+[0.974899] (chassis) StdoutLine: {'line': b'-- Found rosidl_adapter: 3.1.7 (/opt/ros/humble/share/rosidl_adapter/cmake)\n'}
+[0.997547] (chassis) StdoutLine: {'line': b'-- Found rosidl_generator_cpp: 3.1.7 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)\n'}
+[1.006371] (-) TimerEvent: {}
+[1.010524] (motor_control) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target motor_control__rosidl_typesupport_c__pyext\x1b[0m\n'}
+[1.034507] (chassis) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c\n'}
+[1.081453] (chassis) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp\n'}
+[1.082237] (motor_control) StdoutLine: {'line': b'[ 97%] Built target motor_control__rosidl_typesupport_c__pyext\n'}
+[1.106561] (-) TimerEvent: {}
+[1.204751] (chassis) StdoutLine: {'line': b'-- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)\n'}
+[1.206637] (-) TimerEvent: {}
+[1.210156] (chassis) StdoutLine: {'line': b'-- Found rmw_fastrtps_cpp: 6.2.9 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)\n'}
+[1.306781] (-) TimerEvent: {}
+[1.330754] (motor_control) StdoutLine: {'line': b'running egg_info\n'}
+[1.386148] (motor_control) StdoutLine: {'line': b'writing motor_control.egg-info/PKG-INFO\n'}
+[1.387370] (motor_control) StdoutLine: {'line': b'writing dependency_links to motor_control.egg-info/dependency_links.txt\n'}
+[1.390259] (motor_control) StdoutLine: {'line': b'writing top-level names to motor_control.egg-info/top_level.txt\n'}
+[1.406907] (-) TimerEvent: {}
+[1.507483] (-) TimerEvent: {}
+[1.543679] (chassis) StdoutLine: {'line': b"-- Using RMW implementation 'rmw_fastrtps_cpp' as default\n"}
+[1.563714] (motor_control) StdoutLine: {'line': b"reading manifest file 'motor_control.egg-info/SOURCES.txt'\n"}
+[1.569426] (motor_control) StdoutLine: {'line': b"writing manifest file 'motor_control.egg-info/SOURCES.txt'\n"}
+[1.607704] (-) TimerEvent: {}
+[1.670151] (motor_control) StdoutLine: {'line': b'[ 97%] Built target ament_cmake_python_build_motor_control_egg\n'}
+[1.708368] (-) TimerEvent: {}
+[1.733163] (chassis) StdoutLine: {'line': b'-- Found urdf: 2.6.1 (/opt/ros/humble/share/urdf/cmake)\n'}
+[1.788918] (chassis) StdoutLine: {'line': b'-- Found robot_state_publisher: 3.0.3 (/opt/ros/humble/share/robot_state_publisher/cmake)\n'}
+[1.808508] (-) TimerEvent: {}
+[1.837629] (chassis) StdoutLine: {'line': b'-- Found eigen3_cmake_module: 0.1.1 (/opt/ros/humble/share/eigen3_cmake_module/cmake)\n'}
+[1.838636] (chassis) StdoutLine: {'line': b'-- Ensuring Eigen3 include directory is part of orocos-kdl CMake target\n'}
+[1.908634] (-) TimerEvent: {}
+[2.009267] (-) TimerEvent: {}
+[2.109938] (-) TimerEvent: {}
+[2.212291] (-) TimerEvent: {}
+[2.222104] (chassis) StderrLine: {'line': b'\x1b[31mCMake Error at CMakeLists.txt:19 (find_package):\n'}
+[2.222473] (chassis) StderrLine: {'line': b'  By not providing "Findjoint_state_publisher.cmake" in CMAKE_MODULE_PATH\n'}
+[2.222666] (chassis) StderrLine: {'line': b'  this project has asked CMake to find a package configuration file provided\n'}
+[2.223304] (chassis) StderrLine: {'line': b'  by "joint_state_publisher", but CMake did not find one.\n'}
+[2.224084] (chassis) StderrLine: {'line': b'\n'}
+[2.224310] (chassis) StderrLine: {'line': b'  Could not find a package configuration file provided by\n'}
+[2.224552] (chassis) StderrLine: {'line': b'  "joint_state_publisher" with any of the following names:\n'}
+[2.224797] (chassis) StderrLine: {'line': b'\n'}
+[2.224973] (chassis) StderrLine: {'line': b'    joint_state_publisherConfig.cmake\n'}
+[2.225149] (chassis) StderrLine: {'line': b'    joint_state_publisher-config.cmake\n'}
+[2.225326] (chassis) StderrLine: {'line': b'\n'}
+[2.225481] (chassis) StderrLine: {'line': b'  Add the installation prefix of "joint_state_publisher" to CMAKE_PREFIX_PATH\n'}
+[2.225642] (chassis) StderrLine: {'line': b'  or set "joint_state_publisher_DIR" to a directory containing one of the\n'}
+[2.225801] (chassis) StderrLine: {'line': b'  above files.  If "joint_state_publisher" provides a separate development\n'}
+[2.226090] (chassis) StderrLine: {'line': b'  package or SDK, be sure it has been installed.\n'}
+[2.226290] (chassis) StderrLine: {'line': b'\n'}
+[2.226610] (chassis) StdoutLine: {'line': b'-- Configuring incomplete, errors occurred!\n'}
+[2.226798] (chassis) StdoutLine: {'line': b'See also "/home/openarm/svtrobo_ws/build/chassis/CMakeFiles/CMakeOutput.log".\n'}
+[2.226969] (chassis) StderrLine: {'line': b'\x1b[0m\n'}
+[2.246509] (chassis) CommandEnded: {'returncode': 1}
+[2.303650] (chassis) JobEnded: {'identifier': 'chassis', 'rc': 1}
+[2.312405] (-) TimerEvent: {}
+[2.412982] (-) TimerEvent: {}
+[2.513427] (-) TimerEvent: {}
+[2.614153] (-) TimerEvent: {}
+[2.717402] (-) TimerEvent: {}
+[2.817874] (-) TimerEvent: {}
+[2.919521] (-) TimerEvent: {}
+[3.020178] (-) TimerEvent: {}
+[3.120652] (-) TimerEvent: {}
+[3.221392] (-) TimerEvent: {}
+[3.321791] (-) TimerEvent: {}
+[3.422343] (-) TimerEvent: {}
+[3.522731] (-) TimerEvent: {}
+[3.623499] (-) TimerEvent: {}
+[3.723923] (-) TimerEvent: {}
+[3.824363] (-) TimerEvent: {}
+[3.924752] (-) TimerEvent: {}
+[4.025171] (-) TimerEvent: {}
+[4.125601] (-) TimerEvent: {}
+[4.225995] (-) TimerEvent: {}
+[4.326393] (-) TimerEvent: {}
+[4.427100] (-) TimerEvent: {}
+[4.527741] (-) TimerEvent: {}
+[4.630341] (-) TimerEvent: {}
+[4.730869] (-) TimerEvent: {}
+[4.831270] (-) TimerEvent: {}
+[4.931667] (-) TimerEvent: {}
+[5.032105] (-) TimerEvent: {}
+[5.132648] (-) TimerEvent: {}
+[5.233061] (-) TimerEvent: {}
+[5.333465] (-) TimerEvent: {}
+[5.433921] (-) TimerEvent: {}
+[5.534260] (-) TimerEvent: {}
+[5.634636] (-) TimerEvent: {}
+[5.735011] (-) TimerEvent: {}
+[5.835630] (-) TimerEvent: {}
+[5.936030] (-) TimerEvent: {}
+[5.961263] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:\x1b[m\x1b[K In member function \xe2\x80\x98\x1b[01m\x1b[Kbool MotorController::write_all(const uint8_t*, size_t, int)\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[5.961575] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:68:17:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[5.961750] (svtrobo_4ws) StderrLine: {'line': b'   68 |                 \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe4\xb8\xb2\xe5\x8f\xa3\xe5\x86\x99\xe7\xad\x89\xe5\xbe\x85\xe8\xb6\x85\xe6\x97\xb6\xe6\x88\x96\xe5\x87\xba\xe9\x94\x99: %s", rv == 0 ? "timeout" : strerror(errno));\n'}
+[5.961912] (svtrobo_4ws) StderrLine: {'line': b'      |                 \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[5.975419] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:74:17:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[5.975702] (svtrobo_4ws) StderrLine: {'line': b'   74 |                 \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe4\xb8\xb2\xe5\x8f\xa3\xe5\x86\x99\xe5\x85\xa5\xe5\xa4\xb1\xe8\xb4\xa5: %s", strerror(errno));\n'}
+[5.975872] (svtrobo_4ws) StderrLine: {'line': b'      |                 \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[5.986911] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:\x1b[m\x1b[K In member function \xe2\x80\x98\x1b[01m\x1b[Kssize_t MotorController::read_exact(uint8_t*, size_t, int)\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[5.987213] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:96:17:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[5.987405] (svtrobo_4ws) StderrLine: {'line': b'   96 |                 \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe4\xb8\xb2\xe5\x8f\xa3 poll \xe5\x87\xba\xe9\x94\x99: %s", strerror(errno));\n'}
+[5.987566] (svtrobo_4ws) StderrLine: {'line': b'      |                 \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[5.998223] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:104:21:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[5.998536] (svtrobo_4ws) StderrLine: {'line': b'  104 |                     \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe4\xb8\xb2\xe5\x8f\xa3\xe8\xaf\xbb\xe5\x8f\x96\xe5\xa4\xb1\xe8\xb4\xa5: %s", strerror(errno));\n'}
+[5.998876] (svtrobo_4ws) StderrLine: {'line': b'      |                     \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.015352] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:\x1b[m\x1b[K In member function \xe2\x80\x98\x1b[01m\x1b[Kbool MotorController::set_serial_config()\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[6.022994] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:120:13:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.023268] (svtrobo_4ws) StderrLine: {'line': b'  120 |             \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("tcgetattr \xe5\xa4\xb1\xe8\xb4\xa5: %s", strerror(errno));\n'}
+[6.023447] (svtrobo_4ws) StderrLine: {'line': b'      |             \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.029782] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:126:13:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.030069] (svtrobo_4ws) StderrLine: {'line': b'  126 |             \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe8\xae\xbe\xe7\xbd\xae\xe6\xb3\xa2\xe7\x89\xb9\xe7\x8e\x87\xe5\xa4\xb1\xe8\xb4\xa5");\n'}
+[6.030252] (svtrobo_4ws) StderrLine: {'line': b'      |             \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.036392] (-) TimerEvent: {}
+[6.041838] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:142:13:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.042123] (svtrobo_4ws) StderrLine: {'line': b'  142 |             \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("tcsetattr \xe5\xa4\xb1\xe8\xb4\xa5: %s", strerror(errno));\n'}
+[6.042336] (svtrobo_4ws) StderrLine: {'line': b'      |             \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.053377] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:\x1b[m\x1b[K In member function \xe2\x80\x98\x1b[01m\x1b[Kbool MotorController::write_reg_locked(uint16_t, int16_t)\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[6.053655] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:163:13:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.053830] (svtrobo_4ws) StderrLine: {'line': b'  163 |             \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe5\xaf\x84\xe5\xad\x98\xe5\x99\xa8\xe5\x86\x99\xe5\x85\xa5\xe8\xaf\xb7\xe6\xb1\x82\xe5\x8f\x91\xe9\x80\x81\xe5\xa4\xb1\xe8\xb4\xa5\xef\xbc\x88\xe5\x9c\xb0\xe5\x9d\x800x%X\xef\xbc\x89", reg_addr);\n'}
+[6.053986] (svtrobo_4ws) StderrLine: {'line': b'      |             \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.068301] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:170:13:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.068779] (svtrobo_4ws) StderrLine: {'line': b'  170 |             \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe5\xaf\x84\xe5\xad\x98\xe5\x99\xa8\xe5\x86\x99\xe5\x85\xa5\xe5\x93\x8d\xe5\xba\x94\xe8\xb6\x85\xe6\x97\xb6\xe6\x88\x96\xe9\x95\xbf\xe5\xba\xa6\xe4\xb8\x8d\xe7\xac\xa6\xef\xbc\x88\xe6\x9c\x9f\xe6\x9c\x9b8\xef\xbc\x8c\xe5\xae\x9e\xe9\x99\x85%zd\xef\xbc\x89", got);\n'}
+[6.069095] (svtrobo_4ws) StderrLine: {'line': b'      |             \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.082821] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:175:17:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.083102] (svtrobo_4ws) StderrLine: {'line': b'  175 |                 \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe5\x86\x99\xe5\xaf\x84\xe5\xad\x98\xe5\x99\xa8\xe5\xbc\x82\xe5\xb8\xb8\xe5\x93\x8d\xe5\xba\x94\xef\xbc\x8c\xe9\x94\x99\xe8\xaf\xaf\xe7\xa0\x810x%X", (int)resp[2]);\n'}
+[6.083328] (svtrobo_4ws) StderrLine: {'line': b'      |                 \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.094039] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:177:17:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.094381] (svtrobo_4ws) StderrLine: {'line': b'  177 |                 \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe5\xaf\x84\xe5\xad\x98\xe5\x99\xa8\xe5\x86\x99\xe5\x85\xa5\xe5\x93\x8d\xe5\xba\x94\xe6\xa0\xbc\xe5\xbc\x8f\xe9\x94\x99\xe8\xaf\xaf");\n'}
+[6.094549] (svtrobo_4ws) StderrLine: {'line': b'      |                 \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.106213] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:\x1b[m\x1b[K In member function \xe2\x80\x98\x1b[01m\x1b[Kbool MotorController::check_error(uint16_t&)\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[6.106541] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:206:13:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.106801] (svtrobo_4ws) StderrLine: {'line': b'  206 |             \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe6\x95\x85\xe9\x9a\x9c\xe7\xa0\x81\xe8\xaf\xb7\xe6\xb1\x82\xe5\x8f\x91\xe9\x80\x81\xe5\xa4\xb1\xe8\xb4\xa5");\n'}
+[6.106970] (svtrobo_4ws) StderrLine: {'line': b'      |             \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.124956] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:213:13:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.125324] (svtrobo_4ws) StderrLine: {'line': b'  213 |             \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe6\x95\x85\xe9\x9a\x9c\xe7\xa0\x81\xe5\x93\x8d\xe5\xba\x94\xe8\xb6\x85\xe6\x97\xb6\xe6\x88\x96\xe5\x87\xba\xe9\x94\x99\xef\xbc\x88len=%zd\xef\xbc\x89", got);\n'}
+[6.125531] (svtrobo_4ws) StderrLine: {'line': b'      |             \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.136559] (-) TimerEvent: {}
+[6.138775] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:218:17:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.139060] (svtrobo_4ws) StderrLine: {'line': b'  218 |                 \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe6\x95\x85\xe9\x9a\x9c\xe7\xa0\x81\xe5\x93\x8d\xe5\xba\x94\xe9\x95\xbf\xe5\xba\xa6\xe4\xb8\x8d\xe8\xb6\xb3\xef\xbc\x88%zd\xef\xbc\x89", got);\n'}
+[6.139290] (svtrobo_4ws) StderrLine: {'line': b'      |                 \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.150337] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:224:13:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.150612] (svtrobo_4ws) StderrLine: {'line': b'  224 |             \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe8\xaf\xbb\xe5\x8f\x96\xe6\x95\x85\xe9\x9a\x9c\xe7\xa0\x81\xe8\xa2\xab\xe6\x8b\x92\xe7\xbb\x9d\xef\xbc\x8c\xe5\xbc\x82\xe5\xb8\xb8\xe7\xa0\x810x%X", resp[2]);\n'}
+[6.150778] (svtrobo_4ws) StderrLine: {'line': b'      |             \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.161003] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:227:13:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.161318] (svtrobo_4ws) StderrLine: {'line': b'  227 |             \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe6\x9c\xaa\xe7\x9f\xa5\xe6\x95\x85\xe9\x9a\x9c\xe7\xa0\x81\xe5\x93\x8d\xe5\xba\x94\xe5\x87\xbd\xe6\x95\xb0\xe7\xa0\x81: 0x%X", resp[1]);\n'}
+[6.161509] (svtrobo_4ws) StderrLine: {'line': b'      |             \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.175579] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:\x1b[m\x1b[K In member function \xe2\x80\x98\x1b[01m\x1b[Kbool MotorController::read_position(int32_t&)\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[6.175894] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:248:13:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.176076] (svtrobo_4ws) StderrLine: {'line': b'  248 |             \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe4\xbd\x8d\xe7\xbd\xae\xe8\xaf\xbb\xe5\x8f\x96\xe8\xaf\xb7\xe6\xb1\x82\xe5\x8f\x91\xe9\x80\x81\xe5\xa4\xb1\xe8\xb4\xa5");\n'}
+[6.176249] (svtrobo_4ws) StderrLine: {'line': b'      |             \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.194433] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:255:13:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.194797] (svtrobo_4ws) StderrLine: {'line': b'  255 |             \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe4\xbd\x8d\xe7\xbd\xae\xe8\xaf\xbb\xe5\x8f\x96\xe5\x93\x8d\xe5\xba\x94\xe8\xb6\x85\xe6\x97\xb6\xe6\x88\x96\xe5\x87\xba\xe9\x94\x99\xef\xbc\x88len=%zd\xef\xbc\x89", got);\n'}
+[6.194978] (svtrobo_4ws) StderrLine: {'line': b'      |             \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.207096] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:260:17:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.207395] (svtrobo_4ws) StderrLine: {'line': b'  260 |                 \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe4\xbd\x8d\xe7\xbd\xae\xe5\x93\x8d\xe5\xba\x94\xe9\x95\xbf\xe5\xba\xa6\xe4\xb8\x8d\xe8\xb6\xb3\xef\xbc\x88%zd\xef\xbc\x89", got);\n'}
+[6.207567] (svtrobo_4ws) StderrLine: {'line': b'      |                 \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.218509] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:270:13:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.218806] (svtrobo_4ws) StderrLine: {'line': b'  270 |             \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe4\xbd\x8d\xe7\xbd\xae\xe8\xaf\xbb\xe5\x8f\x96\xe5\xbc\x82\xe5\xb8\xb8\xe5\x93\x8d\xe5\xba\x94\xef\xbc\x8c\xe9\x94\x99\xe8\xaf\xaf\xe7\xa0\x810x%X", resp[2]);\n'}
+[6.219103] (svtrobo_4ws) StderrLine: {'line': b'      |             \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.229613] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:273:13:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_ERROR\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.229890] (svtrobo_4ws) StderrLine: {'line': b'  273 |             \x1b[01;31m\x1b[KROS_ERROR\x1b[m\x1b[K("\xe6\x9c\xaa\xe7\x9f\xa5\xe4\xbd\x8d\xe7\xbd\xae\xe5\x93\x8d\xe5\xba\x94\xe5\x87\xbd\xe6\x95\xb0\xe7\xa0\x81: 0x%X", resp[1]);\n'}
+[6.230069] (svtrobo_4ws) StderrLine: {'line': b'      |             \x1b[01;31m\x1b[K^~~~~~~~~\x1b[m\x1b[K\n'}
+[6.236663] (-) TimerEvent: {}
+[6.244296] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:\x1b[m\x1b[K In member function \xe2\x80\x98\x1b[01m\x1b[Kvoid MotorController::emergency_stop_locked()\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[6.245130] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:282:9:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_WARN\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.245345] (svtrobo_4ws) StderrLine: {'line': b'  282 |         \x1b[01;31m\x1b[KROS_WARN\x1b[m\x1b[K("\xe7\x94\xb5\xe6\x9c\xba\xe7\xb4\xa7\xe6\x80\xa5\xe5\x81\x9c\xe6\xad\xa2\xef\xbc\x88\xe5\xb7\xb2\xe5\x8f\x91\xe9\x80\x81\xe6\x96\xad\xe5\xbc\x80\xe4\xbd\xbf\xe8\x83\xbd\xef\xbc\x89");\n'}
+[6.245502] (svtrobo_4ws) StderrLine: {'line': b'      |         \x1b[01;31m\x1b[K^~~~~~~~\x1b[m\x1b[K\n'}
+[6.256506] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:\x1b[m\x1b[K In member function \xe2\x80\x98\x1b[01m\x1b[Kbool MotorController::init_motor_params()\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[6.256787] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:297:9:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_INFO\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.256959] (svtrobo_4ws) StderrLine: {'line': b'  297 |         \x1b[01;31m\x1b[KROS_INFO\x1b[m\x1b[K("\xe5\x88\x9d\xe5\xa7\x8b\xe5\x8c\x96\xe7\x94\xb5\xe6\x9c\xba\xe5\x8f\x82\xe6\x95\xb0...");\n'}
+[6.257139] (svtrobo_4ws) StderrLine: {'line': b'      |         \x1b[01;31m\x1b[K^~~~~~~~\x1b[m\x1b[K\n'}
+[6.271453] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:303:13:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_WARN\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.271766] (svtrobo_4ws) StderrLine: {'line': b'  303 |             \x1b[01;31m\x1b[KROS_WARN\x1b[m\x1b[K("\xe4\xbf\x9d\xe5\xad\x98\xe5\x8f\x82\xe6\x95\xb0\xe5\x88\xb0 EEPROM \xe5\xa4\xb1\xe8\xb4\xa5\xef\xbc\x88\xe9\x9d\x9e\xe8\x87\xb4\xe5\x91\xbd\xef\xbc\x89");\n'}
+[6.271917] (svtrobo_4ws) StderrLine: {'line': b'      |             \x1b[01;31m\x1b[K^~~~~~~~\x1b[m\x1b[K\n'}
+[6.303030] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:81:34:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[Kgeometry_msgs\x1b[m\x1b[K\xe2\x80\x99 does not name a type\n'}
+[6.303623] (motor_control) StderrLine: {'line': b'   81 | void svtrobot_cmd_callback(const \x1b[01;31m\x1b[Kgeometry_msgs\x1b[m\x1b[K::msg::Twist::SharedPtr msg)\n'}
+[6.303798] (motor_control) StderrLine: {'line': b'      |                                  \x1b[01;31m\x1b[K^~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.303945] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:81:52:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Kexpected unqualified-id before \xe2\x80\x98\x1b[01m\x1b[K::\x1b[m\x1b[K\xe2\x80\x99 token\n'}
+[6.304079] (motor_control) StderrLine: {'line': b'   81 | void svtrobot_cmd_callback(const geometry_msgs::msg\x1b[01;31m\x1b[K::\x1b[m\x1b[KTwist::SharedPtr msg)\n'}
+[6.304217] (motor_control) StderrLine: {'line': b'      |                                                    \x1b[01;31m\x1b[K^~\x1b[m\x1b[K\n'}
+[6.304375] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:81:52:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Kexpected \xe2\x80\x98\x1b[01m\x1b[K)\x1b[m\x1b[K\xe2\x80\x99 before \xe2\x80\x98\x1b[01m\x1b[K::\x1b[m\x1b[K\xe2\x80\x99 token\n'}
+[6.304511] (motor_control) StderrLine: {'line': b'   81 | void svtrobot_cmd_callback\x1b[34m\x1b[K(\x1b[m\x1b[Kconst geometry_msgs::msg\x1b[01;31m\x1b[K:\x1b[m\x1b[K\x1b[32m\x1b[K:\x1b[m\x1b[KTwist::SharedPtr msg)\n'}
+[6.304640] (motor_control) StderrLine: {'line': b'      |                           \x1b[34m\x1b[K~\x1b[m\x1b[K                        \x1b[01;31m\x1b[K^\x1b[m\x1b[K\x1b[32m\x1b[K~\x1b[m\x1b[K\n'}
+[6.304785] (motor_control) StderrLine: {'line': b'      |                                                    \x1b[32m\x1b[K)\x1b[m\x1b[K\n'}
+[6.304915] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:81:52:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Kexpected initializer before \xe2\x80\x98\x1b[01m\x1b[K::\x1b[m\x1b[K\xe2\x80\x99 token\n'}
+[6.305101] (motor_control) StderrLine: {'line': b'   81 | void svtrobot_cmd_callback(const geometry_msgs::msg\x1b[01;31m\x1b[K::\x1b[m\x1b[KTwist::SharedPtr msg)\n'}
+[6.305261] (motor_control) StderrLine: {'line': b'      |                                                    \x1b[01;31m\x1b[K^~\x1b[m\x1b[K\n'}
+[6.315700] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:\x1b[m\x1b[K In function \xe2\x80\x98\x1b[01m\x1b[Kint main(int, char**)\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[6.315971] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:137:55:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[Kgeometry_msgs\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.316141] (motor_control) StderrLine: {'line': b'  137 |     auto svtrobot_cmd_sub = node->create_subscription<\x1b[01;31m\x1b[Kgeometry_msgs\x1b[m\x1b[K::msg::Twist>(\n'}
+[6.316287] (motor_control) StderrLine: {'line': b'      |                                                       \x1b[01;31m\x1b[K^~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.316816] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:137:35:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Kparse error in template argument list\n'}
+[6.316981] (motor_control) StderrLine: {'line': b'  137 |     auto svtrobot_cmd_sub = node->\x1b[01;31m\x1b[Kcreate_subscription<geometry_msgs::msg::Twist>\x1b[m\x1b[K(\n'}
+[6.317116] (motor_control) StderrLine: {'line': b'      |                                   \x1b[01;31m\x1b[K^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.317273] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:\x1b[m\x1b[K In destructor \xe2\x80\x98\x1b[01m\x1b[Kvirtual MotorController::~MotorController()\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[6.317421] (svtrobo_4ws) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:412:13:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KROS_INFO\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.317554] (svtrobo_4ws) StderrLine: {'line': b'  412 |             \x1b[01;31m\x1b[KROS_INFO\x1b[m\x1b[K("\xe4\xb8\xb2\xe5\x8f\xa3\xe5\xb7\xb2\xe5\x85\xb3\xe9\x97\xad\xef\xbc\x88\xe6\x9e\x90\xe6\x9e\x84\xef\xbc\x89");\n'}
+[6.317681] (svtrobo_4ws) StderrLine: {'line': b'      |             \x1b[01;31m\x1b[K^~~~~~~~\x1b[m\x1b[K\n'}
+[6.329011] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:138:30:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[Ksvtrobot_cmd_callback\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope; did you mean \xe2\x80\x98\x1b[01m\x1b[Ksvtrobot_cmd_sub\x1b[m\x1b[K\xe2\x80\x99?\n'}
+[6.329458] (motor_control) StderrLine: {'line': b'  138 |         "/svtrobot_cmd", 10, \x1b[01;31m\x1b[Ksvtrobot_cmd_callback\x1b[m\x1b[K);\n'}
+[6.329661] (motor_control) StderrLine: {'line': b'      |                              \x1b[01;31m\x1b[K^~~~~~~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.329860] (motor_control) StderrLine: {'line': b'      |                              \x1b[32m\x1b[Ksvtrobot_cmd_sub\x1b[m\x1b[K\n'}
+[6.330551] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:140:65:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KInt32\x1b[m\x1b[K\xe2\x80\x99 is not a member of \xe2\x80\x98\x1b[01m\x1b[Kstd_msgs::msg\x1b[m\x1b[K\xe2\x80\x99\n'}
+[6.330822] (motor_control) StderrLine: {'line': b'  140 |     auto pub_front_left = node->create_publisher<std_msgs::msg::\x1b[01;31m\x1b[KInt32\x1b[m\x1b[K>("/front_left_cmd", 10);\n'}
+[6.330994] (motor_control) StderrLine: {'line': b'      |                                                                 \x1b[01;31m\x1b[K^~~~~\x1b[m\x1b[K\n'}
+[6.331159] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:140:71:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Kno matching function for call to \xe2\x80\x98\x1b[01m\x1b[Krclcpp::Node::create_publisher<<expression error> >(const char [16], int)\x1b[m\x1b[K\xe2\x80\x99\n'}
+[6.331602] (motor_control) StderrLine: {'line': b'  140 |     auto pub_front_left = \x1b[01;31m\x1b[Knode->create_publisher<std_msgs::msg::Int32>("/front_left_cmd", 10)\x1b[m\x1b[K;\n'}
+[6.331787] (motor_control) StderrLine: {'line': b'      |                           \x1b[01;31m\x1b[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.331944] (motor_control) StderrLine: {'line': b'In file included from \x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/executors/single_threaded_executor.hpp:28\x1b[m\x1b[K,\n'}
+[6.332126] (motor_control) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/executors.hpp:22\x1b[m\x1b[K,\n'}
+[6.332321] (motor_control) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/rclcpp.hpp:155\x1b[m\x1b[K,\n'}
+[6.332482] (motor_control) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:7\x1b[m\x1b[K:\n'}
+[6.332647] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[Kcandidate: \xe2\x80\x98\x1b[01m\x1b[Ktemplate<class MessageT, class AllocatorT, class PublisherT> std::shared_ptr<PublisherT> rclcpp::Node::create_publisher(const string&, const rclcpp::QoS&, const rclcpp::PublisherOptionsWithAllocator<AllocatorT>&)\x1b[m\x1b[K\xe2\x80\x99\n'}
+[6.332833] (motor_control) StderrLine: {'line': b'  195 |   \x1b[01;36m\x1b[Kcreate_publisher\x1b[m\x1b[K(\n'}
+[6.332990] (motor_control) StderrLine: {'line': b'      |   \x1b[01;36m\x1b[K^~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.333139] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[K  template argument deduction/substitution failed:\n'}
+[6.333814] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:140:71:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Ktemplate argument 1 is invalid\n'}
+[6.334702] (motor_control) StderrLine: {'line': b'  140 |     auto pub_front_left = \x1b[01;31m\x1b[Knode->create_publisher<std_msgs::msg::Int32>("/front_left_cmd", 10)\x1b[m\x1b[K;\n'}
+[6.335008] (motor_control) StderrLine: {'line': b'      |                           \x1b[01;31m\x1b[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.335213] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:141:66:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KInt32\x1b[m\x1b[K\xe2\x80\x99 is not a member of \xe2\x80\x98\x1b[01m\x1b[Kstd_msgs::msg\x1b[m\x1b[K\xe2\x80\x99\n'}
+[6.335420] (motor_control) StderrLine: {'line': b'  141 |     auto pub_front_right = node->create_publisher<std_msgs::msg::\x1b[01;31m\x1b[KInt32\x1b[m\x1b[K>("/front_right_cmd", 10);\n'}
+[6.335585] (motor_control) StderrLine: {'line': b'      |                                                                  \x1b[01;31m\x1b[K^~~~~\x1b[m\x1b[K\n'}
+[6.336111] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:141:72:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Kno matching function for call to \xe2\x80\x98\x1b[01m\x1b[Krclcpp::Node::create_publisher<<expression error> >(const char [17], int)\x1b[m\x1b[K\xe2\x80\x99\n'}
+[6.336320] (motor_control) StderrLine: {'line': b'  141 |     auto pub_front_right = \x1b[01;31m\x1b[Knode->create_publisher<std_msgs::msg::Int32>("/front_right_cmd", 10)\x1b[m\x1b[K;\n'}
+[6.336492] (motor_control) StderrLine: {'line': b'      |                            \x1b[01;31m\x1b[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.336654] (motor_control) StderrLine: {'line': b'In file included from \x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/executors/single_threaded_executor.hpp:28\x1b[m\x1b[K,\n'}
+[6.336801] (-) TimerEvent: {}
+[6.337125] (motor_control) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/executors.hpp:22\x1b[m\x1b[K,\n'}
+[6.337363] (motor_control) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/rclcpp.hpp:155\x1b[m\x1b[K,\n'}
+[6.337533] (motor_control) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:7\x1b[m\x1b[K:\n'}
+[6.337716] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[Kcandidate: \xe2\x80\x98\x1b[01m\x1b[Ktemplate<class MessageT, class AllocatorT, class PublisherT> std::shared_ptr<PublisherT> rclcpp::Node::create_publisher(const string&, const rclcpp::QoS&, const rclcpp::PublisherOptionsWithAllocator<AllocatorT>&)\x1b[m\x1b[K\xe2\x80\x99\n'}
+[6.337885] (motor_control) StderrLine: {'line': b'  195 |   \x1b[01;36m\x1b[Kcreate_publisher\x1b[m\x1b[K(\n'}
+[6.338046] (motor_control) StderrLine: {'line': b'      |   \x1b[01;36m\x1b[K^~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.338271] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[K  template argument deduction/substitution failed:\n'}
+[6.339040] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:141:72:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Ktemplate argument 1 is invalid\n'}
+[6.339244] (motor_control) StderrLine: {'line': b'  141 |     auto pub_front_right = \x1b[01;31m\x1b[Knode->create_publisher<std_msgs::msg::Int32>("/front_right_cmd", 10)\x1b[m\x1b[K;\n'}
+[6.339432] (motor_control) StderrLine: {'line': b'      |                            \x1b[01;31m\x1b[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.339591] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:142:64:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KInt32\x1b[m\x1b[K\xe2\x80\x99 is not a member of \xe2\x80\x98\x1b[01m\x1b[Kstd_msgs::msg\x1b[m\x1b[K\xe2\x80\x99\n'}
+[6.340406] (motor_control) StderrLine: {'line': b'  142 |     auto pub_rear_left = node->create_publisher<std_msgs::msg::\x1b[01;31m\x1b[KInt32\x1b[m\x1b[K>("/rear_left_cmd", 10);\n'}
+[6.340611] (motor_control) StderrLine: {'line': b'      |                                                                \x1b[01;31m\x1b[K^~~~~\x1b[m\x1b[K\n'}
+[6.340763] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:142:70:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Kno matching function for call to \xe2\x80\x98\x1b[01m\x1b[Krclcpp::Node::create_publisher<<expression error> >(const char [15], int)\x1b[m\x1b[K\xe2\x80\x99\n'}
+[6.340944] (motor_control) StderrLine: {'line': b'  142 |     auto pub_rear_left = \x1b[01;31m\x1b[Knode->create_publisher<std_msgs::msg::Int32>("/rear_left_cmd", 10)\x1b[m\x1b[K;\n'}
+[6.341116] (motor_control) StderrLine: {'line': b'      |                          \x1b[01;31m\x1b[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.341306] (motor_control) StderrLine: {'line': b'In file included from \x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/executors/single_threaded_executor.hpp:28\x1b[m\x1b[K,\n'}
+[6.341465] (motor_control) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/executors.hpp:22\x1b[m\x1b[K,\n'}
+[6.341616] (motor_control) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/rclcpp.hpp:155\x1b[m\x1b[K,\n'}
+[6.341766] (motor_control) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:7\x1b[m\x1b[K:\n'}
+[6.341918] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[Kcandidate: \xe2\x80\x98\x1b[01m\x1b[Ktemplate<class MessageT, class AllocatorT, class PublisherT> std::shared_ptr<PublisherT> rclcpp::Node::create_publisher(const string&, const rclcpp::QoS&, const rclcpp::PublisherOptionsWithAllocator<AllocatorT>&)\x1b[m\x1b[K\xe2\x80\x99\n'}
+[6.342457] (motor_control) StderrLine: {'line': b'  195 |   \x1b[01;36m\x1b[Kcreate_publisher\x1b[m\x1b[K(\n'}
+[6.342673] (motor_control) StderrLine: {'line': b'      |   \x1b[01;36m\x1b[K^~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.342827] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[K  template argument deduction/substitution failed:\n'}
+[6.343070] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:142:70:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Ktemplate argument 1 is invalid\n'}
+[6.343267] (motor_control) StderrLine: {'line': b'  142 |     auto pub_rear_left = \x1b[01;31m\x1b[Knode->create_publisher<std_msgs::msg::Int32>("/rear_left_cmd", 10)\x1b[m\x1b[K;\n'}
+[6.343436] (motor_control) StderrLine: {'line': b'      |                          \x1b[01;31m\x1b[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.343587] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:143:65:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KInt32\x1b[m\x1b[K\xe2\x80\x99 is not a member of \xe2\x80\x98\x1b[01m\x1b[Kstd_msgs::msg\x1b[m\x1b[K\xe2\x80\x99\n'}
+[6.343743] (motor_control) StderrLine: {'line': b'  143 |     auto pub_rear_right = node->create_publisher<std_msgs::msg::\x1b[01;31m\x1b[KInt32\x1b[m\x1b[K>("/rear_right_cmd", 10);\n'}
+[6.343894] (motor_control) StderrLine: {'line': b'      |                                                                 \x1b[01;31m\x1b[K^~~~~\x1b[m\x1b[K\n'}
+[6.344050] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:143:71:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Kno matching function for call to \xe2\x80\x98\x1b[01m\x1b[Krclcpp::Node::create_publisher<<expression error> >(const char [16], int)\x1b[m\x1b[K\xe2\x80\x99\n'}
+[6.344217] (motor_control) StderrLine: {'line': b'  143 |     auto pub_rear_right = \x1b[01;31m\x1b[Knode->create_publisher<std_msgs::msg::Int32>("/rear_right_cmd", 10)\x1b[m\x1b[K;\n'}
+[6.344390] (motor_control) StderrLine: {'line': b'      |                           \x1b[01;31m\x1b[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.344539] (motor_control) StderrLine: {'line': b'In file included from \x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/executors/single_threaded_executor.hpp:28\x1b[m\x1b[K,\n'}
+[6.344688] (motor_control) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/executors.hpp:22\x1b[m\x1b[K,\n'}
+[6.344834] (motor_control) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/rclcpp.hpp:155\x1b[m\x1b[K,\n'}
+[6.344981] (motor_control) StderrLine: {'line': b'                 from \x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:7\x1b[m\x1b[K:\n'}
+[6.345131] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[Kcandidate: \xe2\x80\x98\x1b[01m\x1b[Ktemplate<class MessageT, class AllocatorT, class PublisherT> std::shared_ptr<PublisherT> rclcpp::Node::create_publisher(const string&, const rclcpp::QoS&, const rclcpp::PublisherOptionsWithAllocator<AllocatorT>&)\x1b[m\x1b[K\xe2\x80\x99\n'}
+[6.345320] (motor_control) StderrLine: {'line': b'  195 |   \x1b[01;36m\x1b[Kcreate_publisher\x1b[m\x1b[K(\n'}
+[6.345477] (motor_control) StderrLine: {'line': b'      |   \x1b[01;36m\x1b[K^~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.345627] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/opt/ros/humble/include/rclcpp/rclcpp/node.hpp:195:3:\x1b[m\x1b[K \x1b[01;36m\x1b[Knote: \x1b[m\x1b[K  template argument deduction/substitution failed:\n'}
+[6.345842] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:143:71:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[Ktemplate argument 1 is invalid\n'}
+[6.346057] (motor_control) StderrLine: {'line': b'  143 |     auto pub_rear_right = \x1b[01;31m\x1b[Knode->create_publisher<std_msgs::msg::Int32>("/rear_right_cmd", 10)\x1b[m\x1b[K;\n'}
+[6.346228] (motor_control) StderrLine: {'line': b'      |                           \x1b[01;31m\x1b[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~\x1b[m\x1b[K\n'}
+[6.346415] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:165:24:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[KInt32\x1b[m\x1b[K\xe2\x80\x99 is not a member of \xe2\x80\x98\x1b[01m\x1b[Kstd_msgs::msg\x1b[m\x1b[K\xe2\x80\x99\n'}
+[6.346585] (motor_control) StderrLine: {'line': b'  165 |         std_msgs::msg::\x1b[01;31m\x1b[KInt32\x1b[m\x1b[K fl_msg, fr_msg, rl_msg, rr_msg;\n'}
+[6.346737] (motor_control) StderrLine: {'line': b'      |                        \x1b[01;31m\x1b[K^~~~~\x1b[m\x1b[K\n'}
+[6.348305] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:166:9:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[Kfl_msg\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.348580] (motor_control) StderrLine: {'line': b'  166 |         \x1b[01;31m\x1b[Kfl_msg\x1b[m\x1b[K.data = static_cast<int32_t>(chassis_control_para.front_left_speed);\n'}
+[6.348753] (motor_control) StderrLine: {'line': b'      |         \x1b[01;31m\x1b[K^~~~~~\x1b[m\x1b[K\n'}
+[6.355287] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:167:9:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[Kfr_msg\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.355570] (motor_control) StderrLine: {'line': b'  167 |         \x1b[01;31m\x1b[Kfr_msg\x1b[m\x1b[K.data = static_cast<int32_t>(chassis_control_para.front_right_speed);\n'}
+[6.355741] (motor_control) StderrLine: {'line': b'      |         \x1b[01;31m\x1b[K^~~~~~\x1b[m\x1b[K\n'}
+[6.360719] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:168:9:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[Krl_msg\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.360999] (motor_control) StderrLine: {'line': b'  168 |         \x1b[01;31m\x1b[Krl_msg\x1b[m\x1b[K.data = static_cast<int32_t>(chassis_control_para.rear_left_speed);\n'}
+[6.361168] (motor_control) StderrLine: {'line': b'      |         \x1b[01;31m\x1b[K^~~~~~\x1b[m\x1b[K\n'}
+[6.368024] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:169:9:\x1b[m\x1b[K \x1b[01;31m\x1b[Kerror: \x1b[m\x1b[K\xe2\x80\x98\x1b[01m\x1b[Krr_msg\x1b[m\x1b[K\xe2\x80\x99 was not declared in this scope\n'}
+[6.369255] (motor_control) StderrLine: {'line': b'  169 |         \x1b[01;31m\x1b[Krr_msg\x1b[m\x1b[K.data = static_cast<int32_t>(chassis_control_para.rear_right_speed);\n'}
+[6.369793] (motor_control) StderrLine: {'line': b'      |         \x1b[01;31m\x1b[K^~~~~~\x1b[m\x1b[K\n'}
+[6.437014] (-) TimerEvent: {}
+[6.537671] (-) TimerEvent: {}
+[6.638276] (-) TimerEvent: {}
+[6.738875] (-) TimerEvent: {}
+[6.839414] (-) TimerEvent: {}
+[6.939875] (-) TimerEvent: {}
+[7.040313] (-) TimerEvent: {}
+[7.140907] (-) TimerEvent: {}
+[7.241269] (-) TimerEvent: {}
+[7.276827] (motor_control) StderrLine: {'line': b'In file included from \x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:11\x1b[m\x1b[K:\n'}
+[7.277160] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/include/motor_control/motor_config.h:\x1b[m\x1b[K In member function \xe2\x80\x98\x1b[01m\x1b[KRobStrite_Motor& MotorControlSet::getMotor(uint8_t)\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[7.277423] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/include/motor_control/motor_config.h:80:17:\x1b[m\x1b[K \x1b[01;35m\x1b[Kwarning: \x1b[m\x1b[Kcontrol reaches end of non-void function [\x1b[01;35m\x1b[K\x1b]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreturn-type\x07-Wreturn-type\x1b]8;;\x07\x1b[m\x1b[K]\n'}
+[7.277609] (motor_control) StderrLine: {'line': b'   80 |                 \x1b[01;35m\x1b[K}\x1b[m\x1b[K\n'}
+[7.277768] (motor_control) StderrLine: {'line': b'      |                 \x1b[01;35m\x1b[K^\x1b[m\x1b[K\n'}
+[7.322009] (motor_control) StderrLine: {'line': b'gmake[2]: *** [CMakeFiles/motor_control_test.dir/build.make:76\xef\xbc\x9aCMakeFiles/motor_control_test.dir/src/motor_control_test.cpp.o] \xe9\x94\x99\xe8\xaf\xaf 1\n'}
+[7.322467] (motor_control) StderrLine: {'line': b'gmake[1]: *** [CMakeFiles/Makefile2:623\xef\xbc\x9aCMakeFiles/motor_control_test.dir/all] \xe9\x94\x99\xe8\xaf\xaf 2\n'}
+[7.322967] (motor_control) StderrLine: {'line': b'gmake: *** [Makefile:146\xef\xbc\x9aall] \xe9\x94\x99\xe8\xaf\xaf 2\n'}
+[7.326389] (motor_control) JobEnded: {'identifier': 'motor_control', 'rc': 'SIGINT'}
+[7.341734] (-) TimerEvent: {}
+[7.442278] (-) TimerEvent: {}
+[7.542587] (-) TimerEvent: {}
+[7.642877] (-) TimerEvent: {}
+[7.743233] (-) TimerEvent: {}
+[7.843562] (-) TimerEvent: {}
+[7.944016] (-) TimerEvent: {}
+[8.044416] (-) TimerEvent: {}
+[8.144899] (-) TimerEvent: {}
+[8.245530] (-) TimerEvent: {}
+[8.345868] (-) TimerEvent: {}
+[8.446352] (-) TimerEvent: {}
+[8.546739] (-) TimerEvent: {}
+[8.647266] (-) TimerEvent: {}
+[8.747601] (-) TimerEvent: {}
+[8.848060] (-) TimerEvent: {}
+[8.948381] (-) TimerEvent: {}
+[9.048705] (-) TimerEvent: {}
+[9.149057] (-) TimerEvent: {}
+[9.249424] (-) TimerEvent: {}
+[9.349795] (-) TimerEvent: {}
+[9.450260] (-) TimerEvent: {}
+[9.550840] (-) TimerEvent: {}
+[9.651229] (-) TimerEvent: {}
+[9.751610] (-) TimerEvent: {}
+[9.851972] (-) TimerEvent: {}
+[9.952272] (-) TimerEvent: {}
+[10.052664] (-) TimerEvent: {}
+[10.153251] (-) TimerEvent: {}
+[10.253642] (-) TimerEvent: {}
+[10.353998] (-) TimerEvent: {}
+[10.454481] (-) TimerEvent: {}
+[10.555110] (-) TimerEvent: {}
+[10.618265] (svtrobo_4ws) StderrLine: {'line': b'gmake[2]: *** [CMakeFiles/lift_RS485_control.dir/build.make:76\xef\xbc\x9aCMakeFiles/lift_RS485_control.dir/src/lift_RS485_control.cpp.o] \xe9\x94\x99\xe8\xaf\xaf 1\n'}
+[10.618672] (svtrobo_4ws) StderrLine: {'line': b'gmake[1]: *** [CMakeFiles/Makefile2:193\xef\xbc\x9aCMakeFiles/lift_RS485_control.dir/all] \xe9\x94\x99\xe8\xaf\xaf 2\n'}
+[10.618973] (svtrobo_4ws) StderrLine: {'line': b'gmake: *** [Makefile:146\xef\xbc\x9aall] \xe9\x94\x99\xe8\xaf\xaf 2\n'}
+[10.622065] (svtrobo_4ws) JobEnded: {'identifier': 'svtrobo_4ws', 'rc': 'SIGINT'}
+[10.632732] (-) EventReactorShutdown: {}

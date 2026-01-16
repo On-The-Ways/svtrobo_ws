@@ -1,0 +1,3 @@
+# Updated for ROS 2 compatibility
+# Ensure this file is correctly referenced in ROS 2 parameter files or launch files.
+controller_joint_names: ['', 'right_front_steer', 'right_front_wheel', 'left_front_steer', 'left_front_wheel', 'right_rear_steer', 'right_rear_wheel', 'left_rear_steer', 'left_rear_wheel', ]

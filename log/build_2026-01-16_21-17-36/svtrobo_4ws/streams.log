@@ -1,0 +1,33 @@
+[0.047s] Invoking command in '/home/openarm/svtrobo_ws/build/svtrobo_4ws': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --build /home/openarm/svtrobo_ws/build/svtrobo_4ws -- -j4 -l4
+[0.275s] [ 33%] Built target zlac8015d_rpm_node
+[0.281s] [ 66%] Built target zlac8015d_canopen_node
+[0.297s] [100%] Built target lift_RS485_control
+[0.392s] Invoked command in '/home/openarm/svtrobo_ws/build/svtrobo_4ws' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --build /home/openarm/svtrobo_ws/build/svtrobo_4ws -- -j4 -l4
+[0.392s] Invoking command in '/home/openarm/svtrobo_ws/build/svtrobo_4ws': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --install /home/openarm/svtrobo_ws/build/svtrobo_4ws
+[0.423s] -- Install configuration: ""
+[0.427s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/zlac8015d_rpm_node
+[0.430s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/zlac8015d_canopen_node
+[0.431s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/lift_RS485_control
+[0.431s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/output_4s.py
+[0.431s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/canfd_init.bash
+[0.432s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/launch
+[0.432s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/launch/svtrobo_bringup.launch.py
+[0.434s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/scripts
+[0.434s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/scripts/output_4s.py
+[0.438s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/scripts/canfd_init.bash
+[0.439s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/ament_index/resource_index/package_run_dependencies/svtrobo_4ws
+[0.439s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/ament_index/resource_index/parent_prefix_path/svtrobo_4ws
+[0.440s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/environment/ament_prefix_path.sh
+[0.441s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/environment/ament_prefix_path.dsv
+[0.443s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/environment/path.sh
+[0.443s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/environment/path.dsv
+[0.443s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/local_setup.bash
+[0.444s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/local_setup.sh
+[0.444s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/local_setup.zsh
+[0.444s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/local_setup.dsv
+[0.444s] -- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/package.dsv
+[0.444s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/ament_index/resource_index/packages/svtrobo_4ws
+[0.444s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/cmake/svtrobo_4wsConfig.cmake
+[0.445s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/cmake/svtrobo_4wsConfig-version.cmake
+[0.445s] -- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/package.xml
+[0.448s] Invoked command in '/home/openarm/svtrobo_ws/build/svtrobo_4ws' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --install /home/openarm/svtrobo_ws/build/svtrobo_4ws

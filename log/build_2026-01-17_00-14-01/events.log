@@ -1,0 +1,485 @@
+[0.000000] (-) TimerEvent: {}
+[0.001066] (chassis) JobQueued: {'identifier': 'chassis', 'dependencies': OrderedDict()}
+[0.001287] (motor_control) JobQueued: {'identifier': 'motor_control', 'dependencies': OrderedDict()}
+[0.001337] (svtrobo_4ws) JobQueued: {'identifier': 'svtrobo_4ws', 'dependencies': OrderedDict()}
+[0.001379] (chassis) JobStarted: {'identifier': 'chassis'}
+[0.013677] (motor_control) JobStarted: {'identifier': 'motor_control'}
+[0.021787] (svtrobo_4ws) JobStarted: {'identifier': 'svtrobo_4ws'}
+[0.035299] (chassis) JobProgress: {'identifier': 'chassis', 'progress': 'cmake'}
+[0.037716] (chassis) JobProgress: {'identifier': 'chassis', 'progress': 'build'}
+[0.040651] (chassis) Command: {'cmd': ['/usr/bin/cmake', '--build', '/home/openarm/svtrobo_ws/build/chassis', '--', '-j4', '-l4'], 'cwd': '/home/openarm/svtrobo_ws/build/chassis', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'zh_CN:zh'), ('USER', 'openarm'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/openarm/svtrobo_ws/install/motor_control/lib:/home/openarm/ros2_ws/install/openarm_hardware/lib:/home/openarm/ros2_ws/install/openarm_can/lib:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/openarm'), ('OLDPWD', '/home/openarm'), ('DESKTOP_SESSION', 'ubuntu-xorg'), ('NVM_BIN', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin'), ('NVM_INC', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/include/node'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('SYSTEMD_EXEC_PID', '15163'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('NVM_DIR', '/home/openarm/.nvm/nvm-0.38.0'), ('MANDATORY_PATH', '/usr/share/gconf/ubuntu-xorg.mandatory.path'), ('COLCON_PREFIX_PATH', '/home/openarm/svtrobo_ws/install:/home/openarm/ros2_ws/install'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'openarm'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('DEFAULTS_PATH', '/usr/share/gconf/ubuntu-xorg.default.path'), ('USERNAME', 'openarm'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin:/opt/ros/humble/bin:/home/openarm/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/openarm:@/tmp/.ICE-unix/15134,unix/openarm:/tmp/.ICE-unix/15134'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/89845ae1_19d1_4ff0_b14f_cc8dff1f416c'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('LANG', 'zh_CN.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu-xorg'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.231'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/svtrobo_4ws:/home/openarm/svtrobo_ws/install/motor_control:/home/openarm/svtrobo_ws/install/chassis:/home/openarm/ros2_ws/install/qnbot_teleoperator:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu-xorg'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/openarm/svtrobo_ws/build/chassis'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu-xorg:/etc/xdg'), ('NVM_CD_FLAGS', ''), ('XDG_DATA_DIRS', '/usr/share/ubuntu-xorg:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages:/home/openarm/ros2_ws/install/qnbot_teleoperator/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/svtrobo_4ws:/home/openarm/svtrobo_ws/install/motor_control:/home/openarm/svtrobo_ws/install/chassis:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble')]), 'shell': False}
+[0.047476] (motor_control) JobProgress: {'identifier': 'motor_control', 'progress': 'cmake'}
+[0.048554] (motor_control) JobProgress: {'identifier': 'motor_control', 'progress': 'build'}
+[0.049569] (motor_control) Command: {'cmd': ['/usr/bin/cmake', '--build', '/home/openarm/svtrobo_ws/build/motor_control', '--', '-j4', '-l4'], 'cwd': '/home/openarm/svtrobo_ws/build/motor_control', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'zh_CN:zh'), ('USER', 'openarm'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/openarm/svtrobo_ws/install/motor_control/lib:/home/openarm/ros2_ws/install/openarm_hardware/lib:/home/openarm/ros2_ws/install/openarm_can/lib:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/openarm'), ('OLDPWD', '/home/openarm'), ('DESKTOP_SESSION', 'ubuntu-xorg'), ('NVM_BIN', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin'), ('NVM_INC', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/include/node'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('SYSTEMD_EXEC_PID', '15163'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('NVM_DIR', '/home/openarm/.nvm/nvm-0.38.0'), ('MANDATORY_PATH', '/usr/share/gconf/ubuntu-xorg.mandatory.path'), ('COLCON_PREFIX_PATH', '/home/openarm/svtrobo_ws/install:/home/openarm/ros2_ws/install'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'openarm'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('DEFAULTS_PATH', '/usr/share/gconf/ubuntu-xorg.default.path'), ('USERNAME', 'openarm'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin:/opt/ros/humble/bin:/home/openarm/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/openarm:@/tmp/.ICE-unix/15134,unix/openarm:/tmp/.ICE-unix/15134'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/89845ae1_19d1_4ff0_b14f_cc8dff1f416c'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('LANG', 'zh_CN.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu-xorg'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.231'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/svtrobo_4ws:/home/openarm/svtrobo_ws/install/motor_control:/home/openarm/svtrobo_ws/install/chassis:/home/openarm/ros2_ws/install/qnbot_teleoperator:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu-xorg'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/openarm/svtrobo_ws/build/motor_control'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu-xorg:/etc/xdg'), ('NVM_CD_FLAGS', ''), ('XDG_DATA_DIRS', '/usr/share/ubuntu-xorg:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages:/home/openarm/ros2_ws/install/qnbot_teleoperator/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/svtrobo_4ws:/home/openarm/svtrobo_ws/install/motor_control:/home/openarm/svtrobo_ws/install/chassis:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble')]), 'shell': False}
+[0.059831] (svtrobo_4ws) JobProgress: {'identifier': 'svtrobo_4ws', 'progress': 'cmake'}
+[0.059952] (svtrobo_4ws) JobProgress: {'identifier': 'svtrobo_4ws', 'progress': 'build'}
+[0.060013] (svtrobo_4ws) Command: {'cmd': ['/usr/bin/cmake', '--build', '/home/openarm/svtrobo_ws/build/svtrobo_4ws', '--', '-j4', '-l4'], 'cwd': '/home/openarm/svtrobo_ws/build/svtrobo_4ws', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'zh_CN:zh'), ('USER', 'openarm'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/openarm/svtrobo_ws/install/motor_control/lib:/home/openarm/ros2_ws/install/openarm_hardware/lib:/home/openarm/ros2_ws/install/openarm_can/lib:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/openarm'), ('OLDPWD', '/home/openarm'), ('DESKTOP_SESSION', 'ubuntu-xorg'), ('NVM_BIN', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin'), ('NVM_INC', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/include/node'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('SYSTEMD_EXEC_PID', '15163'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('NVM_DIR', '/home/openarm/.nvm/nvm-0.38.0'), ('MANDATORY_PATH', '/usr/share/gconf/ubuntu-xorg.mandatory.path'), ('COLCON_PREFIX_PATH', '/home/openarm/svtrobo_ws/install:/home/openarm/ros2_ws/install'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'openarm'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('DEFAULTS_PATH', '/usr/share/gconf/ubuntu-xorg.default.path'), ('USERNAME', 'openarm'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin:/opt/ros/humble/bin:/home/openarm/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/openarm:@/tmp/.ICE-unix/15134,unix/openarm:/tmp/.ICE-unix/15134'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/89845ae1_19d1_4ff0_b14f_cc8dff1f416c'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('LANG', 'zh_CN.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu-xorg'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.231'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/svtrobo_4ws:/home/openarm/svtrobo_ws/install/motor_control:/home/openarm/svtrobo_ws/install/chassis:/home/openarm/ros2_ws/install/qnbot_teleoperator:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu-xorg'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/openarm/svtrobo_ws/build/svtrobo_4ws'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu-xorg:/etc/xdg'), ('NVM_CD_FLAGS', ''), ('XDG_DATA_DIRS', '/usr/share/ubuntu-xorg:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages:/home/openarm/ros2_ws/install/qnbot_teleoperator/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/svtrobo_4ws:/home/openarm/svtrobo_ws/install/motor_control:/home/openarm/svtrobo_ws/install/chassis:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble')]), 'shell': False}
+[0.100029] (-) TimerEvent: {}
+[0.201762] (-) TimerEvent: {}
+[0.207825] (chassis) CommandEnded: {'returncode': 0}
+[0.211809] (chassis) JobProgress: {'identifier': 'chassis', 'progress': 'install'}
+[0.228562] (motor_control) StdoutLine: {'line': b'[  8%] Built target motor_control__rosidl_generator_c\n'}
+[0.229254] (motor_control) StdoutLine: {'line': b'[ 11%] Built target motor_control__cpp\n'}
+[0.251639] (chassis) Command: {'cmd': ['/usr/bin/cmake', '--install', '/home/openarm/svtrobo_ws/build/chassis'], 'cwd': '/home/openarm/svtrobo_ws/build/chassis', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'zh_CN:zh'), ('USER', 'openarm'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/openarm/svtrobo_ws/install/motor_control/lib:/home/openarm/ros2_ws/install/openarm_hardware/lib:/home/openarm/ros2_ws/install/openarm_can/lib:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/openarm'), ('OLDPWD', '/home/openarm'), ('DESKTOP_SESSION', 'ubuntu-xorg'), ('NVM_BIN', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin'), ('NVM_INC', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/include/node'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('SYSTEMD_EXEC_PID', '15163'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('NVM_DIR', '/home/openarm/.nvm/nvm-0.38.0'), ('MANDATORY_PATH', '/usr/share/gconf/ubuntu-xorg.mandatory.path'), ('COLCON_PREFIX_PATH', '/home/openarm/svtrobo_ws/install:/home/openarm/ros2_ws/install'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'openarm'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('DEFAULTS_PATH', '/usr/share/gconf/ubuntu-xorg.default.path'), ('USERNAME', 'openarm'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin:/opt/ros/humble/bin:/home/openarm/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/openarm:@/tmp/.ICE-unix/15134,unix/openarm:/tmp/.ICE-unix/15134'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/89845ae1_19d1_4ff0_b14f_cc8dff1f416c'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('LANG', 'zh_CN.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu-xorg'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.231'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/svtrobo_4ws:/home/openarm/svtrobo_ws/install/motor_control:/home/openarm/svtrobo_ws/install/chassis:/home/openarm/ros2_ws/install/qnbot_teleoperator:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu-xorg'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/openarm/svtrobo_ws/build/chassis'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu-xorg:/etc/xdg'), ('NVM_CD_FLAGS', ''), ('XDG_DATA_DIRS', '/usr/share/ubuntu-xorg:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages:/home/openarm/ros2_ws/install/qnbot_teleoperator/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/svtrobo_4ws:/home/openarm/svtrobo_ws/install/motor_control:/home/openarm/svtrobo_ws/install/chassis:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble')]), 'shell': False}
+[0.260996] (svtrobo_4ws) StdoutLine: {'line': b'[ 33%] Built target zlac8015d_canopen_node\n'}
+[0.280377] (svtrobo_4ws) StdoutLine: {'line': b'[ 66%] Built target lift_RS485_control\n'}
+[0.287654] (chassis) StdoutLine: {'line': b'-- Install configuration: ""\n'}
+[0.288419] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//config\n'}
+[0.288963] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//config/joint_names_chassis.yaml\n'}
+[0.289443] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//launch\n'}
+[0.289638] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//launch/chassis_bringup.launch.py\n'}
+[0.289961] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//meshes\n'}
+[0.290346] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//meshes/left_rear_wheel_link.STL\n'}
+[0.290664] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//meshes/right_front_wheel_link.STL\n'}
+[0.290984] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//meshes/right_rear_steer_link.STL\n'}
+[0.291354] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//meshes/base_link.STL\n'}
+[0.291695] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//meshes/right_front_steer_link.STL\n'}
+[0.292008] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//meshes/left_front_wheel_link.STL\n'}
+[0.292337] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//meshes/left_rear_steer_link.STL\n'}
+[0.293339] (motor_control) StdoutLine: {'line': b'[ 11%] Built target ament_cmake_python_copy_motor_control\n'}
+[0.294053] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//meshes/left_front_steer_link.STL\n'}
+[0.295551] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//meshes/right_rear_wheel_link.STL\n'}
+[0.295827] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//urdf\n'}
+[0.296072] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis//urdf/chassis.urdf\n'}
+[0.296823] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/ament_index/resource_index/package_run_dependencies/chassis\n'}
+[0.297088] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/ament_index/resource_index/parent_prefix_path/chassis\n'}
+[0.297843] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis/environment/ament_prefix_path.sh\n'}
+[0.298083] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis/environment/ament_prefix_path.dsv\n'}
+[0.298280] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis/environment/path.sh\n'}
+[0.298449] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis/environment/path.dsv\n'}
+[0.298637] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis/local_setup.bash\n'}
+[0.298791] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis/local_setup.sh\n'}
+[0.300380] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis/local_setup.zsh\n'}
+[0.302244] (-) TimerEvent: {}
+[0.307807] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis/local_setup.dsv\n'}
+[0.308140] (chassis) StdoutLine: {'line': b'-- Installing: /home/openarm/svtrobo_ws/install/chassis/share/chassis/package.dsv\n'}
+[0.308333] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/ament_index/resource_index/packages/chassis\n'}
+[0.308490] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis/cmake/chassisConfig.cmake\n'}
+[0.308633] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis/cmake/chassisConfig-version.cmake\n'}
+[0.308771] (chassis) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/chassis/share/chassis/package.xml\n'}
+[0.308938] (chassis) CommandEnded: {'returncode': 0}
+[0.318881] (svtrobo_4ws) StdoutLine: {'line': b'[100%] Built target zlac8015d_rpm_node\n'}
+[0.330287] (motor_control) StdoutLine: {'line': b'[ 19%] Built target motor_control__rosidl_typesupport_introspection_c\n'}
+[0.345158] (motor_control) StdoutLine: {'line': b'[ 27%] Built target motor_control__rosidl_typesupport_fastrtps_c\n'}
+[0.357533] (motor_control) StdoutLine: {'line': b'[ 36%] Built target motor_control__rosidl_typesupport_c\n'}
+[0.401195] (motor_control) StdoutLine: {'line': b'[ 44%] Built target motor_control__rosidl_typesupport_introspection_cpp\n'}
+[0.402450] (-) TimerEvent: {}
+[0.402715] (chassis) JobEnded: {'identifier': 'chassis', 'rc': 0}
+[0.404982] (svtrobo_4ws) CommandEnded: {'returncode': 0}
+[0.408224] (svtrobo_4ws) JobProgress: {'identifier': 'svtrobo_4ws', 'progress': 'install'}
+[0.409066] (svtrobo_4ws) Command: {'cmd': ['/usr/bin/cmake', '--install', '/home/openarm/svtrobo_ws/build/svtrobo_4ws'], 'cwd': '/home/openarm/svtrobo_ws/build/svtrobo_4ws', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'zh_CN:zh'), ('USER', 'openarm'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/openarm/svtrobo_ws/install/motor_control/lib:/home/openarm/ros2_ws/install/openarm_hardware/lib:/home/openarm/ros2_ws/install/openarm_can/lib:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/openarm'), ('OLDPWD', '/home/openarm'), ('DESKTOP_SESSION', 'ubuntu-xorg'), ('NVM_BIN', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin'), ('NVM_INC', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/include/node'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('SYSTEMD_EXEC_PID', '15163'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('NVM_DIR', '/home/openarm/.nvm/nvm-0.38.0'), ('MANDATORY_PATH', '/usr/share/gconf/ubuntu-xorg.mandatory.path'), ('COLCON_PREFIX_PATH', '/home/openarm/svtrobo_ws/install:/home/openarm/ros2_ws/install'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'openarm'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('DEFAULTS_PATH', '/usr/share/gconf/ubuntu-xorg.default.path'), ('USERNAME', 'openarm'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin:/opt/ros/humble/bin:/home/openarm/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/openarm:@/tmp/.ICE-unix/15134,unix/openarm:/tmp/.ICE-unix/15134'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/89845ae1_19d1_4ff0_b14f_cc8dff1f416c'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('LANG', 'zh_CN.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu-xorg'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.231'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/svtrobo_4ws:/home/openarm/svtrobo_ws/install/motor_control:/home/openarm/svtrobo_ws/install/chassis:/home/openarm/ros2_ws/install/qnbot_teleoperator:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu-xorg'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/openarm/svtrobo_ws/build/svtrobo_4ws'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu-xorg:/etc/xdg'), ('NVM_CD_FLAGS', ''), ('XDG_DATA_DIRS', '/usr/share/ubuntu-xorg:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages:/home/openarm/ros2_ws/install/qnbot_teleoperator/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/svtrobo_4ws:/home/openarm/svtrobo_ws/install/motor_control:/home/openarm/svtrobo_ws/install/chassis:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble')]), 'shell': False}
+[0.413205] (motor_control) StdoutLine: {'line': b'[ 52%] Built target motor_control__rosidl_typesupport_cpp\n'}
+[0.439197] (svtrobo_4ws) StdoutLine: {'line': b'-- Install configuration: ""\n'}
+[0.444156] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/zlac8015d_rpm_node\n'}
+[0.444554] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/zlac8015d_canopen_node\n'}
+[0.445011] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/lift_RS485_control\n'}
+[0.445969] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/output_4s.py\n'}
+[0.446312] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/lib/svtrobo_4ws/canfd_init.bash\n'}
+[0.446831] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/launch\n'}
+[0.447289] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/launch/svtrobo_bringup.launch.py\n'}
+[0.447791] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/scripts\n'}
+[0.448265] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/scripts/output_4s.py\n'}
+[0.448606] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/scripts/canfd_init.bash\n'}
+[0.449218] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/ament_index/resource_index/package_run_dependencies/svtrobo_4ws\n'}
+[0.451092] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/ament_index/resource_index/parent_prefix_path/svtrobo_4ws\n'}
+[0.451391] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/environment/ament_prefix_path.sh\n'}
+[0.451622] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/environment/ament_prefix_path.dsv\n'}
+[0.451801] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/environment/path.sh\n'}
+[0.451969] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/environment/path.dsv\n'}
+[0.452130] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/local_setup.bash\n'}
+[0.452267] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/local_setup.sh\n'}
+[0.452468] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/local_setup.zsh\n'}
+[0.452665] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/local_setup.dsv\n'}
+[0.452868] (svtrobo_4ws) StdoutLine: {'line': b'-- Installing: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/package.dsv\n'}
+[0.456085] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/ament_index/resource_index/packages/svtrobo_4ws\n'}
+[0.456431] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/cmake/svtrobo_4wsConfig.cmake\n'}
+[0.456630] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/cmake/svtrobo_4wsConfig-version.cmake\n'}
+[0.456825] (svtrobo_4ws) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/svtrobo_4ws/share/svtrobo_4ws/package.xml\n'}
+[0.458793] (svtrobo_4ws) CommandEnded: {'returncode': 0}
+[0.461638] (motor_control) StdoutLine: {'line': b'[ 61%] Built target motor_control__rosidl_typesupport_fastrtps_cpp\n'}
+[0.498724] (svtrobo_4ws) JobEnded: {'identifier': 'svtrobo_4ws', 'rc': 0}
+[0.502713] (-) TimerEvent: {}
+[0.518114] (motor_control) StdoutLine: {'line': b'[ 69%] Built target motor_control_lib\n'}
+[0.519145] (motor_control) StdoutLine: {'line': b'[ 69%] Built target motor_control\n'}
+[0.572822] (motor_control) StdoutLine: {'line': b'[ 72%] Built target motor_control__py\n'}
+[0.590184] (motor_control) StdoutLine: {'line': b'[ 75%] \x1b[32mBuilding CXX object CMakeFiles/motor_control_test.dir/src/motor_control_test.cpp.o\x1b[0m\n'}
+[0.602841] (-) TimerEvent: {}
+[0.629081] (motor_control) StdoutLine: {'line': b'[ 80%] Built target motor_control__rosidl_generator_py\n'}
+[0.697056] (motor_control) StdoutLine: {'line': b'[ 86%] Built target motor_control__rosidl_typesupport_introspection_c__pyext\n'}
+[0.705663] (-) TimerEvent: {}
+[0.708193] (motor_control) StdoutLine: {'line': b'[ 91%] Built target motor_control__rosidl_typesupport_fastrtps_c__pyext\n'}
+[0.751467] (motor_control) StdoutLine: {'line': b'[ 97%] Built target motor_control__rosidl_typesupport_c__pyext\n'}
+[0.805758] (-) TimerEvent: {}
+[0.906116] (-) TimerEvent: {}
+[1.006460] (-) TimerEvent: {}
+[1.010294] (motor_control) StdoutLine: {'line': b'running egg_info\n'}
+[1.062725] (motor_control) StdoutLine: {'line': b'writing motor_control.egg-info/PKG-INFO\n'}
+[1.064163] (motor_control) StdoutLine: {'line': b'writing dependency_links to motor_control.egg-info/dependency_links.txt\n'}
+[1.065025] (motor_control) StdoutLine: {'line': b'writing top-level names to motor_control.egg-info/top_level.txt\n'}
+[1.106608] (-) TimerEvent: {}
+[1.201927] (motor_control) StdoutLine: {'line': b"reading manifest file 'motor_control.egg-info/SOURCES.txt'\n"}
+[1.204573] (motor_control) StdoutLine: {'line': b"writing manifest file 'motor_control.egg-info/SOURCES.txt'\n"}
+[1.206692] (-) TimerEvent: {}
+[1.279597] (motor_control) StdoutLine: {'line': b'[ 97%] Built target ament_cmake_python_build_motor_control_egg\n'}
+[1.306812] (-) TimerEvent: {}
+[1.407159] (-) TimerEvent: {}
+[1.507440] (-) TimerEvent: {}
+[1.607855] (-) TimerEvent: {}
+[1.708483] (-) TimerEvent: {}
+[1.808839] (-) TimerEvent: {}
+[1.909292] (-) TimerEvent: {}
+[2.009635] (-) TimerEvent: {}
+[2.110158] (-) TimerEvent: {}
+[2.210514] (-) TimerEvent: {}
+[2.311013] (-) TimerEvent: {}
+[2.411395] (-) TimerEvent: {}
+[2.511987] (-) TimerEvent: {}
+[2.612338] (-) TimerEvent: {}
+[2.712659] (-) TimerEvent: {}
+[2.813004] (-) TimerEvent: {}
+[2.913321] (-) TimerEvent: {}
+[3.013671] (-) TimerEvent: {}
+[3.114007] (-) TimerEvent: {}
+[3.214331] (-) TimerEvent: {}
+[3.314671] (-) TimerEvent: {}
+[3.415008] (-) TimerEvent: {}
+[3.515366] (-) TimerEvent: {}
+[3.615977] (-) TimerEvent: {}
+[3.716409] (-) TimerEvent: {}
+[3.817216] (-) TimerEvent: {}
+[3.917665] (-) TimerEvent: {}
+[4.018345] (-) TimerEvent: {}
+[4.118802] (-) TimerEvent: {}
+[4.219553] (-) TimerEvent: {}
+[4.319966] (-) TimerEvent: {}
+[4.420563] (-) TimerEvent: {}
+[4.520889] (-) TimerEvent: {}
+[4.621245] (-) TimerEvent: {}
+[4.721619] (-) TimerEvent: {}
+[4.821983] (-) TimerEvent: {}
+[4.922306] (-) TimerEvent: {}
+[5.022681] (-) TimerEvent: {}
+[5.123122] (-) TimerEvent: {}
+[5.223511] (-) TimerEvent: {}
+[5.323837] (-) TimerEvent: {}
+[5.424203] (-) TimerEvent: {}
+[5.524560] (-) TimerEvent: {}
+[5.624876] (-) TimerEvent: {}
+[5.725204] (-) TimerEvent: {}
+[5.825587] (-) TimerEvent: {}
+[5.925940] (-) TimerEvent: {}
+[6.026252] (-) TimerEvent: {}
+[6.126642] (-) TimerEvent: {}
+[6.227014] (-) TimerEvent: {}
+[6.327299] (-) TimerEvent: {}
+[6.427725] (-) TimerEvent: {}
+[6.528170] (-) TimerEvent: {}
+[6.628731] (-) TimerEvent: {}
+[6.729069] (-) TimerEvent: {}
+[6.829405] (-) TimerEvent: {}
+[6.929788] (-) TimerEvent: {}
+[7.030091] (-) TimerEvent: {}
+[7.130419] (-) TimerEvent: {}
+[7.230722] (-) TimerEvent: {}
+[7.331071] (-) TimerEvent: {}
+[7.431414] (-) TimerEvent: {}
+[7.531768] (-) TimerEvent: {}
+[7.632074] (-) TimerEvent: {}
+[7.732401] (-) TimerEvent: {}
+[7.832752] (-) TimerEvent: {}
+[7.933521] (-) TimerEvent: {}
+[8.033935] (-) TimerEvent: {}
+[8.134380] (-) TimerEvent: {}
+[8.234734] (-) TimerEvent: {}
+[8.335153] (-) TimerEvent: {}
+[8.435490] (-) TimerEvent: {}
+[8.535974] (-) TimerEvent: {}
+[8.636297] (-) TimerEvent: {}
+[8.736611] (-) TimerEvent: {}
+[8.836907] (-) TimerEvent: {}
+[8.937219] (-) TimerEvent: {}
+[9.037565] (-) TimerEvent: {}
+[9.137931] (-) TimerEvent: {}
+[9.238250] (-) TimerEvent: {}
+[9.338566] (-) TimerEvent: {}
+[9.438903] (-) TimerEvent: {}
+[9.539248] (-) TimerEvent: {}
+[9.639656] (-) TimerEvent: {}
+[9.740017] (-) TimerEvent: {}
+[9.840346] (-) TimerEvent: {}
+[9.940747] (-) TimerEvent: {}
+[10.041104] (-) TimerEvent: {}
+[10.141476] (-) TimerEvent: {}
+[10.241802] (-) TimerEvent: {}
+[10.342200] (-) TimerEvent: {}
+[10.442566] (-) TimerEvent: {}
+[10.542934] (-) TimerEvent: {}
+[10.643409] (-) TimerEvent: {}
+[10.743790] (-) TimerEvent: {}
+[10.844324] (-) TimerEvent: {}
+[10.944716] (-) TimerEvent: {}
+[11.045355] (-) TimerEvent: {}
+[11.145938] (-) TimerEvent: {}
+[11.246438] (-) TimerEvent: {}
+[11.260659] (motor_control) StderrLine: {'line': b'In file included from \x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:24\x1b[m\x1b[K:\n'}
+[11.260893] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/include/motor_control/motor_config.h:\x1b[m\x1b[K In member function \xe2\x80\x98\x1b[01m\x1b[KRobStrite_Motor& MotorControlSet::getMotor(uint8_t)\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[11.261012] (motor_control) StderrLine: {'line': b'\x1b[01m\x1b[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/include/motor_control/motor_config.h:80:17:\x1b[m\x1b[K \x1b[01;35m\x1b[Kwarning: \x1b[m\x1b[Kcontrol reaches end of non-void function [\x1b[01;35m\x1b[K\x1b]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreturn-type\x07-Wreturn-type\x1b]8;;\x07\x1b[m\x1b[K]\n'}
+[11.261106] (motor_control) StderrLine: {'line': b'   80 |                 \x1b[01;35m\x1b[K}\x1b[m\x1b[K\n'}
+[11.261187] (motor_control) StderrLine: {'line': b'      |                 \x1b[01;35m\x1b[K^\x1b[m\x1b[K\n'}
+[11.346539] (-) TimerEvent: {}
+[11.446984] (-) TimerEvent: {}
+[11.547409] (-) TimerEvent: {}
+[11.647720] (-) TimerEvent: {}
+[11.748082] (-) TimerEvent: {}
+[11.848383] (-) TimerEvent: {}
+[11.948695] (-) TimerEvent: {}
+[12.049190] (-) TimerEvent: {}
+[12.149877] (-) TimerEvent: {}
+[12.250190] (-) TimerEvent: {}
+[12.350498] (-) TimerEvent: {}
+[12.450812] (-) TimerEvent: {}
+[12.551123] (-) TimerEvent: {}
+[12.651508] (-) TimerEvent: {}
+[12.751856] (-) TimerEvent: {}
+[12.852153] (-) TimerEvent: {}
+[12.952472] (-) TimerEvent: {}
+[13.052856] (-) TimerEvent: {}
+[13.153197] (-) TimerEvent: {}
+[13.253546] (-) TimerEvent: {}
+[13.353893] (-) TimerEvent: {}
+[13.454313] (-) TimerEvent: {}
+[13.554667] (-) TimerEvent: {}
+[13.654985] (-) TimerEvent: {}
+[13.755331] (-) TimerEvent: {}
+[13.855695] (-) TimerEvent: {}
+[13.956146] (-) TimerEvent: {}
+[14.056491] (-) TimerEvent: {}
+[14.156824] (-) TimerEvent: {}
+[14.257182] (-) TimerEvent: {}
+[14.357595] (-) TimerEvent: {}
+[14.457913] (-) TimerEvent: {}
+[14.558284] (-) TimerEvent: {}
+[14.658671] (-) TimerEvent: {}
+[14.759206] (-) TimerEvent: {}
+[14.859546] (-) TimerEvent: {}
+[14.959977] (-) TimerEvent: {}
+[15.060354] (-) TimerEvent: {}
+[15.160786] (-) TimerEvent: {}
+[15.261141] (-) TimerEvent: {}
+[15.361481] (-) TimerEvent: {}
+[15.461820] (-) TimerEvent: {}
+[15.562178] (-) TimerEvent: {}
+[15.662465] (-) TimerEvent: {}
+[15.762803] (-) TimerEvent: {}
+[15.863167] (-) TimerEvent: {}
+[15.963500] (-) TimerEvent: {}
+[16.063804] (-) TimerEvent: {}
+[16.164115] (-) TimerEvent: {}
+[16.264444] (-) TimerEvent: {}
+[16.364758] (-) TimerEvent: {}
+[16.465065] (-) TimerEvent: {}
+[16.565410] (-) TimerEvent: {}
+[16.665742] (-) TimerEvent: {}
+[16.766020] (-) TimerEvent: {}
+[16.866411] (-) TimerEvent: {}
+[16.966865] (-) TimerEvent: {}
+[17.067179] (-) TimerEvent: {}
+[17.167572] (-) TimerEvent: {}
+[17.267887] (-) TimerEvent: {}
+[17.368231] (-) TimerEvent: {}
+[17.468537] (-) TimerEvent: {}
+[17.568948] (-) TimerEvent: {}
+[17.669314] (-) TimerEvent: {}
+[17.769607] (-) TimerEvent: {}
+[17.869952] (-) TimerEvent: {}
+[17.970318] (-) TimerEvent: {}
+[18.070648] (-) TimerEvent: {}
+[18.171010] (-) TimerEvent: {}
+[18.271311] (-) TimerEvent: {}
+[18.371695] (-) TimerEvent: {}
+[18.472004] (-) TimerEvent: {}
+[18.572376] (-) TimerEvent: {}
+[18.672819] (-) TimerEvent: {}
+[18.773336] (-) TimerEvent: {}
+[18.873656] (-) TimerEvent: {}
+[18.973980] (-) TimerEvent: {}
+[19.074320] (-) TimerEvent: {}
+[19.174648] (-) TimerEvent: {}
+[19.275016] (-) TimerEvent: {}
+[19.375351] (-) TimerEvent: {}
+[19.475680] (-) TimerEvent: {}
+[19.575988] (-) TimerEvent: {}
+[19.676335] (-) TimerEvent: {}
+[19.776760] (-) TimerEvent: {}
+[19.877508] (-) TimerEvent: {}
+[19.977984] (-) TimerEvent: {}
+[20.078476] (-) TimerEvent: {}
+[20.178851] (-) TimerEvent: {}
+[20.279662] (-) TimerEvent: {}
+[20.380097] (-) TimerEvent: {}
+[20.480704] (-) TimerEvent: {}
+[20.581033] (-) TimerEvent: {}
+[20.681484] (-) TimerEvent: {}
+[20.781825] (-) TimerEvent: {}
+[20.882161] (-) TimerEvent: {}
+[20.982495] (-) TimerEvent: {}
+[21.082870] (-) TimerEvent: {}
+[21.183224] (-) TimerEvent: {}
+[21.283542] (-) TimerEvent: {}
+[21.383902] (-) TimerEvent: {}
+[21.484275] (-) TimerEvent: {}
+[21.584665] (-) TimerEvent: {}
+[21.684985] (-) TimerEvent: {}
+[21.785370] (-) TimerEvent: {}
+[21.885744] (-) TimerEvent: {}
+[21.986120] (-) TimerEvent: {}
+[22.079489] (motor_control) StdoutLine: {'line': b'[100%] \x1b[32m\x1b[1mLinking CXX executable motor_control_test\x1b[0m\n'}
+[22.086219] (-) TimerEvent: {}
+[22.186595] (-) TimerEvent: {}
+[22.287027] (-) TimerEvent: {}
+[22.387448] (-) TimerEvent: {}
+[22.487869] (-) TimerEvent: {}
+[22.588397] (-) TimerEvent: {}
+[22.688810] (-) TimerEvent: {}
+[22.789174] (-) TimerEvent: {}
+[22.889457] (-) TimerEvent: {}
+[22.989780] (-) TimerEvent: {}
+[23.090070] (-) TimerEvent: {}
+[23.190425] (-) TimerEvent: {}
+[23.290771] (-) TimerEvent: {}
+[23.316515] (motor_control) StdoutLine: {'line': b'[100%] Built target motor_control_test\n'}
+[23.340253] (motor_control) CommandEnded: {'returncode': 0}
+[23.341754] (motor_control) JobProgress: {'identifier': 'motor_control', 'progress': 'install'}
+[23.342333] (motor_control) Command: {'cmd': ['/usr/bin/cmake', '--install', '/home/openarm/svtrobo_ws/build/motor_control'], 'cwd': '/home/openarm/svtrobo_ws/build/motor_control', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'zh_CN:zh'), ('USER', 'openarm'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/openarm/svtrobo_ws/install/motor_control/lib:/home/openarm/ros2_ws/install/openarm_hardware/lib:/home/openarm/ros2_ws/install/openarm_can/lib:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/openarm'), ('OLDPWD', '/home/openarm'), ('DESKTOP_SESSION', 'ubuntu-xorg'), ('NVM_BIN', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin'), ('NVM_INC', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/include/node'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('SYSTEMD_EXEC_PID', '15163'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('NVM_DIR', '/home/openarm/.nvm/nvm-0.38.0'), ('MANDATORY_PATH', '/usr/share/gconf/ubuntu-xorg.mandatory.path'), ('COLCON_PREFIX_PATH', '/home/openarm/svtrobo_ws/install:/home/openarm/ros2_ws/install'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'openarm'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('DEFAULTS_PATH', '/usr/share/gconf/ubuntu-xorg.default.path'), ('USERNAME', 'openarm'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/home/openarm/.nvm/nvm-0.38.0/versions/node/v20.19.6/bin:/opt/ros/humble/bin:/home/openarm/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/openarm:@/tmp/.ICE-unix/15134,unix/openarm:/tmp/.ICE-unix/15134'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/89845ae1_19d1_4ff0_b14f_cc8dff1f416c'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('LANG', 'zh_CN.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu-xorg'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.231'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/svtrobo_4ws:/home/openarm/svtrobo_ws/install/motor_control:/home/openarm/svtrobo_ws/install/chassis:/home/openarm/ros2_ws/install/qnbot_teleoperator:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu-xorg'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/openarm/svtrobo_ws/build/motor_control'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu-xorg:/etc/xdg'), ('NVM_CD_FLAGS', ''), ('XDG_DATA_DIRS', '/usr/share/ubuntu-xorg:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages:/home/openarm/ros2_ws/install/qnbot_teleoperator/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/svtrobo_4ws:/home/openarm/svtrobo_ws/install/motor_control:/home/openarm/svtrobo_ws/install/chassis:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble')]), 'shell': False}
+[23.356284] (motor_control) StdoutLine: {'line': b'-- Install configuration: ""\n'}
+[23.356567] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/ament_index/resource_index/rosidl_interfaces/motor_control\n'}
+[23.356812] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control\n'}
+[23.357166] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg\n'}
+[23.357367] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail\n'}
+[23.357531] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__functions.c\n'}
+[23.357701] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__type_support.h\n'}
+[23.357850] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__functions.h\n'}
+[23.358167] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__struct.h\n'}
+[23.358371] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/motor_feedback.h\n'}
+[23.358519] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/rosidl_generator_c__visibility_control.h\n'}
+[23.358666] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/library_path.sh\n'}
+[23.358826] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/library_path.dsv\n'}
+[23.358992] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_generator_c.so\n'}
+[23.359147] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control\n'}
+[23.359300] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg\n'}
+[23.359455] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail\n'}
+[23.359652] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__rosidl_typesupport_fastrtps_c.h\n'}
+[23.359960] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/rosidl_typesupport_fastrtps_c__visibility_control.h\n'}
+[23.360130] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_fastrtps_c.so\n'}
+[23.360276] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control\n'}
+[23.360435] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg\n'}
+[23.360579] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail\n'}
+[23.360724] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__struct.hpp\n'}
+[23.360889] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__traits.hpp\n'}
+[23.361024] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__type_support.hpp\n'}
+[23.361148] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__builder.hpp\n'}
+[23.361297] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/motor_feedback.hpp\n'}
+[23.361542] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/rosidl_generator_cpp__visibility_control.hpp\n'}
+[23.361690] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control\n'}
+[23.361845] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg\n'}
+[23.361982] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail\n'}
+[23.362069] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__rosidl_typesupport_fastrtps_cpp.hpp\n'}
+[23.362148] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/dds_fastrtps\n'}
+[23.362480] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h\n'}
+[23.362749] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_fastrtps_cpp.so\n'}
+[23.363050] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control\n'}
+[23.363197] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg\n'}
+[23.363399] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail\n'}
+[23.363630] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__rosidl_typesupport_introspection_c.h\n'}
+[23.363868] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__type_support.c\n'}
+[23.364135] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/rosidl_typesupport_introspection_c__visibility_control.h\n'}
+[23.364329] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_introspection_c.so\n'}
+[23.364544] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_c.so\n'}
+[23.364821] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control\n'}
+[23.365047] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg\n'}
+[23.365349] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail\n'}
+[23.365635] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__type_support.cpp\n'}
+[23.365927] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__rosidl_typesupport_introspection_cpp.hpp\n'}
+[23.366479] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_introspection_cpp.so\n'}
+[23.366797] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_cpp.so\n'}
+[23.367163] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/pythonpath.sh\n'}
+[23.367416] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/pythonpath.dsv\n'}
+[23.367628] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control-2.0.0-py3.10.egg-info\n'}
+[23.367828] (motor_control) StdoutLine: {'line': b'-- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control-2.0.0-py3.10.egg-info/dependency_links.txt\n'}
+[23.368119] (motor_control) StdoutLine: {'line': b'-- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control-2.0.0-py3.10.egg-info/top_level.txt\n'}
+[23.368340] (motor_control) StdoutLine: {'line': b'-- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control-2.0.0-py3.10.egg-info/PKG-INFO\n'}
+[23.368500] (motor_control) StdoutLine: {'line': b'-- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control-2.0.0-py3.10.egg-info/SOURCES.txt\n'}
+[23.368645] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control\n'}
+[23.368788] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/__init__.py\n'}
+[23.368971] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so\n'}
+[23.369143] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so\n'}
+[23.369304] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg\n'}
+[23.369445] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg/__init__.py\n'}
+[23.369581] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg/_motor_feedback_s.c\n'}
+[23.369717] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg/_motor_feedback.py\n'}
+[23.369852] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/libmotor_control__rosidl_generator_py.so\n'}
+[23.370024] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so\n'}
+[23.370182] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/_motor_control_s.ep.rosidl_typesupport_introspection_c.c\n'}
+[23.370320] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/_motor_control_s.ep.rosidl_typesupport_fastrtps_c.c\n'}
+[23.370472] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/_motor_control_s.ep.rosidl_typesupport_c.c\n'}
+[23.390883] (-) TimerEvent: {}
+[23.456509] (motor_control) StdoutLine: {'line': b"Listing '/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control'...\n"}
+[23.456757] (motor_control) StdoutLine: {'line': b"Listing '/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg'...\n"}
+[23.476479] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so\n'}
+[23.477121] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so\n'}
+[23.477852] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so\n'}
+[23.478531] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_generator_py.so\n'}
+[23.478912] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/msg/MotorFeedback.idl\n'}
+[23.479189] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/msg/MotorFeedback.msg\n'}
+[23.479480] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control_lib.so\n'}
+[23.480222] (motor_control) StdoutLine: {'line': b'-- Installing: /home/openarm/svtrobo_ws/install/motor_control/lib/motor_control/motor_control_test\n'}
+[23.491029] (-) TimerEvent: {}
+[23.492188] (motor_control) StdoutLine: {'line': b'-- Set runtime path of "/home/openarm/svtrobo_ws/install/motor_control/lib/motor_control/motor_control_test" to ""\n'}
+[23.492572] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include\n'}
+[23.492741] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control\n'}
+[23.492899] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/robstride.h\n'}
+[23.493234] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_config.h\n'}
+[23.493511] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/launch\n'}
+[23.493668] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/launch/motor_test.launch.py\n'}
+[23.493817] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/ament_index/resource_index/package_run_dependencies/motor_control\n'}
+[23.493987] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/ament_index/resource_index/parent_prefix_path/motor_control\n'}
+[23.494147] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/ament_prefix_path.sh\n'}
+[23.494297] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/ament_prefix_path.dsv\n'}
+[23.494467] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/path.sh\n'}
+[23.494637] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/path.dsv\n'}
+[23.494803] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/local_setup.bash\n'}
+[23.495186] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/local_setup.sh\n'}
+[23.495344] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/local_setup.zsh\n'}
+[23.495495] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/local_setup.dsv\n'}
+[23.495653] (motor_control) StdoutLine: {'line': b'-- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/package.dsv\n'}
+[23.495892] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/ament_index/resource_index/packages/motor_control\n'}
+[23.496079] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_generator_cExport.cmake\n'}
+[23.496229] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_generator_cExport-noconfig.cmake\n'}
+[23.496379] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_typesupport_fastrtps_cExport.cmake\n'}
+[23.496522] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_typesupport_fastrtps_cExport-noconfig.cmake\n'}
+[23.496684] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_generator_cppExport.cmake\n'}
+[23.496843] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_typesupport_fastrtps_cppExport.cmake\n'}
+[23.497006] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake\n'}
+[23.497154] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_introspection_cExport.cmake\n'}
+[23.497301] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_introspection_cExport-noconfig.cmake\n'}
+[23.497451] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_cExport.cmake\n'}
+[23.497602] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_cExport-noconfig.cmake\n'}
+[23.497814] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_introspection_cppExport.cmake\n'}
+[23.498124] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_introspection_cppExport-noconfig.cmake\n'}
+[23.498290] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_cppExport.cmake\n'}
+[23.498447] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_cppExport-noconfig.cmake\n'}
+[23.498604] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_generator_pyExport.cmake\n'}
+[23.498743] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_generator_pyExport-noconfig.cmake\n'}
+[23.498888] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/rosidl_cmake-extras.cmake\n'}
+[23.499121] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/ament_cmake_export_dependencies-extras.cmake\n'}
+[23.499305] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/ament_cmake_export_include_directories-extras.cmake\n'}
+[23.499445] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/ament_cmake_export_libraries-extras.cmake\n'}
+[23.499581] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/ament_cmake_export_targets-extras.cmake\n'}
+[23.499720] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake\n'}
+[23.499807] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake\n'}
+[23.499887] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_controlConfig.cmake\n'}
+[23.500023] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_controlConfig-version.cmake\n'}
+[23.500116] (motor_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/package.xml\n'}
+[23.501433] (motor_control) CommandEnded: {'returncode': 0}
+[23.539777] (motor_control) JobEnded: {'identifier': 'motor_control', 'rc': 0}
+[23.540985] (-) EventReactorShutdown: {}

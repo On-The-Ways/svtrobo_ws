@@ -1,0 +1,92 @@
+[0.039s] Invoking command in '/home/openarm/svtrobo_ws/build/svtrobo_4ws': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --build /home/openarm/svtrobo_ws/build/svtrobo_4ws -- -j4 -l4
+[0.185s] [35m[1mConsolidate compiler generated dependencies of target lift_RS485_control[0m
+[0.270s] [ 33%] Built target zlac8015d_rpm_node
+[0.272s] [ 66%] Built target zlac8015d_canopen_node
+[0.288s] [ 83%] [32mBuilding CXX object CMakeFiles/lift_RS485_control.dir/src/lift_RS485_control.cpp.o[0m
+[6.109s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:[m[K In member function ‘[01m[Kbool MotorController::write_all(const uint8_t*, size_t, int)[m[K’:
+[6.110s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:68:17:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.110s]    68 |                 [01;31m[KROS_ERROR[m[K("串口写等待超时或出错: %s", rv == 0 ? "timeout" : strerror(errno));
+[6.110s]       |                 [01;31m[K^~~~~~~~~[m[K
+[6.119s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:74:17:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.120s]    74 |                 [01;31m[KROS_ERROR[m[K("串口写入失败: %s", strerror(errno));
+[6.120s]       |                 [01;31m[K^~~~~~~~~[m[K
+[6.136s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:[m[K In member function ‘[01m[Kssize_t MotorController::read_exact(uint8_t*, size_t, int)[m[K’:
+[6.136s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:96:17:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.136s]    96 |                 [01;31m[KROS_ERROR[m[K("串口 poll 出错: %s", strerror(errno));
+[6.137s]       |                 [01;31m[K^~~~~~~~~[m[K
+[6.154s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:104:21:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.155s]   104 |                     [01;31m[KROS_ERROR[m[K("串口读取失败: %s", strerror(errno));
+[6.155s]       |                     [01;31m[K^~~~~~~~~[m[K
+[6.166s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:[m[K In member function ‘[01m[Kbool MotorController::set_serial_config()[m[K’:
+[6.167s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:120:13:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.167s]   120 |             [01;31m[KROS_ERROR[m[K("tcgetattr 失败: %s", strerror(errno));
+[6.167s]       |             [01;31m[K^~~~~~~~~[m[K
+[6.179s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:126:13:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.179s]   126 |             [01;31m[KROS_ERROR[m[K("设置波特率失败");
+[6.179s]       |             [01;31m[K^~~~~~~~~[m[K
+[6.189s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:142:13:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.190s]   142 |             [01;31m[KROS_ERROR[m[K("tcsetattr 失败: %s", strerror(errno));
+[6.190s]       |             [01;31m[K^~~~~~~~~[m[K
+[6.205s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:[m[K In member function ‘[01m[Kbool MotorController::write_reg_locked(uint16_t, int16_t)[m[K’:
+[6.205s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:163:13:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.205s]   163 |             [01;31m[KROS_ERROR[m[K("寄存器写入请求发送失败（地址0x%X）", reg_addr);
+[6.205s]       |             [01;31m[K^~~~~~~~~[m[K
+[6.220s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:170:13:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.221s]   170 |             [01;31m[KROS_ERROR[m[K("寄存器写入响应超时或长度不符（期望8，实际%zd）", got);
+[6.221s]       |             [01;31m[K^~~~~~~~~[m[K
+[6.231s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:175:17:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.232s]   175 |                 [01;31m[KROS_ERROR[m[K("写寄存器异常响应，错误码0x%X", (int)resp[2]);
+[6.232s]       |                 [01;31m[K^~~~~~~~~[m[K
+[6.241s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:177:17:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.242s]   177 |                 [01;31m[KROS_ERROR[m[K("寄存器写入响应格式错误");
+[6.242s]       |                 [01;31m[K^~~~~~~~~[m[K
+[6.258s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:[m[K In member function ‘[01m[Kbool MotorController::check_error(uint16_t&)[m[K’:
+[6.258s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:206:13:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.258s]   206 |             [01;31m[KROS_ERROR[m[K("故障码请求发送失败");
+[6.258s]       |             [01;31m[K^~~~~~~~~[m[K
+[6.272s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:213:13:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.272s]   213 |             [01;31m[KROS_ERROR[m[K("故障码响应超时或出错（len=%zd）", got);
+[6.272s]       |             [01;31m[K^~~~~~~~~[m[K
+[6.285s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:218:17:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.285s]   218 |                 [01;31m[KROS_ERROR[m[K("故障码响应长度不足（%zd）", got);
+[6.285s]       |                 [01;31m[K^~~~~~~~~[m[K
+[6.298s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:224:13:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.298s]   224 |             [01;31m[KROS_ERROR[m[K("读取故障码被拒绝，异常码0x%X", resp[2]);
+[6.298s]       |             [01;31m[K^~~~~~~~~[m[K
+[6.310s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:227:13:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.310s]   227 |             [01;31m[KROS_ERROR[m[K("未知故障码响应函数码: 0x%X", resp[1]);
+[6.310s]       |             [01;31m[K^~~~~~~~~[m[K
+[6.320s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:[m[K In member function ‘[01m[Kbool MotorController::read_position(int32_t&)[m[K’:
+[6.321s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:248:13:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.321s]   248 |             [01;31m[KROS_ERROR[m[K("位置读取请求发送失败");
+[6.321s]       |             [01;31m[K^~~~~~~~~[m[K
+[6.332s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:255:13:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.332s]   255 |             [01;31m[KROS_ERROR[m[K("位置读取响应超时或出错（len=%zd）", got);
+[6.333s]       |             [01;31m[K^~~~~~~~~[m[K
+[6.343s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:260:17:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.343s]   260 |                 [01;31m[KROS_ERROR[m[K("位置响应长度不足（%zd）", got);
+[6.343s]       |                 [01;31m[K^~~~~~~~~[m[K
+[6.358s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:270:13:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.359s]   270 |             [01;31m[KROS_ERROR[m[K("位置读取异常响应，错误码0x%X", resp[2]);
+[6.359s]       |             [01;31m[K^~~~~~~~~[m[K
+[6.371s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:273:13:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_ERROR[m[K’ was not declared in this scope
+[6.371s]   273 |             [01;31m[KROS_ERROR[m[K("未知位置响应函数码: 0x%X", resp[1]);
+[6.372s]       |             [01;31m[K^~~~~~~~~[m[K
+[6.382s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:[m[K In member function ‘[01m[Kvoid MotorController::emergency_stop_locked()[m[K’:
+[6.382s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:282:9:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_WARN[m[K’ was not declared in this scope
+[6.383s]   282 |         [01;31m[KROS_WARN[m[K("电机紧急停止（已发送断开使能）");
+[6.383s]       |         [01;31m[K^~~~~~~~[m[K
+[6.398s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:[m[K In member function ‘[01m[Kbool MotorController::init_motor_params()[m[K’:
+[6.398s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:297:9:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_INFO[m[K’ was not declared in this scope
+[6.398s]   297 |         [01;31m[KROS_INFO[m[K("初始化电机参数...");
+[6.399s]       |         [01;31m[K^~~~~~~~[m[K
+[6.409s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:303:13:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_WARN[m[K’ was not declared in this scope
+[6.409s]   303 |             [01;31m[KROS_WARN[m[K("保存参数到 EEPROM 失败（非致命）");
+[6.409s]       |             [01;31m[K^~~~~~~~[m[K
+[6.456s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:[m[K In destructor ‘[01m[Kvirtual MotorController::~MotorController()[m[K’:
+[6.456s] [01m[K/home/openarm/svtrobo_ws/src/svtrobo_4ws/src/lift_RS485_control.cpp:412:13:[m[K [01;31m[Kerror: [m[K‘[01m[KROS_INFO[m[K’ was not declared in this scope
+[6.457s]   412 |             [01;31m[KROS_INFO[m[K("串口已关闭（析构）");
+[6.457s]       |             [01;31m[K^~~~~~~~[m[K
+[10.719s] gmake[2]: *** [CMakeFiles/lift_RS485_control.dir/build.make:76：CMakeFiles/lift_RS485_control.dir/src/lift_RS485_control.cpp.o] 错误 1
+[10.719s] gmake[1]: *** [CMakeFiles/Makefile2:193：CMakeFiles/lift_RS485_control.dir/all] 错误 2
+[10.720s] gmake: *** [Makefile:146：all] 错误 2

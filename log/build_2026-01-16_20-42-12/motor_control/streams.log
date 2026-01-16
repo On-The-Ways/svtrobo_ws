@@ -1,0 +1,178 @@
+[0.027s] Invoking command in '/home/openarm/svtrobo_ws/build/motor_control': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --build /home/openarm/svtrobo_ws/build/motor_control -- -j4 -l4
+[0.159s] [  2%] Built target motor_control__cpp
+[0.186s] [ 11%] Built target motor_control__rosidl_generator_c
+[0.264s] [ 11%] Built target ament_cmake_python_copy_motor_control
+[0.270s] [ 19%] Built target motor_control__rosidl_typesupport_cpp
+[0.270s] [ 27%] Built target motor_control__rosidl_typesupport_introspection_cpp
+[0.279s] [ 36%] Built target motor_control__rosidl_typesupport_fastrtps_cpp
+[0.341s] [ 44%] Built target motor_control__rosidl_typesupport_fastrtps_c
+[0.341s] [ 52%] Built target motor_control__rosidl_typesupport_introspection_c
+[0.353s] [ 61%] Built target motor_control__rosidl_typesupport_c
+[0.420s] [ 61%] Built target motor_control
+[0.421s] [ 69%] Built target motor_control_lib
+[0.475s] [35m[1mConsolidate compiler generated dependencies of target motor_control_test[0m
+[0.483s] [ 72%] Built target motor_control__py
+[0.532s] [ 75%] [32mBuilding CXX object CMakeFiles/motor_control_test.dir/src/motor_control_test.cpp.o[0m
+[0.558s] [ 80%] Built target motor_control__rosidl_generator_py
+[0.617s] [ 86%] Built target motor_control__rosidl_typesupport_fastrtps_c__pyext
+[0.641s] [ 91%] Built target motor_control__rosidl_typesupport_introspection_c__pyext
+[0.678s] [ 97%] Built target motor_control__rosidl_typesupport_c__pyext
+[0.882s] running egg_info
+[0.910s] writing motor_control.egg-info/PKG-INFO
+[0.911s] writing dependency_links to motor_control.egg-info/dependency_links.txt
+[0.912s] writing top-level names to motor_control.egg-info/top_level.txt
+[1.008s] reading manifest file 'motor_control.egg-info/SOURCES.txt'
+[1.011s] writing manifest file 'motor_control.egg-info/SOURCES.txt'
+[1.073s] [ 97%] Built target ament_cmake_python_build_motor_control_egg
+[9.453s] In file included from [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:12[m[K:
+[9.453s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/include/motor_control/motor_config.h:[m[K In member function ‘[01m[KRobStrite_Motor& MotorControlSet::getMotor(uint8_t)[m[K’:
+[9.453s] [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/include/motor_control/motor_config.h:80:17:[m[K [01;35m[Kwarning: [m[Kcontrol reaches end of non-void function [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreturn-type-Wreturn-type]8;;[m[K]
+[9.453s]    80 |                 [01;35m[K}[m[K
+[9.453s]       |                 [01;35m[K^[m[K
+[16.488s] [100%] [32m[1mLinking CXX executable motor_control_test[0m
+[17.458s] [100%] Built target motor_control_test
+[17.475s] Invoked command in '/home/openarm/svtrobo_ws/build/motor_control' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --build /home/openarm/svtrobo_ws/build/motor_control -- -j4 -l4
+[17.478s] Invoking command in '/home/openarm/svtrobo_ws/build/motor_control': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --install /home/openarm/svtrobo_ws/build/motor_control
+[17.496s] -- Install configuration: ""
+[17.497s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/ament_index/resource_index/rosidl_interfaces/motor_control
+[17.497s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control
+[17.497s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg
+[17.498s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail
+[17.499s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__functions.c
+[17.499s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__type_support.h
+[17.499s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__functions.h
+[17.499s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__struct.h
+[17.500s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/motor_feedback.h
+[17.500s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/rosidl_generator_c__visibility_control.h
+[17.500s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/library_path.sh
+[17.500s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/library_path.dsv
+[17.500s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_generator_c.so
+[17.501s] -- Set runtime path of "/home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_generator_c.so" to ""
+[17.501s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control
+[17.501s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg
+[17.501s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail
+[17.502s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__rosidl_typesupport_fastrtps_c.h
+[17.502s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[17.502s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_fastrtps_c.so
+[17.503s] -- Set runtime path of "/home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_fastrtps_c.so" to ""
+[17.503s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control
+[17.503s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg
+[17.503s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail
+[17.503s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__struct.hpp
+[17.504s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__traits.hpp
+[17.504s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__type_support.hpp
+[17.504s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__builder.hpp
+[17.504s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/motor_feedback.hpp
+[17.504s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/rosidl_generator_cpp__visibility_control.hpp
+[17.505s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control
+[17.505s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg
+[17.505s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail
+[17.505s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__rosidl_typesupport_fastrtps_cpp.hpp
+[17.505s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/dds_fastrtps
+[17.506s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[17.506s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_fastrtps_cpp.so
+[17.506s] -- Set runtime path of "/home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_fastrtps_cpp.so" to ""
+[17.506s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control
+[17.506s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg
+[17.507s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail
+[17.507s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__rosidl_typesupport_introspection_c.h
+[17.507s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__type_support.c
+[17.507s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[17.507s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_introspection_c.so
+[17.507s] -- Set runtime path of "/home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_introspection_c.so" to ""
+[17.508s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_c.so
+[17.508s] -- Set runtime path of "/home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_c.so" to ""
+[17.509s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control
+[17.509s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg
+[17.509s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail
+[17.509s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__type_support.cpp
+[17.509s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_control/msg/detail/motor_feedback__rosidl_typesupport_introspection_cpp.hpp
+[17.509s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_introspection_cpp.so
+[17.510s] -- Set runtime path of "/home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_introspection_cpp.so" to ""
+[17.510s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_cpp.so
+[17.511s] -- Set runtime path of "/home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_typesupport_cpp.so" to ""
+[17.511s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/pythonpath.sh
+[17.513s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/pythonpath.dsv
+[17.514s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control-2.0.0-py3.10.egg-info
+[17.515s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control-2.0.0-py3.10.egg-info/dependency_links.txt
+[17.515s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control-2.0.0-py3.10.egg-info/top_level.txt
+[17.516s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control-2.0.0-py3.10.egg-info/PKG-INFO
+[17.517s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control-2.0.0-py3.10.egg-info/SOURCES.txt
+[17.517s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control
+[17.517s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/__init__.py
+[17.518s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[17.518s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[17.518s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg
+[17.518s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg/__init__.py
+[17.519s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg/_motor_feedback_s.c
+[17.519s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg/_motor_feedback.py
+[17.519s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/libmotor_control__rosidl_generator_py.so
+[17.519s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[17.519s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/_motor_control_s.ep.rosidl_typesupport_introspection_c.c
+[17.520s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/_motor_control_s.ep.rosidl_typesupport_fastrtps_c.c
+[17.520s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/_motor_control_s.ep.rosidl_typesupport_c.c
+[17.602s] Listing '/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control'...
+[17.603s] Compiling '/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/__init__.py'...
+[17.603s] Listing '/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg'...
+[17.603s] Compiling '/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg/__init__.py'...
+[17.603s] Compiling '/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/msg/_motor_feedback.py'...
+[17.619s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[17.621s] -- Set runtime path of "/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so" to ""
+[17.621s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[17.623s] -- Set runtime path of "/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so" to ""
+[17.624s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[17.625s] -- Set runtime path of "/home/openarm/svtrobo_ws/install/motor_control/local/lib/python3.10/dist-packages/motor_control/motor_control_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so" to ""
+[17.625s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_generator_py.so
+[17.626s] -- Set runtime path of "/home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control__rosidl_generator_py.so" to ""
+[17.626s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/msg/MotorFeedback.idl
+[17.627s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/msg/MotorFeedback.msg
+[17.627s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control_lib.so
+[17.639s] -- Set runtime path of "/home/openarm/svtrobo_ws/install/motor_control/lib/libmotor_control_lib.so" to ""
+[17.640s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/lib/motor_control/motor_control_test
+[17.646s] -- Set runtime path of "/home/openarm/svtrobo_ws/install/motor_control/lib/motor_control/motor_control_test" to ""
+[17.646s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include
+[17.646s] -- Up-to-date: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control
+[17.647s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/robstride.h
+[17.647s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/include/motor_control/motor_config.h
+[17.647s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/launch
+[17.647s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/launch/motor_test.launch.py
+[17.648s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/ament_index/resource_index/package_run_dependencies/motor_control
+[17.648s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/ament_index/resource_index/parent_prefix_path/motor_control
+[17.648s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/ament_prefix_path.sh
+[17.648s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/ament_prefix_path.dsv
+[17.648s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/path.sh
+[17.649s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/environment/path.dsv
+[17.649s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/local_setup.bash
+[17.649s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/local_setup.sh
+[17.649s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/local_setup.zsh
+[17.650s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/local_setup.dsv
+[17.650s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/package.dsv
+[17.650s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/ament_index/resource_index/packages/motor_control
+[17.650s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_generator_cExport.cmake
+[17.651s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_generator_cExport-noconfig.cmake
+[17.651s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_typesupport_fastrtps_cExport.cmake
+[17.651s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+[17.651s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_generator_cppExport.cmake
+[17.652s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_typesupport_fastrtps_cppExport.cmake
+[17.652s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+[17.652s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_introspection_cExport.cmake
+[17.652s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[17.653s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_cExport.cmake
+[17.653s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_cExport-noconfig.cmake
+[17.653s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_introspection_cppExport.cmake
+[17.653s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[17.654s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_cppExport.cmake
+[17.654s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_control__rosidl_typesupport_cppExport-noconfig.cmake
+[17.654s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_generator_pyExport.cmake
+[17.655s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/export_motor_control__rosidl_generator_pyExport-noconfig.cmake
+[17.655s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/rosidl_cmake-extras.cmake
+[17.655s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/ament_cmake_export_dependencies-extras.cmake
+[17.655s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/ament_cmake_export_include_directories-extras.cmake
+[17.656s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/ament_cmake_export_libraries-extras.cmake
+[17.656s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/ament_cmake_export_targets-extras.cmake
+[17.656s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[17.656s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[17.657s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_controlConfig.cmake
+[17.657s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/cmake/motor_controlConfig-version.cmake
+[17.657s] -- Installing: /home/openarm/svtrobo_ws/install/motor_control/share/motor_control/package.xml
+[17.662s] Invoked command in '/home/openarm/svtrobo_ws/build/motor_control' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --install /home/openarm/svtrobo_ws/build/motor_control

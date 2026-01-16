@@ -1,0 +1,5 @@
+In file included from [01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/src/motor_control_test.cpp:12[m[K:
+[01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/include/motor_control/motor_config.h:[m[K In member function ‘[01m[KRobStrite_Motor& MotorControlSet::getMotor(uint8_t)[m[K’:
+[01m[K/home/openarm/svtrobo_ws/src/robstride_actuator_bridge/include/motor_control/motor_config.h:80:17:[m[K [01;35m[Kwarning: [m[Kcontrol reaches end of non-void function [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wreturn-type-Wreturn-type]8;;[m[K]
+   80 |                 [01;35m[K}[m[K
+      |                 [01;35m[K^[m[K
