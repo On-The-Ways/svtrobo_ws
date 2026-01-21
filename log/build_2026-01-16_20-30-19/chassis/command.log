@@ -1,2 +1,0 @@
-Invoking command in '/home/openarm/svtrobo_ws/build/chassis': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake /home/openarm/svtrobo_ws/src/chassis -DCMAKE_INSTALL_PREFIX=/home/openarm/svtrobo_ws/install/chassis
-Invoked command in '/home/openarm/svtrobo_ws/build/chassis' returned '1': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake /home/openarm/svtrobo_ws/src/chassis -DCMAKE_INSTALL_PREFIX=/home/openarm/svtrobo_ws/install/chassis

@@ -17,10 +17,10 @@ def generate_launch_description():
     
     # 1. 启动独立轮毂电机驱动节点
     zlac_canopen_node = Node(
-        package='svtrobo_4ws',
-        executable='zlac8015d_canopen_node',
-        name='zlac8015d_canopen_node',
-        output='screen'
+         package='svtrobo_4ws',
+         executable='zlac8015d_canopen_node',
+         name='zlac8015d_canopen_node',
+         output='screen'
     )
     
     # 2. 转速反馈节点
@@ -32,12 +32,12 @@ def generate_launch_description():
     )
     
     # 3. 启动升降机构RS485控制节点
-    lift_rs485_node = Node(
-        package='svtrobo_4ws',
-        executable='lift_RS485_control',
-        name='lift_RS485_control',
-        output='screen'
-    )
+    # lift_rs485_node = Node(
+    #     package='svtrobo_4ws',
+    #     executable='lift_RS485_control',
+    #     name='lift_RS485_control',
+    #     output='screen'
+    # )
     
     # 4. 启动独立转向（包含motor_test.launch.py）
     motor_test_launch = IncludeLaunchDescription(
@@ -48,7 +48,7 @@ def generate_launch_description():
     
     return LaunchDescription([
         zlac_canopen_node,
-        zlac_rpm_node,
-        lift_rs485_node,
-        motor_test_launch,
+        #zlac_rpm_node,
+        #lift_rs485_node,
+        #motor_test_launch,
     ])

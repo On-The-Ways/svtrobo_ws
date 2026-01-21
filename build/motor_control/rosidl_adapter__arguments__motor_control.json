@@ -1,6 +1,0 @@
-{
-  "package_name": "motor_control",
-  "non_idl_tuples": [
-    "/home/openarm/svtrobo_ws/src/robstride_actuator_bridge:msg/MotorFeedback.msg"
-  ]
-}

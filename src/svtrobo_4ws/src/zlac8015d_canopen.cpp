@@ -1,11 +1,8 @@
 /******************************************************************************
- * @file    zlac8015d_canopen.cpp
- * @brief   ZLAC8015D CANopen SDO control implementation - ROS2 Humble
- *
- * @author  luzhongfa
- * @company 杭州时空变量科技有限公司
- * @date    2025-12-24
- *
+ * @file    zlac8015d_canopen_ros2.cpp
+ * @brief   ZLAC8015D CANopen SDO control - ROS2 Humble port
+ * @author  Adapted for ROS2
+ * @date    2025
  *****************************************************************************/
 
 #include <rclcpp/rclcpp.hpp>
@@ -40,7 +37,6 @@
 
 using namespace std::chrono_literals;
 
-
 class CanopenSdoError : public std::runtime_error {
 public:
     explicit CanopenSdoError(const std::string &msg) : std::runtime_error(msg) {}
@@ -49,17 +45,14 @@ public:
 class SocketCan
 {
 public:
-    // Create socket bound to ifname, with optional filters
     explicit SocketCan(const std::string &ifname, const std::vector<can_filter>& filters) {
         sock_ = socket(PF_CAN, SOCK_RAW, CAN_RAW);
         if (sock_ < 0) {
             throw std::runtime_error("socket(PF_CAN) failed: " + std::string(strerror(errno)));
         }
 
-        // bind to interface
         struct ifreq ifr;
         std::memset(&ifr, 0, sizeof(ifr));
-        // ensure null terminated copy
         std::strncpy(ifr.ifr_name, ifname.c_str(), IFNAMSIZ - 1);
         ifr.ifr_name[IFNAMSIZ - 1] = '\0';
 
@@ -71,25 +64,23 @@ public:
         addr.can_family = AF_CAN;
         addr.can_ifindex = ifr.ifr_ifindex;
 
-        // disable receiving our own transmitted frames (avoid kernel loopback echo)
+        // 禁用回环帧
         int loopback = 0;
         if (setsockopt(sock_, SOL_CAN_RAW, CAN_RAW_RECV_OWN_MSGS, &loopback, sizeof(loopback)) < 0) {
-            // non-fatal: warn
             std::ostringstream ss;
             ss << "Warning: CAN_RAW_RECV_OWN_MSGS setsockopt failed: " << strerror(errno);
             std::cerr << ss.str() << std::endl;
         }
 
-        // optionally set error filter to ignore error frames
+        // 过滤错误帧
         int err_mask = 0;
         if (setsockopt(sock_, SOL_CAN_RAW, CAN_RAW_ERR_FILTER, &err_mask, sizeof(err_mask)) < 0) {
-            // non-fatal: warn
             std::ostringstream ss;
             ss << "Warning: CAN_RAW_ERR_FILTER setsockopt failed: " << strerror(errno);
             std::cerr << ss.str() << std::endl;
         }
 
-        // set filters if provided
+        // 设置CAN过滤器
         if (!filters.empty()) {
             if (setsockopt(sock_, SOL_CAN_RAW, CAN_RAW_FILTER, filters.data(), static_cast<int>(filters.size() * sizeof(can_filter))) < 0) {
                 close(sock_);
@@ -97,7 +88,6 @@ public:
             }
         }
 
-        // bind
         if (bind(sock_, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) < 0) {
             close(sock_);
             throw std::runtime_error("bind CAN socket failed: " + std::string(strerror(errno)));
@@ -108,7 +98,6 @@ public:
         if (sock_ >= 0) close(sock_);
     }
 
-    // send a frame (thread-safe)
     void send_frame(const struct can_frame &frame) {
         std::lock_guard<std::mutex> lk(tx_mutex_);
         ssize_t n = write(sock_, &frame, sizeof(frame));
@@ -119,8 +108,6 @@ public:
         }
     }
 
-    // receive with timeout (ms). If timeout_ms < 0 -> block indefinitely.
-    // Returns pair<bool, can_frame>. bool=false => timeout/no frame.
     std::pair<bool, struct can_frame> recv_frame(int timeout_ms) {
         struct pollfd pfd;
         pfd.fd = sock_;
@@ -144,7 +131,6 @@ public:
         return {true, frame};
     }
 
-    // Non-blocking drain (max iterations) using MSG_DONTWAIT recv
     void drain(int max_iters = 200) {
         for (int i = 0; i < max_iters; ++i) {
             struct can_frame f;
@@ -160,7 +146,6 @@ private:
 
 class ZLAC8015D {
 public:
-    // primary constructor: create its own socket (default)
     ZLAC8015D(const std::string &channel, int node_id, double recv_timeout = 0.3)
         : node_id_(node_id),
           sdo_tx_(0x600 + node_id),
@@ -171,7 +156,6 @@ public:
         init_socket(channel);
     }
 
-    // secondary constructor: accept externally created socket (optional)
     ZLAC8015D(std::shared_ptr<SocketCan> external_socket, int node_id, double recv_timeout = 0.3)
         : node_id_(node_id),
           sdo_tx_(0x600 + node_id),
@@ -185,7 +169,6 @@ public:
 
     ~ZLAC8015D() = default;
 
-    // NMT start
     void nmt_start() {
         struct can_frame f {};
         f.can_id = 0x000;
@@ -195,7 +178,6 @@ public:
         socket_->send_frame(f);
     }
 
-    // Wait heartbeat; returns optional state byte (0..255) or -1 for timeout
     int wait_heartbeat(double timeout_s = 2.0) {
         auto deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(timeout_s);
         while (std::chrono::steady_clock::now() < deadline) {
@@ -211,7 +193,6 @@ public:
         return -1;
     }
 
-    // SDO write expedited: payload must be 1/2/4 bytes
     void sdo_write(uint16_t index, uint8_t sub, const std::vector<uint8_t>& payload) {
         if (!(payload.size() == 1 || payload.size() == 2 || payload.size() == 4)) {
             throw std::invalid_argument("payload must be 1,2 or 4 bytes for expedited write");
@@ -227,7 +208,7 @@ public:
         for (size_t i = 0; i < payload.size(); ++i) req.data[4 + i] = payload[i];
         for (size_t i = payload.size(); i < 4; ++i) req.data[4 + i] = 0;
 
-        socket_->drain(); // clear stale SDO responses
+        socket_->drain();
         socket_->send_frame(req);
         auto resp = wait_sdo_resp(index, sub, recv_timeout_s_);
         if (!resp.has_value()) {
@@ -251,7 +232,6 @@ public:
         }
     }
 
-    // SDO read expedited: returns bytes (1..4)
     std::vector<uint8_t> sdo_read(uint16_t index, uint8_t sub, double timeout_s = -1.0) {
         if (timeout_s < 0) timeout_s = recv_timeout_s_;
         struct can_frame req {};
@@ -299,15 +279,16 @@ public:
         }
     }
 
-    // typed helpers
     void sdo_write_i8(uint16_t index, uint8_t sub, int8_t val) {
         std::vector<uint8_t> p{ static_cast<uint8_t>(val) };
         sdo_write(index, sub, p);
     }
+
     void sdo_write_u16(uint16_t index, uint8_t sub, uint16_t val) {
         std::vector<uint8_t> p{ static_cast<uint8_t>(val & 0xFF), static_cast<uint8_t>((val >> 8) & 0xFF) };
         sdo_write(index, sub, p);
     }
+
     int32_t sdo_read_i32(uint16_t index, uint8_t sub) {
         auto b = sdo_read(index, sub);
         if (b.size() >= 4) {
@@ -329,6 +310,7 @@ public:
             (static_cast<uint32_t>(b4[3]) << 24));
         return v;
     }
+
     uint32_t sdo_read_u32(uint16_t index, uint8_t sub) {
         auto b = sdo_read(index, sub);
         if (b.size() >= 4) {
@@ -344,7 +326,6 @@ public:
         return v;
     }
 
-    // device specific helpers
     void set_velocity_mode() { sdo_write_i8(0x6060, 0x00, 3); }
     void enable_operation() {
         sdo_write_u16(0x6040, 0x00, 0x0006);
@@ -357,7 +338,6 @@ public:
     void quick_stop() { sdo_write_u16(0x6040, 0x00, 0x0002); }
     void clear_fault() { sdo_write_u16(0x6040, 0x00, 0x0080); }
 
-    // dual motor helpers
     void set_target_speed_lr_rpm(int16_t left_rpm, int16_t right_rpm) {
         std::vector<uint8_t> p(4);
         p[0] = static_cast<uint8_t>(left_rpm & 0xFF); p[1] = static_cast<uint8_t>((left_rpm>>8)&0xFF);
@@ -390,9 +370,7 @@ private:
     double recv_timeout_s_;
     std::shared_ptr<SocketCan> socket_;
 
-    // internal init
     void init_socket(const std::string &channel) {
-        // Setup CAN filters: only accept responses from this node's SDO RX and heartbeat
         std::vector<can_filter> filters;
         can_filter f1{static_cast<__u32>(sdo_rx_), 0x7FF};
         can_filter f2{static_cast<__u32>(hb_id_),  0x7FF};
@@ -401,7 +379,6 @@ private:
         socket_ = std::make_shared<SocketCan>(channel, filters);
     }
 
-    // wait for SDO response matching index & sub within timeout (seconds)
     std::optional<struct can_frame> wait_sdo_resp(uint16_t index, uint8_t sub, double timeout_s) {
         auto deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(timeout_s);
         uint8_t idx_lo = static_cast<uint8_t>(index & 0xFF);
@@ -421,7 +398,6 @@ private:
         return std::nullopt;
     }
 
-    // extract abort code safely (if possible)
     uint32_t extract_abort_code(const struct can_frame &frame) {
         if (frame.can_dlc >= 8) {
             uint32_t abort = (static_cast<uint32_t>(frame.data[4])      ) |
@@ -443,28 +419,30 @@ private:
     }
 };
 
-// ROS2 node that manages two ZLAC8015D instances (front = node 1, rear = node 2)
-// and subscribes to 4 Int32 topics to control each wheel independently.
 class WheelControllerNode : public rclcpp::Node {
 public:
-    WheelControllerNode()
-        : Node("zlac8015d_controller_node"),
-          front_left_cmd_(0), front_right_cmd_(0),
-          rear_left_cmd_(0), rear_right_cmd_(0),
-          running_(true)
-    {
+    WheelControllerNode() : Node("zlac8015d_controller_node"),
+                            front_left_cmd_(0), front_right_cmd_(0),
+                            rear_left_cmd_(0), rear_right_cmd_(0),
+                            running_(true) {
+        // 声明并获取参数
         this->declare_parameter<std::string>("can_interface", "can2");
         this->declare_parameter<double>("control_rate", 2.0);
-        
+        this->declare_parameter<std::string>("topic_front_left", "/front_left_cmd");
+        this->declare_parameter<std::string>("topic_front_right", "/front_right_cmd");
+        this->declare_parameter<std::string>("topic_rear_left", "/rear_left_cmd");
+        this->declare_parameter<std::string>("topic_rear_right", "/rear_right_cmd");
+
         this->get_parameter("can_interface", can_interface_);
         this->get_parameter("control_rate", control_rate_hz_);
+        
+        std::string topic_fl, topic_fr, topic_rl, topic_rr;
+        this->get_parameter("topic_front_left", topic_fl);
+        this->get_parameter("topic_front_right", topic_fr);
+        this->get_parameter("topic_rear_left", topic_rl);
+        this->get_parameter("topic_rear_right", topic_rr);
 
-        // allow custom topic names via params
-        std::string topic_fl = this->declare_parameter<std::string>("topic_front_left", "/front_left_cmd");
-        std::string topic_fr = this->declare_parameter<std::string>("topic_front_right", "/front_right_cmd");
-        std::string topic_rl = this->declare_parameter<std::string>("topic_rear_left", "/rear_left_cmd");
-        std::string topic_rr = this->declare_parameter<std::string>("topic_rear_right", "/rear_right_cmd");
-
+        // 创建订阅者
         sub_fl_ = this->create_subscription<std_msgs::msg::Int32>(
             topic_fl, 1, std::bind(&WheelControllerNode::cbFrontLeft, this, std::placeholders::_1));
         sub_fr_ = this->create_subscription<std_msgs::msg::Int32>(
@@ -474,13 +452,13 @@ public:
         sub_rr_ = this->create_subscription<std_msgs::msg::Int32>(
             topic_rr, 1, std::bind(&WheelControllerNode::cbRearRight, this, std::placeholders::_1));
 
-        // create devices
+        // 初始化驱动器
         RCLCPP_INFO(this->get_logger(), "Creating front and rear ZLAC8015D on interface '%s'...", can_interface_.c_str());
-        front_ = std::make_unique<ZLAC8015D>(can_interface_, 1, 0.3);
-        rear_  = std::make_unique<ZLAC8015D>(can_interface_, 2, 0.3);
-
-        // initial device setup
         try {
+            front_ = std::make_unique<ZLAC8015D>(can_interface_, 1, 0.3);
+            rear_  = std::make_unique<ZLAC8015D>(can_interface_, 2, 0.3);
+
+            // 驱动器初始化配置
             for (auto *drv : std::vector<ZLAC8015D*>{front_.get(), rear_.get()}) {
                 int hb = drv->wait_heartbeat(1.0);
                 (void)hb;
@@ -492,58 +470,75 @@ public:
             RCLCPP_ERROR(this->get_logger(), "Error during initial device setup: %s", e.what());
             throw;
         }
+
+        // 注册SIGINT信号处理
+        signal(SIGINT, [](int sig) {
+            (void)sig;
+            rclcpp::shutdown();
+        });
     }
 
     ~WheelControllerNode() {
-        // attempt clean stop
+        // 优雅停止电机
         try {
             if (front_) front_->stop();
             std::this_thread::sleep_for(50ms);
             if (rear_) rear_->stop();
-        } catch (...) {}
+        } catch (...) {
+            RCLCPP_WARN(this->get_logger(), "Exception during stop motors");
+        }
     }
 
     void spin() {
         rclcpp::Rate rate(control_rate_hz_);
         while (rclcpp::ok() && running_) {
             rclcpp::spin_some(this->get_node_base_interface());
-            // read atomic commands
+            
+            // 读取原子指令
             int fl = front_left_cmd_.load();
             int fr = front_right_cmd_.load();
             int rl = rear_left_cmd_.load();
             int rr = rear_right_cmd_.load();
 
             try {
-                // set speed via SDO (same as original)
+                // 下发速度指令
                 front_->set_target_speed_lr_rpm(static_cast<int16_t>(fl), static_cast<int16_t>(fr));
                 rear_->set_target_speed_lr_rpm(static_cast<int16_t>(rl), static_cast<int16_t>(rr));
 
-                // read back status (best-effort, exceptions caught)
+                // 读取状态（可选打印）
                 auto [sp_fl, sp_fr] = front_->read_actual_speed_lr_0p1rpm();
                 auto [sp_rl, sp_rr] = rear_->read_actual_speed_lr_0p1rpm();
                 auto [enc_fl, enc_fr] = front_->read_encoder_lr();
                 auto [enc_rl, enc_rr] = rear_->read_encoder_lr();
                 auto [sw_fl, sw_fr] = front_->read_statusword_lr();
                 auto [sw_rl, sw_rr] = rear_->read_statusword_lr();
-                (void)sp_fl; (void)sp_fr; (void)sp_rl; (void)sp_rr;
-                (void)enc_fl; (void)enc_fr; (void)enc_rl; (void)enc_rr;
-                (void)sw_fl; (void)sw_fr; (void)sw_rl; (void)sw_rr;
+
+                RCLCPP_INFO(this->get_logger(), 
+                    "[SDO] front cmd=(%d,%d) rpm | speed=(%.1f,%.1f) rpm | enc=(%d,%d) | sw=(0x%04x,0x%04x)",
+                    fl, fr, sp_fl/10.0, sp_fr/10.0, enc_fl, enc_fr, sw_fl, sw_fr);
+                RCLCPP_INFO(this->get_logger(), 
+                    "[SDO] rear  cmd=(%d,%d) rpm | speed=(%.1f,%.1f) rpm | enc=(%d,%d) | sw=(0x%04x,0x%04x)",
+                    rl, rr, sp_rl/10.0, sp_rr/10.0, enc_rl, enc_rr, sw_rl, sw_rr);
 
             } catch (const CanopenSdoError &e) {
                 RCLCPP_ERROR(this->get_logger(), "CanopenSdoError: %s", e.what());
-                // try to print fault codes
+                // 打印故障码
                 try {
                     uint32_t ffront = front_->read_fault_code_u32();
                     RCLCPP_ERROR(this->get_logger(), "front fault=0x%08x", ffront);
-                } catch (...) {}
+                } catch (...) {
+                    RCLCPP_WARN(this->get_logger(), "Failed to read front fault code");
+                }
                 try {
                     uint32_t frear = rear_->read_fault_code_u32();
                     RCLCPP_ERROR(this->get_logger(), "rear fault=0x%08x", frear);
-                } catch (...) {}
+                } catch (...) {
+                    RCLCPP_WARN(this->get_logger(), "Failed to read rear fault code");
+                }
             } catch (const std::exception &e) {
-                RCLCPP_WARN(this->get_logger(), "exception: %s", e.what());
+                RCLCPP_WARN(this->get_logger(), "Exception in control loop: %s", e.what());
             } catch (...) {
-                RCLCPP_WARN(this->get_logger(), "unknown exception in control loop");
+                RCLCPP_WARN(this->get_logger(), "Unknown exception in control loop");
             }
 
             rate.sleep();
@@ -561,10 +556,11 @@ private:
     std::unique_ptr<ZLAC8015D> front_;
     std::unique_ptr<ZLAC8015D> rear_;
 
-    // subscribers
-    rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr sub_fl_, sub_fr_, sub_rl_, sub_rr_;
+    rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr sub_fl_;
+    rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr sub_fr_;
+    rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr sub_rl_;
+    rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr sub_rr_;
 
-    // command variables (atomic)
     std::atomic<int> front_left_cmd_;
     std::atomic<int> front_right_cmd_;
     std::atomic<int> rear_left_cmd_;
@@ -572,28 +568,32 @@ private:
 
     std::atomic<bool> running_;
 
-    // callbacks
-    void cbFrontLeft(const std_msgs::msg::Int32::SharedPtr msg) { front_left_cmd_.store(msg->data); }
-    void cbFrontRight(const std_msgs::msg::Int32::SharedPtr msg) { front_right_cmd_.store(-msg->data); }  // 取反
-    void cbRearLeft(const std_msgs::msg::Int32::SharedPtr msg) { rear_left_cmd_.store(msg->data); }
-    void cbRearRight(const std_msgs::msg::Int32::SharedPtr msg) { rear_right_cmd_.store(-msg->data); }  // 取反
+    void cbFrontLeft(const std_msgs::msg::Int32::SharedPtr msg) { 
+        front_left_cmd_.store(msg->data); 
+    }
+    void cbFrontRight(const std_msgs::msg::Int32::SharedPtr msg) { 
+        front_right_cmd_.store(-msg->data);  // 取反
+    }
+    void cbRearLeft(const std_msgs::msg::Int32::SharedPtr msg) { 
+        rear_left_cmd_.store(msg->data); 
+    }
+    void cbRearRight(const std_msgs::msg::Int32::SharedPtr msg) { 
+        rear_right_cmd_.store(-msg->data);  // 取反
+    }
 };
-
 
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
-
     try {
         auto node = std::make_shared<WheelControllerNode>();
-        rclcpp::spin(node);
+        node->spin();
+        node->shutdown();
     } catch (const std::exception &e) {
         RCLCPP_FATAL(rclcpp::get_logger("zlac8015d_controller"), "Fatal error: %s", e.what());
-        rclcpp::shutdown();
         return 2;
     }
 
-    RCLCPP_INFO(rclcpp::get_logger("zlac8015d_controller"), "Exiting zlac8015d_controller");
     rclcpp::shutdown();
+    RCLCPP_INFO(rclcpp::get_logger("zlac8015d_controller"), "Exiting zlac8015d_controller");
     return 0;
 }
-

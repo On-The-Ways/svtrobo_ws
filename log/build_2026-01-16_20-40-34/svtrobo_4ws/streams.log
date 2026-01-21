@@ -1,7 +1,0 @@
-[0.028s] Invoking command in '/home/openarm/svtrobo_ws/build/svtrobo_4ws': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --build /home/openarm/svtrobo_ws/build/svtrobo_4ws -- -j4 -l4
-[0.147s] [35m[1mConsolidate compiler generated dependencies of target lift_RS485_control[0m
-[0.211s] [ 16%] [32mBuilding CXX object CMakeFiles/lift_RS485_control.dir/src/lift_RS485_control.cpp.o[0m
-[0.232s] [ 50%] Built target zlac8015d_canopen_node
-[0.242s] [ 83%] Built target zlac8015d_rpm_node
-[17.131s] [100%] [32m[1mLinking CXX executable lift_RS485_control[0m
-[17.877s] [100%] Built target lift_RS485_control
