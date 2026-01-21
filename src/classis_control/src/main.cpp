@@ -25,10 +25,11 @@
 #define CHASSIS_HALF_WIDTH      0.15f
 #define WHEEL_PERIMETER         0.6471680756f
 
-#define FRONT_LEFT_START_ANGLE 3.900
-#define FRONT_RIGHT_START_ANGLE 6.700
-#define REAR_LEFT_START_ANGLE 0.386
-#define REAR_RIGHT_START_ANGLE 6.394
+// 起始角度参数（从ROS2参数服务器读取，必须通过配置文件提供）
+double FRONT_LEFT_START_ANGLE = 0.0;
+double FRONT_RIGHT_START_ANGLE = 0.0;
+double REAR_LEFT_START_ANGLE = 0.0;
+double REAR_RIGHT_START_ANGLE = 0.0;
 
 #define motor_kp 4.0f
 #define motor_kd 0.4f
@@ -206,6 +207,43 @@ public:
         fr_rate_limiter(MAX_ANGLE_RATE),
         rl_rate_limiter(MAX_ANGLE_RATE),
         rr_rate_limiter(MAX_ANGLE_RATE){
+    // 从ROS2参数服务器读取起始角度参数（必须通过配置文件提供，无默认值）
+    // 使用declare_parameter而不提供默认值，如果参数未提供会抛出异常
+    try {
+      this->declare_parameter<double>("front_left_start_angle");
+      this->declare_parameter<double>("front_right_start_angle");
+      this->declare_parameter<double>("rear_left_start_angle");
+      this->declare_parameter<double>("rear_right_start_angle");
+      
+      FRONT_LEFT_START_ANGLE = this->get_parameter("front_left_start_angle").as_double();
+      FRONT_RIGHT_START_ANGLE = this->get_parameter("front_right_start_angle").as_double();
+      REAR_LEFT_START_ANGLE = this->get_parameter("rear_left_start_angle").as_double();
+      REAR_RIGHT_START_ANGLE = this->get_parameter("rear_right_start_angle").as_double();
+      
+      RCLCPP_INFO(this->get_logger(), "加载起始角度参数（从配置文件读取）:");
+      RCLCPP_INFO(this->get_logger(), "  前左轮: %.3f", FRONT_LEFT_START_ANGLE);
+      RCLCPP_INFO(this->get_logger(), "  前右轮: %.3f", FRONT_RIGHT_START_ANGLE);
+      RCLCPP_INFO(this->get_logger(), "  后左轮: %.3f", REAR_LEFT_START_ANGLE);
+      RCLCPP_INFO(this->get_logger(), "  后右轮: %.3f", REAR_RIGHT_START_ANGLE);
+    } catch (const rclcpp::ParameterTypeException& e) {
+      RCLCPP_FATAL(this->get_logger(), 
+                   "参数类型错误或缺少必需参数。请通过配置文件提供以下参数:\n"
+                   "  - front_left_start_angle\n"
+                   "  - front_right_start_angle\n"
+                   "  - rear_left_start_angle\n"
+                   "  - rear_right_start_angle\n"
+                   "错误信息: %s", e.what());
+      throw;
+    } catch (const std::exception& e) {
+      RCLCPP_FATAL(this->get_logger(), 
+                   "读取参数失败: %s\n"
+                   "请确保已通过 --params-file 或 --ros-args -p 提供配置文件", 
+                   e.what());
+      throw;
+    }
+    
+    // 初始化底盘参数
+    chassis_init();
     svtrobot_cmd_sub = this->create_subscription<geometry_msgs::msg::Twist>("/svtrobot_cmd", 10, std::bind(&classis_control::svtrobot_cmd_callback, this, std::placeholders::_1));
 
     pub_front_left = this->create_publisher<std_msgs::msg::Int32>("/front_left_cmd", 10);
