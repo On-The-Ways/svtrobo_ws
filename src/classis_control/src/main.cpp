@@ -120,71 +120,14 @@ static void chassis_control_loop(double vx_set, double vy_set, double wz_set)
         chassis_control_para.rear_right_speed *= scale;
     }
 
-    double fl_angle = atan2((vy_set + wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set - wz_set * CHASSIS_RADIUS * 0.707107f));
-    double fr_angle = atan2((vy_set + wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set + wz_set * CHASSIS_RADIUS * 0.707107f));
-    double rl_angle = atan2((vy_set - wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set - wz_set * CHASSIS_RADIUS * 0.707107f));
-    double rr_angle = atan2((vy_set - wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set + wz_set * CHASSIS_RADIUS * 0.707107f));
 
-    if(fabs(fl_angle)>PI/2.0f)
-    {
-      if(fl_angle>0.0f)
-      {
-        fl_angle = -(PI - fabs(fl_angle));
-        chassis_control_para.front_left_speed = -chassis_control_para.front_left_speed;
-      }
-      else
-      {
-        fl_angle = PI - fabs(fl_angle);
-        chassis_control_para.front_left_speed = -chassis_control_para.front_left_speed;
-      }
-    }
 
-    if(fabs(fr_angle)>PI/2.0f)
-    {
-      if(fr_angle>0.0f)
-      {
-        fr_angle = -(PI - fabs(fr_angle));
-        chassis_control_para.front_right_speed = -chassis_control_para.front_right_speed;
-      }
-      else
-      {
-        fr_angle = PI - fabs(fr_angle);
-        chassis_control_para.front_right_speed = -chassis_control_para.front_right_speed;
-      }
-    }
-
-    if(fabs(rl_angle)>PI/2.0f)
-    {
-      if(rl_angle>0.0f)
-      {
-        rl_angle = -(PI - fabs(rl_angle));
-        chassis_control_para.rear_left_speed = -chassis_control_para.rear_left_speed;
-      }
-      else
-      {
-        fl_angle = PI - fabs(fl_angle);
-        chassis_control_para.rear_left_speed = -chassis_control_para.rear_left_speed;
-      }
-    }
-
-    if(fabs(rr_angle)>PI/2.0f)
-    {
-      if(rr_angle>0.0f)
-      {
-        rr_angle = -(PI - fabs(rr_angle));
-        chassis_control_para.rear_right_speed = -chassis_control_para.rear_right_speed;
-      }
-      else
-      {
-        rr_angle = PI - fabs(rr_angle);
-        chassis_control_para.rear_right_speed = -chassis_control_para.rear_right_speed;
-      }
-    }
     //舵向控制
-    chassis_control_para.front_left_angle = fl_angle + FRONT_LEFT_START_ANGLE;        
-    chassis_control_para.front_right_angle = fr_angle + FRONT_RIGHT_START_ANGLE;
-    chassis_control_para.rear_left_angle = rl_angle  + REAR_LEFT_START_ANGLE;
-    chassis_control_para.rear_right_angle = rr_angle + REAR_RIGHT_START_ANGLE;
+    chassis_control_para.front_left_angle = atan2((vy_set + wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set - wz_set * CHASSIS_RADIUS * 0.707107f)) + FRONT_LEFT_START_ANGLE;        
+    chassis_control_para.front_right_angle = atan2((vy_set + wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set + wz_set * CHASSIS_RADIUS * 0.707107f)) + FRONT_RIGHT_START_ANGLE;
+    chassis_control_para.rear_left_angle = atan2((vy_set - wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set - wz_set * CHASSIS_RADIUS * 0.707107f))  + REAR_LEFT_START_ANGLE;
+    chassis_control_para.rear_right_angle = atan2((vy_set - wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set + wz_set * CHASSIS_RADIUS * 0.707107f)) + REAR_RIGHT_START_ANGLE;
+
 
 
 }
@@ -378,6 +321,64 @@ public:
         chassis_set_control(vx, vy, wz);
         chassis_control_loop(chassis_control_para.vx_set, chassis_control_para.vy_set, chassis_control_para.wz_set);
         
+        double fl_angle = atan2((vy + wz * CHASSIS_RADIUS * 0.707107f),(vx - wz * CHASSIS_RADIUS * 0.707107f));
+        double fr_angle = atan2((vy + wz * CHASSIS_RADIUS * 0.707107f),(vx + wz * CHASSIS_RADIUS * 0.707107f));
+        double rl_angle = atan2((vy - wz * CHASSIS_RADIUS * 0.707107f),(vx - wz * CHASSIS_RADIUS * 0.707107f));
+        double rr_angle = atan2((vy - wz * CHASSIS_RADIUS * 0.707107f),(vx + wz * CHASSIS_RADIUS * 0.707107f));
+
+        if(fabs(chassis_control_para.front_left_angle- motor1.position_)>PI/2.0f+0.02f)
+        {
+          if(fl_angle>0)
+          {
+            chassis_control_para.front_left_angle = FRONT_LEFT_START_ANGLE-(PI-fabs(fl_angle));
+            chassis_control_para.front_left_speed = -chassis_control_para.front_left_speed;
+          }
+          else
+          {
+            chassis_control_para.front_left_angle = FRONT_LEFT_START_ANGLE+PI-fabs(fl_angle);
+            chassis_control_para.front_left_speed = -chassis_control_para.front_left_speed;
+          }
+        }
+        if(fabs(chassis_control_para.front_right_angle-motor2.position_)>PI/2.0f+0.02f)
+        {
+          if(fr_angle>0)
+          {
+            chassis_control_para.front_right_angle = FRONT_RIGHT_START_ANGLE-(PI-fabs(fr_angle));
+            chassis_control_para.front_right_speed = -chassis_control_para.front_right_speed;
+          }
+          else
+          {
+            chassis_control_para.front_right_angle = FRONT_RIGHT_START_ANGLE+PI-fabs(fr_angle);
+            chassis_control_para.front_right_speed = -chassis_control_para.front_right_speed;
+          }
+        }
+        if(fabs(chassis_control_para.rear_left_angle-motor3.position_)>PI/2.0f+0.02f)
+        {
+          if(rl_angle>0)
+          {
+            chassis_control_para.rear_left_angle = REAR_LEFT_START_ANGLE-(PI-fabs(rl_angle));
+            chassis_control_para.rear_left_speed = -chassis_control_para.rear_left_speed;
+          }
+          else
+          {
+            chassis_control_para.rear_left_angle = REAR_LEFT_START_ANGLE+PI-fabs(rl_angle);
+            chassis_control_para.rear_left_speed = -chassis_control_para.rear_left_speed;
+          }
+        }
+        
+        if(fabs(chassis_control_para.rear_right_angle-motor4.position_)>PI/2.0f+0.02f)
+        {
+          if(rr_angle>0)
+          {
+            chassis_control_para.rear_right_angle = REAR_RIGHT_START_ANGLE-(PI-fabs(rr_angle));
+            chassis_control_para.rear_right_speed = -chassis_control_para.rear_right_speed;
+          }
+          else
+          {
+            chassis_control_para.rear_right_angle = REAR_RIGHT_START_ANGLE+PI-fabs(rr_angle);
+            chassis_control_para.rear_right_speed = -chassis_control_para.rear_right_speed;
+          }
+        }
         RCLCPP_INFO(this->get_logger(), "motor1 angle: %f",chassis_control_para.front_left_angle);
         RCLCPP_INFO(this->get_logger(), "motor2 angle: %f",chassis_control_para.front_right_angle);
         RCLCPP_INFO(this->get_logger(), "motor3 angle: %f",chassis_control_para.rear_right_angle);
@@ -395,10 +396,10 @@ public:
     double rr_angle_limited = rr_rate_limiter.limit(rr_angle_target, dt);
         
         // 应用低通滤波
-    double fl_angle = fl_angle_filter.filter(fl_angle_limited);
-    double fr_angle = fr_angle_filter.filter(fr_angle_limited);
-    double rl_angle = rl_angle_filter.filter(rl_angle_limited);
-    double rr_angle = rr_angle_filter.filter(rr_angle_limited);
+     fl_angle = fl_angle_filter.filter(fl_angle_limited);
+     fr_angle = fr_angle_filter.filter(fr_angle_limited);
+     rl_angle = rl_angle_filter.filter(rl_angle_limited);
+     rr_angle = rr_angle_filter.filter(rr_angle_limited);
 
 // 验证角度值有效性（检查NaN和Inf）
     if (!std::isfinite(fl_angle)) {
@@ -484,10 +485,10 @@ public:
         && fabs(chassis_control_para.front_right_angle-motor2.position_)<=0.1
         && fabs(chassis_control_para.front_left_angle-motor1.position_)<=0.1)
       {
-          front_->set_target_speed_lr_rpm(chassis_control_para.front_left_speed*WHEEL_FL_DIRETION,
-                                        chassis_control_para.front_right_speed*WHEEL_FR_DIRETION);
-          rear_->set_target_speed_lr_rpm(chassis_control_para.rear_right_speed*WHEEL_RR_DIRETION,
-                                        chassis_control_para.rear_left_speed*WHEEL_RL_DIRETION);
+          front_->set_target_speed_lr_rpm(chassis_control_para.front_right_speed*WHEEL_FR_DIRETION,
+                                        chassis_control_para.front_left_speed*WHEEL_FL_DIRETION);
+          rear_->set_target_speed_lr_rpm(chassis_control_para.rear_left_speed*WHEEL_RL_DIRETION,
+                                        chassis_control_para.rear_right_speed*WHEEL_RR_DIRETION);
   
       }
       else
