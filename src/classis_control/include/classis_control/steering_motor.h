@@ -1,3 +1,6 @@
+#ifndef __STEERING_MOTOR_H__
+#define __STEERING_MOTOR_H__
+
 #include <atomic>
 #include <bitset>
 #include <chrono>
@@ -360,3 +363,5 @@ public:
   std::atomic<bool> is_move_control_first = true;
   int actuator_type;
 };
+
+#endif

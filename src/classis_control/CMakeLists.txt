@@ -35,7 +35,8 @@ include_directories(
 
 # Declare a cpp library with a different name to avoid conflict
 add_library(${PROJECT_NAME}_lib
-  src/motor_cfg.cpp
+  src/steering_motor.cpp
+  src/wheel_motor.cpp
 )
 
 # Rename the output to avoid confusion
@@ -95,15 +96,9 @@ install(
 )
 
 # Install launch files
-install(
-  DIRECTORY launch
-  DESTINATION share/${PROJECT_NAME}
-)
-
-# Install config files
-install(
-  DIRECTORY config/
-  DESTINATION share/${PROJECT_NAME}/config
-)
+# install(
+#   DIRECTORY launch
+#   DESTINATION share/${PROJECT_NAME}
+# )
 
 ament_package()

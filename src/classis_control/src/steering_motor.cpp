@@ -1,4 +1,4 @@
-#include "motor_ros2/motor_cfg.h"
+#include "classis_control/steering_motor.h"
 #include <cmath>
 
 void RobStrideMotor::init_socket() {
@@ -338,11 +338,9 @@ float RobStrideMotor::read_initial_position() {
       uint8_t eid = canid & 0xFF;
 
       // please switch print output;
-      /*
       printf("type: 0x%02X\n", type);
       printf("mid:  0x%02X\n", mid);
       printf("eid:  0x%02X\n", eid);
-      */
 
       if (type == 0x02 && mid == 0x01 && eid == 0xFD) {
         uint16_t p_uint = (frame.data[0] << 8) | frame.data[1];
