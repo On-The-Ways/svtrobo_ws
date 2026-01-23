@@ -119,11 +119,72 @@ static void chassis_control_loop(double vx_set, double vy_set, double wz_set)
         chassis_control_para.rear_left_speed *= scale;
         chassis_control_para.rear_right_speed *= scale;
     }
+
+    double fl_angle = atan2((vy_set + wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set - wz_set * CHASSIS_RADIUS * 0.707107f));
+    double fr_angle = atan2((vy_set + wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set + wz_set * CHASSIS_RADIUS * 0.707107f));
+    double rl_angle = atan2((vy_set - wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set - wz_set * CHASSIS_RADIUS * 0.707107f));
+    double rr_angle = atan2((vy_set - wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set + wz_set * CHASSIS_RADIUS * 0.707107f));
+
+    if(fabs(fl_angle)>PI/2.0f)
+    {
+      if(fl_angle>0.0f)
+      {
+        fl_angle = -(PI - fabs(fl_angle));
+        chassis_control_para.front_left_speed = -chassis_control_para.front_left_speed;
+      }
+      else
+      {
+        fl_angle = PI - fabs(fl_angle);
+        chassis_control_para.front_left_speed = -chassis_control_para.front_left_speed;
+      }
+    }
+
+    if(fabs(fr_angle)>PI/2.0f)
+    {
+      if(fr_angle>0.0f)
+      {
+        fr_angle = -(PI - fabs(fr_angle));
+        chassis_control_para.front_right_speed = -chassis_control_para.front_right_speed;
+      }
+      else
+      {
+        fr_angle = PI - fabs(fr_angle);
+        chassis_control_para.front_right_speed = -chassis_control_para.front_right_speed;
+      }
+    }
+
+    if(fabs(rl_angle)>PI/2.0f)
+    {
+      if(rl_angle>0.0f)
+      {
+        rl_angle = -(PI - fabs(rl_angle));
+        chassis_control_para.rear_left_speed = -chassis_control_para.rear_left_speed;
+      }
+      else
+      {
+        fl_angle = PI - fabs(fl_angle);
+        chassis_control_para.rear_left_speed = -chassis_control_para.rear_left_speed;
+      }
+    }
+
+    if(fabs(rr_angle)>PI/2.0f)
+    {
+      if(rr_angle>0.0f)
+      {
+        rr_angle = -(PI - fabs(rr_angle));
+        chassis_control_para.rear_right_speed = -chassis_control_para.rear_right_speed;
+      }
+      else
+      {
+        rr_angle = PI - fabs(rr_angle);
+        chassis_control_para.rear_right_speed = -chassis_control_para.rear_right_speed;
+      }
+    }
     //舵向控制
-    chassis_control_para.front_left_angle = atan2((vy_set + wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set - wz_set * CHASSIS_RADIUS * 0.707107f)) + FRONT_LEFT_START_ANGLE;        
-    chassis_control_para.front_right_angle = atan2((vy_set + wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set + wz_set * CHASSIS_RADIUS * 0.707107f)) + FRONT_RIGHT_START_ANGLE;
-    chassis_control_para.rear_left_angle = atan2((vy_set - wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set - wz_set * CHASSIS_RADIUS * 0.707107f)) + REAR_LEFT_START_ANGLE;
-    chassis_control_para.rear_right_angle = atan2((vy_set - wz_set * CHASSIS_RADIUS * 0.707107f),(vx_set + wz_set * CHASSIS_RADIUS * 0.707107f)) + REAR_RIGHT_START_ANGLE;
+    chassis_control_para.front_left_angle = fl_angle + FRONT_LEFT_START_ANGLE;        
+    chassis_control_para.front_right_angle = fr_angle + FRONT_RIGHT_START_ANGLE;
+    chassis_control_para.rear_left_angle = rl_angle  + REAR_LEFT_START_ANGLE;
+    chassis_control_para.rear_right_angle = rr_angle + REAR_RIGHT_START_ANGLE;
 
 
 }

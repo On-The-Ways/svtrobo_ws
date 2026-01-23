@@ -1,0 +1,2 @@
+/usr/bin/ar qc libclassis_control.a CMakeFiles/classis_control_lib.dir/src/steering_motor.cpp.o CMakeFiles/classis_control_lib.dir/src/wheel_motor.cpp.o
+/usr/bin/ranlib libclassis_control.a
