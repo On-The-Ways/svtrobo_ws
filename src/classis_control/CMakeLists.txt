@@ -60,6 +60,10 @@ ament_target_dependencies(${PROJECT_NAME}_lib
 add_executable(classis_control
   src/main.cpp
 )
+
+add_executable(lift_control
+  src/lift_RS485_control.cpp
+)
 # add_executable(enable_motor
 #   src/enable_motor.cpp
 # )
@@ -68,6 +72,12 @@ ament_target_dependencies(classis_control
   rclcpp
   std_msgs
 )
+
+ament_target_dependencies(lift_control
+  rclcpp
+  std_msgs
+)
+
 # ament_target_dependencies(enable_motor
 #   rclcpp
 #   std_msgs
@@ -75,6 +85,10 @@ ament_target_dependencies(classis_control
 # )
 
 target_link_libraries(classis_control
+  ${PROJECT_NAME}_lib
+)
+
+target_link_libraries(lift_control
   ${PROJECT_NAME}_lib
 )
 # target_link_libraries(enable_motor
@@ -90,6 +104,14 @@ install(
 # Install targets
 install(
   TARGETS ${PROJECT_NAME}_lib classis_control
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
+
+
+install(
+  TARGETS ${PROJECT_NAME}_lib lift_control
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}
