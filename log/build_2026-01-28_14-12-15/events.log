@@ -1,0 +1,213 @@
+[0.000000] (-) TimerEvent: {}
+[0.000578] (classis_control) JobQueued: {'identifier': 'classis_control', 'dependencies': OrderedDict()}
+[0.000936] (classis_control) JobStarted: {'identifier': 'classis_control'}
+[0.014241] (classis_control) JobProgress: {'identifier': 'classis_control', 'progress': 'cmake'}
+[0.015484] (classis_control) JobProgress: {'identifier': 'classis_control', 'progress': 'build'}
+[0.017418] (classis_control) Command: {'cmd': ['/usr/bin/cmake', '--build', '/home/openarm/svtrobo_ws/build/classis_control', '--', '-j4', '-l4'], 'cwd': '/home/openarm/svtrobo_ws/build/classis_control', 'env': OrderedDict([('GJS_DEBUG_TOPICS', 'JS ERROR;JS LOG'), ('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'zh_CN:zh'), ('USER', 'openarm'), ('XDG_SESSION_TYPE', 'x11'), ('GIT_ASKPASS', '/usr/share/code/resources/app/extensions/git/dist/askpass.sh'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/openarm/ros2_ws/install/openarm_hardware/lib:/home/openarm/ros2_ws/install/openarm_can/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/openarm'), ('CHROME_DESKTOP', 'code.desktop'), ('TERM_PROGRAM_VERSION', '1.108.2'), ('DESKTOP_SESSION', 'ubuntu-xorg'), ('NVM_BIN', '/home/openarm/.nvm/versions/node/v20.20.0/bin'), ('NVM_INC', '/home/openarm/.nvm/versions/node/v20.20.0/include/node'), ('GIO_LAUNCHED_DESKTOP_FILE', '/usr/share/applications/code.desktop'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('VSCODE_GIT_ASKPASS_MAIN', '/usr/share/code/resources/app/extensions/git/dist/askpass-main.js'), ('VSCODE_GIT_ASKPASS_NODE', '/usr/share/code/code'), ('MANAGERPID', '788'), ('SYSTEMD_EXEC_PID', '1129'), ('VSCODE_PYTHON_AUTOACTIVATE_GUARD', '1'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('GIO_LAUNCHED_DESKTOP_FILE_PID', '11644'), ('NVM_DIR', '/home/openarm/.nvm'), ('MANDATORY_PATH', '/usr/share/gconf/ubuntu-xorg.mandatory.path'), ('COLCON_PREFIX_PATH', '/home/openarm/svtrobo_ws/install:/home/openarm/ros2_ws/install'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'openarm'), ('JOURNAL_STREAM', '8:11420'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('DEFAULTS_PATH', '/usr/share/gconf/ubuntu-xorg.default.path'), ('USERNAME', 'openarm'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('FC_FONTATIONS', '1'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/home/openarm/.local/bin:/home/openarm/.nvm/versions/node/v20.20.0/bin:/opt/ros/humble/bin:/home/openarm/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/openarm:@/tmp/.ICE-unix/1096,unix/openarm:/tmp/.ICE-unix/1096'), ('INVOCATION_ID', 'f8803fa60952422dbf2116008a92d83a'), ('XDG_MENU_PREFIX', 'gnome-'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('GDK_BACKEND', 'x11'), ('DISPLAY', ':0'), ('LANG', 'zh_CN.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu-xorg'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('VSCODE_GIT_IPC_HANDLE', '/run/user/1000/vscode-git-420ed289bc.sock'), ('TERM_PROGRAM', 'vscode'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/classis_control:/home/openarm/ros2_ws/install/qnbot_teleoperator:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu-xorg'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('GJS_DEBUG_OUTPUT', 'stderr'), ('VSCODE_GIT_ASKPASS_EXTRA_ARGS', ''), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/openarm/svtrobo_ws/build/classis_control'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu-xorg:/etc/xdg'), ('NVM_CD_FLAGS', ''), ('XDG_DATA_DIRS', '/usr/share/ubuntu-xorg:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/openarm/ros2_ws/install/qnbot_teleoperator/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('CMAKE_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/classis_control:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble')]), 'shell': False}
+[0.099742] (-) TimerEvent: {}
+[0.110818] (classis_control) StdoutLine: {'line': b'[ 42%] Built target classis_control_lib\n'}
+[0.148383] (classis_control) StdoutLine: {'line': b'\x1b[35m\x1b[1mConsolidate compiler generated dependencies of target classis_control\x1b[0m\n'}
+[0.182904] (classis_control) StdoutLine: {'line': b'[ 71%] Built target lift_control\n'}
+[0.199573] (classis_control) StdoutLine: {'line': b'[ 85%] \x1b[32mBuilding CXX object CMakeFiles/classis_control.dir/src/main.cpp.o\x1b[0m\n'}
+[0.200675] (-) TimerEvent: {}
+[0.301017] (-) TimerEvent: {}
+[0.401560] (-) TimerEvent: {}
+[0.502250] (-) TimerEvent: {}
+[0.602616] (-) TimerEvent: {}
+[0.703136] (-) TimerEvent: {}
+[0.803578] (-) TimerEvent: {}
+[0.903919] (-) TimerEvent: {}
+[1.004279] (-) TimerEvent: {}
+[1.104604] (-) TimerEvent: {}
+[1.205946] (-) TimerEvent: {}
+[1.306440] (-) TimerEvent: {}
+[1.407033] (-) TimerEvent: {}
+[1.508224] (-) TimerEvent: {}
+[1.608821] (-) TimerEvent: {}
+[1.709447] (-) TimerEvent: {}
+[1.809846] (-) TimerEvent: {}
+[1.910226] (-) TimerEvent: {}
+[2.010604] (-) TimerEvent: {}
+[2.110953] (-) TimerEvent: {}
+[2.211409] (-) TimerEvent: {}
+[2.311886] (-) TimerEvent: {}
+[2.412510] (-) TimerEvent: {}
+[2.512880] (-) TimerEvent: {}
+[2.613242] (-) TimerEvent: {}
+[2.713622] (-) TimerEvent: {}
+[2.814186] (-) TimerEvent: {}
+[2.914736] (-) TimerEvent: {}
+[3.015333] (-) TimerEvent: {}
+[3.115942] (-) TimerEvent: {}
+[3.216365] (-) TimerEvent: {}
+[3.316726] (-) TimerEvent: {}
+[3.417083] (-) TimerEvent: {}
+[3.517337] (-) TimerEvent: {}
+[3.617762] (-) TimerEvent: {}
+[3.718087] (-) TimerEvent: {}
+[3.818419] (-) TimerEvent: {}
+[3.918762] (-) TimerEvent: {}
+[4.019106] (-) TimerEvent: {}
+[4.119615] (-) TimerEvent: {}
+[4.219970] (-) TimerEvent: {}
+[4.320304] (-) TimerEvent: {}
+[4.420638] (-) TimerEvent: {}
+[4.520969] (-) TimerEvent: {}
+[4.621279] (-) TimerEvent: {}
+[4.721583] (-) TimerEvent: {}
+[4.821948] (-) TimerEvent: {}
+[4.922369] (-) TimerEvent: {}
+[5.022767] (-) TimerEvent: {}
+[5.123265] (-) TimerEvent: {}
+[5.223762] (-) TimerEvent: {}
+[5.324706] (-) TimerEvent: {}
+[5.425072] (-) TimerEvent: {}
+[5.525647] (-) TimerEvent: {}
+[5.626368] (-) TimerEvent: {}
+[5.726960] (-) TimerEvent: {}
+[5.827424] (-) TimerEvent: {}
+[5.927804] (-) TimerEvent: {}
+[6.028170] (-) TimerEvent: {}
+[6.128536] (-) TimerEvent: {}
+[6.228880] (-) TimerEvent: {}
+[6.329238] (-) TimerEvent: {}
+[6.429581] (-) TimerEvent: {}
+[6.530114] (-) TimerEvent: {}
+[6.630505] (-) TimerEvent: {}
+[6.731038] (-) TimerEvent: {}
+[6.831535] (-) TimerEvent: {}
+[6.931953] (-) TimerEvent: {}
+[7.032406] (-) TimerEvent: {}
+[7.132818] (-) TimerEvent: {}
+[7.233236] (-) TimerEvent: {}
+[7.333748] (-) TimerEvent: {}
+[7.434155] (-) TimerEvent: {}
+[7.534538] (-) TimerEvent: {}
+[7.634971] (-) TimerEvent: {}
+[7.735452] (-) TimerEvent: {}
+[7.835821] (-) TimerEvent: {}
+[7.936168] (-) TimerEvent: {}
+[8.036582] (-) TimerEvent: {}
+[8.136951] (-) TimerEvent: {}
+[8.237388] (-) TimerEvent: {}
+[8.337887] (-) TimerEvent: {}
+[8.438216] (-) TimerEvent: {}
+[8.538564] (-) TimerEvent: {}
+[8.638983] (-) TimerEvent: {}
+[8.739376] (-) TimerEvent: {}
+[8.839758] (-) TimerEvent: {}
+[8.940196] (-) TimerEvent: {}
+[9.041210] (-) TimerEvent: {}
+[9.141958] (-) TimerEvent: {}
+[9.242608] (-) TimerEvent: {}
+[9.343196] (-) TimerEvent: {}
+[9.444440] (-) TimerEvent: {}
+[9.544868] (-) TimerEvent: {}
+[9.645296] (-) TimerEvent: {}
+[9.745870] (-) TimerEvent: {}
+[9.846279] (-) TimerEvent: {}
+[9.946713] (-) TimerEvent: {}
+[10.047433] (-) TimerEvent: {}
+[10.148013] (-) TimerEvent: {}
+[10.248390] (-) TimerEvent: {}
+[10.348790] (-) TimerEvent: {}
+[10.449101] (-) TimerEvent: {}
+[10.549460] (-) TimerEvent: {}
+[10.649856] (-) TimerEvent: {}
+[10.750551] (-) TimerEvent: {}
+[10.850905] (-) TimerEvent: {}
+[10.951270] (-) TimerEvent: {}
+[11.051575] (-) TimerEvent: {}
+[11.151923] (-) TimerEvent: {}
+[11.252220] (-) TimerEvent: {}
+[11.352525] (-) TimerEvent: {}
+[11.452820] (-) TimerEvent: {}
+[11.553152] (-) TimerEvent: {}
+[11.653495] (-) TimerEvent: {}
+[11.753832] (-) TimerEvent: {}
+[11.854134] (-) TimerEvent: {}
+[11.954476] (-) TimerEvent: {}
+[12.054813] (-) TimerEvent: {}
+[12.155387] (-) TimerEvent: {}
+[12.256368] (-) TimerEvent: {}
+[12.357005] (-) TimerEvent: {}
+[12.457382] (-) TimerEvent: {}
+[12.557790] (-) TimerEvent: {}
+[12.658707] (-) TimerEvent: {}
+[12.759210] (-) TimerEvent: {}
+[12.859678] (-) TimerEvent: {}
+[12.960089] (-) TimerEvent: {}
+[13.060484] (-) TimerEvent: {}
+[13.160881] (-) TimerEvent: {}
+[13.261267] (-) TimerEvent: {}
+[13.361636] (-) TimerEvent: {}
+[13.462036] (-) TimerEvent: {}
+[13.562407] (-) TimerEvent: {}
+[13.662771] (-) TimerEvent: {}
+[13.763131] (-) TimerEvent: {}
+[13.863610] (-) TimerEvent: {}
+[13.964431] (-) TimerEvent: {}
+[14.065050] (-) TimerEvent: {}
+[14.165554] (-) TimerEvent: {}
+[14.265923] (-) TimerEvent: {}
+[14.366295] (-) TimerEvent: {}
+[14.466681] (-) TimerEvent: {}
+[14.567006] (-) TimerEvent: {}
+[14.667366] (-) TimerEvent: {}
+[14.767712] (-) TimerEvent: {}
+[14.868202] (-) TimerEvent: {}
+[14.968805] (-) TimerEvent: {}
+[15.071568] (-) TimerEvent: {}
+[15.172135] (-) TimerEvent: {}
+[15.272538] (-) TimerEvent: {}
+[15.373385] (-) TimerEvent: {}
+[15.473803] (-) TimerEvent: {}
+[15.574334] (-) TimerEvent: {}
+[15.676546] (-) TimerEvent: {}
+[15.777430] (-) TimerEvent: {}
+[15.880429] (-) TimerEvent: {}
+[15.886192] (classis_control) StdoutLine: {'line': b'[100%] \x1b[32m\x1b[1mLinking CXX executable classis_control\x1b[0m\n'}
+[15.980570] (-) TimerEvent: {}
+[16.081319] (-) TimerEvent: {}
+[16.181914] (-) TimerEvent: {}
+[16.282617] (-) TimerEvent: {}
+[16.383133] (-) TimerEvent: {}
+[16.483500] (-) TimerEvent: {}
+[16.583898] (-) TimerEvent: {}
+[16.684294] (-) TimerEvent: {}
+[16.728828] (classis_control) StdoutLine: {'line': b'[100%] Built target classis_control\n'}
+[16.747789] (classis_control) CommandEnded: {'returncode': 0}
+[16.749687] (classis_control) JobProgress: {'identifier': 'classis_control', 'progress': 'install'}
+[16.763848] (classis_control) Command: {'cmd': ['/usr/bin/cmake', '--install', '/home/openarm/svtrobo_ws/build/classis_control'], 'cwd': '/home/openarm/svtrobo_ws/build/classis_control', 'env': OrderedDict([('GJS_DEBUG_TOPICS', 'JS ERROR;JS LOG'), ('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'zh_CN:zh'), ('USER', 'openarm'), ('XDG_SESSION_TYPE', 'x11'), ('GIT_ASKPASS', '/usr/share/code/resources/app/extensions/git/dist/askpass.sh'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/openarm/ros2_ws/install/openarm_hardware/lib:/home/openarm/ros2_ws/install/openarm_can/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/openarm'), ('CHROME_DESKTOP', 'code.desktop'), ('TERM_PROGRAM_VERSION', '1.108.2'), ('DESKTOP_SESSION', 'ubuntu-xorg'), ('NVM_BIN', '/home/openarm/.nvm/versions/node/v20.20.0/bin'), ('NVM_INC', '/home/openarm/.nvm/versions/node/v20.20.0/include/node'), ('GIO_LAUNCHED_DESKTOP_FILE', '/usr/share/applications/code.desktop'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('VSCODE_GIT_ASKPASS_MAIN', '/usr/share/code/resources/app/extensions/git/dist/askpass-main.js'), ('VSCODE_GIT_ASKPASS_NODE', '/usr/share/code/code'), ('MANAGERPID', '788'), ('SYSTEMD_EXEC_PID', '1129'), ('VSCODE_PYTHON_AUTOACTIVATE_GUARD', '1'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('GIO_LAUNCHED_DESKTOP_FILE_PID', '11644'), ('NVM_DIR', '/home/openarm/.nvm'), ('MANDATORY_PATH', '/usr/share/gconf/ubuntu-xorg.mandatory.path'), ('COLCON_PREFIX_PATH', '/home/openarm/svtrobo_ws/install:/home/openarm/ros2_ws/install'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'openarm'), ('JOURNAL_STREAM', '8:11420'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('DEFAULTS_PATH', '/usr/share/gconf/ubuntu-xorg.default.path'), ('USERNAME', 'openarm'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('FC_FONTATIONS', '1'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/home/openarm/.local/bin:/home/openarm/.nvm/versions/node/v20.20.0/bin:/opt/ros/humble/bin:/home/openarm/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/openarm:@/tmp/.ICE-unix/1096,unix/openarm:/tmp/.ICE-unix/1096'), ('INVOCATION_ID', 'f8803fa60952422dbf2116008a92d83a'), ('XDG_MENU_PREFIX', 'gnome-'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('GDK_BACKEND', 'x11'), ('DISPLAY', ':0'), ('LANG', 'zh_CN.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu-xorg'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('VSCODE_GIT_IPC_HANDLE', '/run/user/1000/vscode-git-420ed289bc.sock'), ('TERM_PROGRAM', 'vscode'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/classis_control:/home/openarm/ros2_ws/install/qnbot_teleoperator:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu-xorg'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('GJS_DEBUG_OUTPUT', 'stderr'), ('VSCODE_GIT_ASKPASS_EXTRA_ARGS', ''), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/openarm/svtrobo_ws/build/classis_control'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu-xorg:/etc/xdg'), ('NVM_CD_FLAGS', ''), ('XDG_DATA_DIRS', '/usr/share/ubuntu-xorg:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/openarm/ros2_ws/install/qnbot_teleoperator/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('CMAKE_PREFIX_PATH', '/home/openarm/svtrobo_ws/install/classis_control:/home/openarm/ros2_ws/install/openarm:/home/openarm/ros2_ws/install/openarm_hardware:/home/openarm/ros2_ws/install/openarm_bimanual_moveit_config:/home/openarm/ros2_ws/install/openarm_description:/home/openarm/ros2_ws/install/openarm_can:/home/openarm/ros2_ws/install/openarm_bringup:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble')]), 'shell': False}
+[16.774878] (classis_control) StdoutLine: {'line': b'-- Install configuration: ""\n'}
+[16.775303] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/include\n'}
+[16.775807] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/include/classis_control\n'}
+[16.776029] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/include/classis_control/wheel_motor.h\n'}
+[16.776226] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/include/classis_control/steering_motor.h\n'}
+[16.776464] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/lib/libclassis_control.a\n'}
+[16.776672] (classis_control) StdoutLine: {'line': b'-- Installing: /home/openarm/svtrobo_ws/install/classis_control/lib/classis_control/classis_control\n'}
+[16.784273] (classis_control) StdoutLine: {'line': b'-- Set runtime path of "/home/openarm/svtrobo_ws/install/classis_control/lib/classis_control/classis_control" to ""\n'}
+[16.784508] (-) TimerEvent: {}
+[16.784646] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/lib/libclassis_control.a\n'}
+[16.784833] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/lib/classis_control/lift_control\n'}
+[16.785116] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/launch\n'}
+[16.785272] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/launch/svtrobo_bringup.launch.py\n'}
+[16.785510] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/ament_index/resource_index/package_run_dependencies/classis_control\n'}
+[16.785748] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/ament_index/resource_index/parent_prefix_path/classis_control\n'}
+[16.785877] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/environment/ament_prefix_path.sh\n'}
+[16.785992] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/environment/ament_prefix_path.dsv\n'}
+[16.786108] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/environment/path.sh\n'}
+[16.786227] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/environment/path.dsv\n'}
+[16.786343] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/local_setup.bash\n'}
+[16.786473] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/local_setup.sh\n'}
+[16.786682] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/local_setup.zsh\n'}
+[16.786809] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/local_setup.dsv\n'}
+[16.786936] (classis_control) StdoutLine: {'line': b'-- Installing: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/package.dsv\n'}
+[16.787056] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/ament_index/resource_index/packages/classis_control\n'}
+[16.787164] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/cmake/ament_cmake_export_dependencies-extras.cmake\n'}
+[16.787272] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/cmake/classis_controlConfig.cmake\n'}
+[16.787421] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/cmake/classis_controlConfig-version.cmake\n'}
+[16.787537] (classis_control) StdoutLine: {'line': b'-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/package.xml\n'}
+[16.790885] (classis_control) CommandEnded: {'returncode': 0}
+[16.831493] (classis_control) JobEnded: {'identifier': 'classis_control', 'rc': 0}
+[16.832688] (-) EventReactorShutdown: {}

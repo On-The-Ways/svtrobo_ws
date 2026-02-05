@@ -1,0 +1,36 @@
+[35m[1mConsolidate compiler generated dependencies of target classis_control_lib[0m
+[ 42%] Built target classis_control_lib
+[35m[1mConsolidate compiler generated dependencies of target classis_control[0m
+[ 57%] [32mBuilding CXX object CMakeFiles/classis_control.dir/src/main.cpp.o[0m
+[ 71%] [32m[1mLinking CXX executable classis_control[0m
+[ 71%] Built target classis_control
+[35m[1mConsolidate compiler generated dependencies of target lift_control[0m
+[100%] Built target lift_control
+-- Install configuration: ""
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/include
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/include/classis_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/include/classis_control/wheel_motor.h
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/include/classis_control/steering_motor.h
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/lib/libclassis_control.a
+-- Installing: /home/openarm/svtrobo_ws/install/classis_control/lib/classis_control/classis_control
+-- Set runtime path of "/home/openarm/svtrobo_ws/install/classis_control/lib/classis_control/classis_control" to ""
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/lib/libclassis_control.a
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/lib/classis_control/lift_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/launch
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/launch/svtrobo_bringup.launch.py
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/ament_index/resource_index/package_run_dependencies/classis_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/ament_index/resource_index/parent_prefix_path/classis_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/environment/ament_prefix_path.sh
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/environment/ament_prefix_path.dsv
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/environment/path.sh
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/environment/path.dsv
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/local_setup.bash
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/local_setup.sh
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/local_setup.zsh
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/local_setup.dsv
+-- Installing: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/package.dsv
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/ament_index/resource_index/packages/classis_control
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/cmake/ament_cmake_export_dependencies-extras.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/cmake/classis_controlConfig.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/cmake/classis_controlConfig-version.cmake
+-- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/package.xml

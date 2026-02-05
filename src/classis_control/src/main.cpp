@@ -25,13 +25,13 @@
 
 #define PI 3.1415926535897932384626433832795f
 
-#define CHASSIS_RADIUS         0.2121f       //底盘半径单位m
+#define CHASSIS_RADIUS         0.0875f       //底盘半径单位m
 #define WHEEL_PERIMETER         0.647f       //轮子周长
 
-#define FRONT_LEFT_START_ANGLE 4.8f
-#define FRONT_RIGHT_START_ANGLE 5.0f
-#define REAR_LEFT_START_ANGLE 6.1f
-#define REAR_RIGHT_START_ANGLE 4.5f
+#define FRONT_LEFT_START_ANGLE 3.0f
+#define FRONT_RIGHT_START_ANGLE 2.6f
+#define REAR_LEFT_START_ANGLE 5.9f
+#define REAR_RIGHT_START_ANGLE 3.6f
 
 #define motor_kp 4.0f
 #define motor_kd 0.4f

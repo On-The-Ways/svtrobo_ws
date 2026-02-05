@@ -1,0 +1,38 @@
+[0.023s] Invoking command in '/home/openarm/svtrobo_ws/build/classis_control': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --build /home/openarm/svtrobo_ws/build/classis_control -- -j4 -l4
+[0.108s] [ 42%] Built target classis_control_lib
+[0.136s] [35m[1mConsolidate compiler generated dependencies of target classis_control[0m
+[0.177s] [ 71%] Built target lift_control
+[0.193s] [ 85%] [32mBuilding CXX object CMakeFiles/classis_control.dir/src/main.cpp.o[0m
+[18.228s] [100%] [32m[1mLinking CXX executable classis_control[0m
+[19.028s] [100%] Built target classis_control
+[19.046s] Invoked command in '/home/openarm/svtrobo_ws/build/classis_control' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --build /home/openarm/svtrobo_ws/build/classis_control -- -j4 -l4
+[19.071s] Invoking command in '/home/openarm/svtrobo_ws/build/classis_control': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --install /home/openarm/svtrobo_ws/build/classis_control
+[19.084s] -- Install configuration: ""
+[19.084s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/include
+[19.085s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/include/classis_control
+[19.085s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/include/classis_control/wheel_motor.h
+[19.085s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/include/classis_control/steering_motor.h
+[19.086s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/lib/libclassis_control.a
+[19.086s] -- Installing: /home/openarm/svtrobo_ws/install/classis_control/lib/classis_control/classis_control
+[19.095s] -- Set runtime path of "/home/openarm/svtrobo_ws/install/classis_control/lib/classis_control/classis_control" to ""
+[19.095s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/lib/libclassis_control.a
+[19.096s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/lib/classis_control/lift_control
+[19.098s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/launch
+[19.098s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/launch/svtrobo_bringup.launch.py
+[19.098s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/ament_index/resource_index/package_run_dependencies/classis_control
+[19.098s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/ament_index/resource_index/parent_prefix_path/classis_control
+[19.099s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/environment/ament_prefix_path.sh
+[19.099s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/environment/ament_prefix_path.dsv
+[19.100s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/environment/path.sh
+[19.100s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/environment/path.dsv
+[19.101s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/local_setup.bash
+[19.101s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/local_setup.sh
+[19.101s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/local_setup.zsh
+[19.103s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/local_setup.dsv
+[19.103s] -- Installing: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/package.dsv
+[19.104s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/ament_index/resource_index/packages/classis_control
+[19.104s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/cmake/ament_cmake_export_dependencies-extras.cmake
+[19.104s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/cmake/classis_controlConfig.cmake
+[19.104s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/cmake/classis_controlConfig-version.cmake
+[19.105s] -- Up-to-date: /home/openarm/svtrobo_ws/install/classis_control/share/classis_control/package.xml
+[19.106s] Invoked command in '/home/openarm/svtrobo_ws/build/classis_control' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/openarm/ros2_ws/install/qnbot_teleoperator:/opt/ros/humble /usr/bin/cmake --install /home/openarm/svtrobo_ws/build/classis_control
