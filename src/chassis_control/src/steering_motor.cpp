@@ -1,4 +1,4 @@
-#include "classis_control/steering_motor.h"
+#include "chassis_control/steering_motor.h"
 #include <cmath>
 
 void RobStrideMotor::init_socket() {
@@ -503,8 +503,10 @@ std::tuple<float, float, float, float>
 RobStrideMotor::RobStrite_Motor_PosCSP_control(float Speed, float Angle) {
   Motor_Set_All.set_speed = Speed;
   Motor_Set_All.set_angle = Angle;
-  std::cout << "speed: " << Motor_Set_All.set_speed << std::endl;
-  std::cout << "angle: " << Motor_Set_All.set_angle << std::endl;
+  /*
+  std::cout << "set speed: " << Motor_Set_All.set_speed << std::endl;
+  std::cout << "set angle: " << Motor_Set_All.set_angle << std::endl;
+  */
 
   if (drw.run_mode.data != 5 && pattern == 2) {
     Disenable_Motor(0);

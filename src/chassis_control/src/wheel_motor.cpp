@@ -1,4 +1,4 @@
-#include "classis_control/wheel_motor.h"
+#include "chassis_control/wheel_motor.h"
 
 // ====================== CanopenSdoError 实现 ======================
 CanopenSdoError::CanopenSdoError(const std::string &msg) : std::runtime_error(msg) {}

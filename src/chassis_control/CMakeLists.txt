@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(classis_control)
+project(chassis_control)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -37,6 +37,8 @@ include_directories(
 add_library(${PROJECT_NAME}_lib
   src/steering_motor.cpp
   src/wheel_motor.cpp
+  src/filters.cpp
+  src/chassis_control.cpp
 )
 
 # Rename the output to avoid confusion
@@ -57,18 +59,19 @@ ament_target_dependencies(${PROJECT_NAME}_lib
 
 
 # Motor control test executable
-add_executable(classis_control
+add_executable(chassis_control
   src/main.cpp
 )
 
 add_executable(lift_control
   src/lift_RS485_control.cpp
 )
+
 # add_executable(enable_motor
 #   src/enable_motor.cpp
 # )
 
-ament_target_dependencies(classis_control
+ament_target_dependencies(chassis_control
   rclcpp
   std_msgs
 )
@@ -84,13 +87,14 @@ ament_target_dependencies(lift_control
 #   can_msgs
 # )
 
-target_link_libraries(classis_control
+target_link_libraries(chassis_control
   ${PROJECT_NAME}_lib
 )
 
 target_link_libraries(lift_control
   ${PROJECT_NAME}_lib
 )
+
 # target_link_libraries(enable_motor
 #   ${PROJECT_NAME}_lib
 # )
@@ -103,12 +107,11 @@ install(
 
 # Install targets
 install(
-  TARGETS ${PROJECT_NAME}_lib classis_control
+  TARGETS ${PROJECT_NAME}_lib chassis_control
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
-
 
 install(
   TARGETS ${PROJECT_NAME}_lib lift_control
@@ -117,9 +120,10 @@ install(
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
-## Install launch files
-install(DIRECTORY launch/
-  DESTINATION share/${PROJECT_NAME}/launch
+#Install launch files
+install(
+  DIRECTORY launch config
+  DESTINATION share/${PROJECT_NAME}
 )
 
 ament_package()

@@ -1,10 +1,10 @@
 /******************************************************************************
- * @file    zlac8015d_canopen.cpp
- * @brief   ZLAC8015D CANopen SDO control implementation (refactor)
+ * @file    lift_RS485_control.cpp
+ * @brief   lift_RS485_control implementation
  *
- * @author  luzhongfa (refactor by ChatGPT)
- * @company 杭州时空变量科技有限公司
- * @date    2026-01-05 (refactor)
+ * @author  luzhongfa
+ * @company svtrobo
+ * @date    2026-01-05
  *
  *****************************************************************************/
 
