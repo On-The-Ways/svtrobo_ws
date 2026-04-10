@@ -476,6 +476,21 @@ speed_rpm = sqrt(vx² + vy²) × wheel_rpm_ratio
 
 ### 7.1 当前可获取的状态
 
+#### ROS2 Topic（实时数据）
+
+底盘 C++ 节点通过以下 Topic 发布实时状态数据（详见第 3.3 节）：
+
+```bash
+# 监听关节状态
+ros2 topic echo /chassis/joint_states
+
+# 监听指令回显
+ros2 topic echo /chassis/cmd_feedback
+
+# 监听诊断数据
+ros2 topic echo /chassis/diagnostics
+```
+
 #### ROS2 参数（静态/半静态）
 
 ```bash
@@ -489,45 +504,47 @@ ros2 param get /chassis_control robot.rr_motor_start_angle  # → 3.5
 
 这些参数在 `chassis_control_loop()` 中每周期读取，因此**运行时修改会立即生效**。
 
-### 7.2 仅存在于节点内部的动态数据（当前未发布）
+### 7.2 仅存在于节点内部的动态数据（部分已发布）
 
-以下数据在节点内部通过 CAN 总线获取，但**没有发布到 ROS Topic**。如果需要用于深度学习，需要修改代码添加 Publisher。
+以下数据在节点内部通过 CAN 总线获取，其中大部分已通过 ROS Topic 发布（标注 ✓）。少数仍仅内部可用的数据标注 ✗。
 
 #### 底盘控制参数（`chassis_control_para_t`）
 
-| 变量 | 类型 | 单位 | 说明 |
-|------|------|------|------|
-| `vx_set` | double | m/s | 目标前后速度 |
-| `vy_set` | double | m/s | 目标左右速度 |
-| `wz_set` | double | rad/s | 目标旋转角速度 |
-| `front_left_angle` | double | rad | 前左舵向实际目标角度（经滤波后） |
-| `front_right_angle` | double | rad | 前右舵向实际目标角度 |
-| `rear_left_angle` | double | rad | 后左舵向实际目标角度 |
-| `rear_right_angle` | double | rad | 后右舵向实际目标角度 |
-| `front_left_speed` | double | RPM | 前左轮目标转速 |
-| `front_right_speed` | double | RPM | 前右轮目标转速 |
-| `rear_left_speed` | double | RPM | 后左轮目标转速 |
-| `rear_right_speed` | double | RPM | 后后右轮目标转速 |
+#### 底盘控制参数（`chassis_control_para_t`）
+
+| 变量 | 类型 | 单位 | 说明 | 发布状态 |
+|------|------|------|------|---------|
+| `vx_set` | double | m/s | 目标前后速度 | ✓ `/chassis/cmd_feedback` |
+| `vy_set` | double | m/s | 目标左右速度 | ✓ `/chassis/cmd_feedback` |
+| `wz_set` | double | rad/s | 目标旋转角速度 | ✓ `/chassis/cmd_feedback` |
+| `front_left_angle` | double | rad | 前左舵向实际目标角度（经滤波后） | ✗ |
+| `front_right_angle` | double | rad | 前右舵向实际目标角度 | ✗ |
+| `rear_left_angle` | double | rad | 后左舵向实际目标角度 | ✗ |
+| `rear_right_angle` | double | rad | 后右舵向实际目标角度 | ✗ |
+| `front_left_speed` | double | RPM | 前左轮目标转速 | ✓ `/chassis/joint_states` velocity[4] |
+| `front_right_speed` | double | RPM | 前右轮目标转速 | ✓ `/chassis/joint_states` velocity[5] |
+| `rear_left_speed` | double | RPM | 后左轮目标转速 | ✓ `/chassis/joint_states` velocity[6] |
+| `rear_right_speed` | double | RPM | 后右轮目标转速 | ✓ `/chassis/joint_states` velocity[7] |
 
 #### RobStride 电机反馈（每个电机各一组）
 
-| 变量 | 类型 | 单位 | 说明 |
-|------|------|------|------|
-| `position_` | float | rad | 舵向电机当前位置（实际反馈） |
-| `velocity_` | float | rad/s | 舵向电机当前速度 |
-| `torque_` | float | Nm | 舵向电机当前力矩 |
-| `temperature_` | float | °C | 电机温度（×0.1） |
-| `error_code` | uint8 | - | 错误码 |
-| `pattern` | uint8 | - | 模式状态 |
+| 变量 | 类型 | 单位 | 说明 | 发布状态 |
+|------|------|------|------|---------|
+| `position_` | float | rad | 舵向电机当前位置（实际反馈） | ✓ `/chassis/joint_states` position[0..3] |
+| `velocity_` | float | rad/s | 舵向电机当前速度 | ✓ `/chassis/joint_states` velocity[0..3] |
+| `torque_` | float | Nm | 舵向电机当前力矩 | ✓ `/chassis/joint_states` effort[0..3] |
+| `temperature_` | float | °C | 电机温度（×0.1） | ✓ `/chassis/diagnostics` motor_temperatures |
+| `error_code` | uint8 | - | 错误码 | ✓ `/chassis/diagnostics` motor_error_codes |
+| `pattern` | uint8 | - | 模式状态 | ✗ |
 
-#### ZLAC8015D 驱动器反馈（可调用但未在主循环中使用）
+#### ZLAC8015D 驱动器反馈
 
-| 方法 | 返回值 | 说明 |
-|------|--------|------|
-| `read_actual_speed_lr_0p1rpm()` | `pair<int16, int16>` | 左右轮实际转速（0.1 RPM） |
-| `read_encoder_lr()` | `pair<int32, int32>` | 左右轮编码器值 |
-| `read_statusword_lr()` | `pair<uint16, uint16>` | 左右轮状态字 |
-| `read_fault_code_u32()` | `uint32` | 故障码 |
+| 方法 | 返回值 | 说明 | 发布状态 |
+|------|--------|------|---------|
+| `read_actual_speed_lr_0p1rpm()` | `pair<int16, int16>` | 左右轮实际转速（0.1 RPM） | ✓ `/chassis/diagnostics` wheel_speeds_actual（约每 10s 更新） |
+| `read_encoder_lr()` | `pair<int32, int32>` | 左右轮编码器值 | ✗ |
+| `read_statusword_lr()` | `pair<uint16, uint16>` | 左右轮状态字 | ✗ |
+| `read_fault_code_u32()` | `uint32` | 故障码 | ✗ |
 
 ### 7.3 数据流总结
 
@@ -541,11 +558,12 @@ ros2 param get /chassis_control robot.rr_motor_start_angle  # → 3.5
      │                    │       │                 motor1~4.torque_
      │                    │       │                 motor1~4.temperature_
      │                    ▼       ▼                      │
-     │              ❌ 无 ROS Topic 发布                  │
-     │               (仅内部使用)                        │
+     │              ✓ ROS Topic 已发布                    │
+     │                                    ZLAC8015D 实际轮速
+     │                                    VBUS 电压
      ▼                                                    ▼
-  已知                                                    已知
-  (用户自己发的)                                          (CAN读取)
+  /chassis/cmd_feedback (100Hz)           /chassis/joint_states (100Hz)
+  /chassis/diagnostics  (100Hz)
 ```
 
 ---
@@ -674,88 +692,19 @@ ros2 param dump /chassis_control
 | 力矩 | 4 × float | 可用作能量消耗指标 |
 | 到位标志 | bool | 4个舵向是否全部到位 |
 
-### 10.2 添加状态发布代码
+### 10.2 已实现的状态发布
 
-当前系统未发布任何状态信息。需要修改代码添加 Publisher。以下是推荐方案：
+当前系统已通过以下 Topic 发布状态数据（详见第 3.3 节）：
 
-#### 方案一：使用标准消息
+- `/chassis/joint_states`（100Hz）— 舵向角度/速度/力矩 + 轮子目标转速
+- `/chassis/cmd_feedback`（100Hz）— 当前指令回显
+- `/chassis/diagnostics`（100Hz）— VBUS 电压、电机温度、错误码、ZLAC8015D 实际轮速
 
-在 `chassis_control.h` 中添加：
+数据通过 `publish_decimation` 机制降频：控制循环 1ms 周期，每 10 个循环发布一次（即 100Hz）。
 
-```cpp
-#include <sensor_msgs/msg/joint_state.hpp>
+> VBUS 电压约每 20 秒从 RobStride 电机读取一次（参数 0x701C），ZLAC8015D 实际轮速约每 10 秒读取一次。
 
-// 在类中添加
-rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_state_pub_;
-rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_feedback_pub_;
-```
-
-在构造函数中添加：
-
-```cpp
-joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
-    "/chassis_joint_states", 10);
-cmd_feedback_pub_ = this->create_publisher<geometry_msgs::msg::Twist>(
-    "/chassis_cmd_feedback", 10);
-```
-
-在 `excute_loop()` 中的轮速发送后添加：
-
-```cpp
-// 发布关节状态
-auto joint_msg = sensor_msgs::msg::JointState();
-joint_msg.header.stamp = this->now();
-joint_msg.name = {"fl_steer", "fr_steer", "rl_steer", "rr_steer",
-                  "fl_wheel", "fr_wheel", "rl_wheel", "rr_wheel"};
-joint_msg.position = {
-    motor1.position_, motor2.position_, motor3.position_, motor4.position_,
-    0.0, 0.0, 0.0, 0.0  // 轮子位置需要编码器累计
-};
-joint_msg.velocity = {
-    motor1.velocity_, motor2.velocity_, motor3.velocity_, motor4.velocity_,
-    chassis_control_para.front_left_speed, chassis_control_para.front_right_speed,
-    chassis_control_para.rear_left_speed, chassis_control_para.rear_right_speed
-};
-joint_msg.effort = {
-    motor1.torque_, motor2.torque_, motor3.torque_, motor4.torque_,
-    0.0, 0.0, 0.0, 0.0
-};
-joint_state_pub_->publish(joint_msg);
-
-// 发布指令反馈
-auto cmd_msg = geometry_msgs::msg::Twist();
-cmd_msg.linear.x = chassis_control_para.vx_set;
-cmd_msg.linear.y = chassis_control_para.vy_set;
-cmd_msg.angular.z = chassis_control_para.wz_set;
-cmd_feedback_pub_->publish(cmd_msg);
-```
-
-#### 方案二：使用自定义消息
-
-如果需要更丰富的数据，可以创建自定义消息。在 `CMakeLists.txt` 中已预留了注释：
-
-```cmake
-# rosidl_generate_interfaces(${PROJECT_NAME}
-#   "msg/MotorFeedback.msg"
-#   DEPENDENCIES std_msgs
-# )
-```
-
-可以创建 `msg/ChassisState.msg`：
-
-```
-builtin_interfaces/Time stamp
-float64 vx_set
-float64 vy_set
-float64 wz_set
-float64[4] steer_angle_target    # 目标舵向角
-float64[4] steer_angle_actual    # 实际舵向角 (CAN反馈)
-float64[4] steer_velocity        # 舵向速度 (CAN反馈)
-float64[4] steer_torque          # 舵向力矩 (CAN反馈)
-float64[4] wheel_speed_target    # 目标轮速 RPM
-float32[4] temperature           # 电机温度 °C
-bool steer_ready                 # 舵向是否全部到位
-```
+### 10.3 Python 数据记录脚本示例
 
 ### 10.3 Python 数据记录脚本示例
 
@@ -763,12 +712,12 @@ bool steer_ready                 # 舵向是否全部到位
 #!/usr/bin/env python3
 """
 数据记录脚本 — 记录底盘指令和状态用于深度学习训练
-需要先添加状态发布代码（方案一或方案二）
 """
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import JointState
+from chassis_control.msg import ChassisDiagnostics
 import csv
 import time
 
@@ -781,10 +730,13 @@ class DataRecorder(Node):
         self.cmd_sub = self.create_subscription(
             Twist, '/svtrobot_cmd', self.cmd_callback, 10)
         self.state_sub = self.create_subscription(
-            JointState, '/chassis_joint_states', self.state_callback, 10)
+            JointState, '/chassis/joint_states', self.state_callback, 10)
+        self.diag_sub = self.create_subscription(
+            ChassisDiagnostics, '/chassis/diagnostics', self.diag_callback, 10)
 
         self.last_cmd = {'vx': 0.0, 'vy': 0.0, 'wz': 0.0}
         self.last_state = None
+        self.last_diag = None
 
         self.get_logger().info(f'数据记录已启动，输出文件: {output_file}')
 
@@ -863,7 +815,8 @@ if __name__ == '__main__':
 ┌─────────────────────────────────────────────────┐
 │              ROS2 推理节点                        │
 │                                                   │
-│  Sub: /chassis_joint_states (传感器反馈)          │
+│  Sub: /chassis/joint_states (传感器反馈)          │
+│  Sub: /chassis/diagnostics (诊断数据)             │
 │  Sub: /task_goal (任务目标，可选)                  │
 │                                                   │
 │         ┌─────────────────┐                      │
@@ -894,9 +847,9 @@ class InferenceNode(Node):
         super().__init__('dl_inference')
         self.model = self.load_model(model_path)
 
-        # 订阅状态反馈（需要先添加状态发布代码）
+        # 订阅状态反馈
         self.state_sub = self.create_subscription(
-            JointState, '/chassis_joint_states',
+            JointState, '/chassis/joint_states',
             self.state_callback, 10)
 
         # 发布控制指令
@@ -999,11 +952,16 @@ svtrobo_ws/
 │       │   └── params.yaml                       # ROS2 参数配置
 │       ├── launch/
 │       │   └── svtrobo_bringup.launch.py         # 启动文件
+│       ├── msg/
+│       │   └── ChassisDiagnostics.msg            # 诊断消息定义
 │       ├── include/chassis_control/
 │       │   ├── chassis_control.h                  # 主控制节点头文件
 │       │   ├── steering_motor.h                   # RobStride 舵向电机驱动
 │       │   ├── wheel_motor.h                      # ZLAC8015D 轮驱动器
 │       │   └── filters.h                          # 低通滤波 & 变化率限制
+│       ├── scripts/
+│       │   ├── svtrobo_controller.py              # Python 控制器封装
+│       │   └── test_chassis.py                    # 交互式测试脚本
 │       └── src/
 │           ├── main.cpp                           # 底盘控制入口
 │           ├── chassis_control.cpp                # 主控制逻辑
@@ -1011,6 +969,30 @@ svtrobo_ws/
 │           ├── wheel_motor.cpp                    # 轮驱动器实现
 │           ├── filters.cpp                        # 滤波器实现
 │           └── lift_RS485_control.cpp             # 升降机构控制
+├── camera_driver/
+│   └── camera_driver/
+│       ├── __init__.py                            # 模块入口
+│       ├── realsense_camera.py                    # RealSense D405 驱动
+│       └── zed_camera.py                          # ZED 2i 驱动
+├── web_control/
+│   ├── server.py                                  # aiohttp Web 服务器
+│   ├── start_web.sh                               # 一键启动脚本
+│   └── static/
+│       ├── index.html                             # 控制台主页面
+│       ├── css/style.css                          # 样式表
+│       └── js/
+│           ├── app.js                             # 主应用（rosbridge 连接管理）
+│           ├── chassis.js                         # 底盘键盘控制
+│           ├── chassis-status.js                  # 底盘电机状态面板
+│           ├── camera.js                          # 相机画面控制
+│           ├── diagnostics.js                     # 电池/电机诊断面板
+│           ├── lift.js                            # 升降机构控制
+│           ├── status.js                          # ROS 话题状态监控
+│           └── roslib.min.js                      # roslibjs 库
+├── ROBOT_SYSTEM_GUIDE.md                          # 本文档
+├── PYTHON_API_GUIDE.md                            # Python API 使用指南
+├── CAMERA_DRIVER_GUIDE.md                         # 相机驱动使用指南
+└── WEB_CONTROL_GUIDE.md                           # Web 控制台使用指南
 ```
 
 ---

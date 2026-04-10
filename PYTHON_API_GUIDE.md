@@ -747,6 +747,10 @@ Python 节点 (svtrobo_controller)          C++ 底盘节点 (chassis_control_no
     /chassis/cmd_feedback          Python 接收当前指令回显
     (指令回显, 100Hz)
 
+                    ←─ ChassisDiagnostics ──
+    /chassis/diagnostics           诊断数据（电压/温度/错误码/实际轮速）
+    (诊断数据, 100Hz)
+
                     ── Int32MultiArray ──→
     /lift_control_cmd              升降机构控制
     (升降控制)
@@ -759,6 +763,7 @@ Python 节点 (svtrobo_controller)          C++ 底盘节点 (chassis_control_no
 | `/svtrobot_cmd` | `geometry_msgs/msg/Twist` | Python → C++ | 按需 | 控制指令 (vx, vy, wz) |
 | `/chassis/joint_states` | `sensor_msgs/msg/JointState` | C++ → Python | 100Hz | 底盘关节状态 |
 | `/chassis/cmd_feedback` | `geometry_msgs/msg/Twist` | C++ → Python | 100Hz | 当前指令回显 |
+| `/chassis/diagnostics` | `chassis_control/msg/ChassisDiagnostics` | C++ → Python | 100Hz | 诊断数据（电压/温度/错误码/实际轮速） |
 | `/lift_control_cmd` | `std_msgs/msg/Int32MultiArray` | Python → C++ | 按需 | 升降控制指令 |
 
 **JointState 消息字段：**
@@ -769,6 +774,16 @@ Python 节点 (svtrobo_controller)          C++ 底盘节点 (chassis_control_no
 | `position` | 4 个舵向电机实际角度 (rad) | 0.0（轮子无位置反馈） |
 | `velocity` | 4 个舵向电机速度 (rad/s) | 4 个轮子目标转速 (RPM) |
 | `effort` | 4 个舵向电机力矩 (Nm) | 0.0（轮子无力矩反馈） |
+
+**ChassisDiagnostics 消息字段：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `header` | `std_msgs/Header` | 时间戳 |
+| `vbus` | `float32` | 电机驱动器总线电压 (V) |
+| `motor_temperatures` | `float32[4]` | 4 个舵向电机温度 (°C)：FL, FR, RL, RR |
+| `motor_error_codes` | `uint8[4]` | 4 个舵向电机错误码：FL, FR, RL, RR |
+| `wheel_speeds_actual` | `float32[4]` | ZLAC8015D 实际轮速 (RPM)：FL, FR, RL, RR |
 
 ---
 
