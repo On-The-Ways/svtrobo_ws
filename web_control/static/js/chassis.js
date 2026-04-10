@@ -162,7 +162,7 @@ const Chassis = {
 
     updateDirection() {
         // Clear all highlights
-        document.querySelectorAll('.dir-segment').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.dir-segment, .rot-indicator').forEach(el => el.classList.remove('active'));
 
         if (this.activeKeys.size === 0) return;
 

@@ -80,23 +80,14 @@
         </div>
     </section>
 
-    <!-- Chassis Control + Lift -->
-    <section id="chassis-panel" class="panel panel-chassis panel-full">
-        <h2 class="panel-title">底盘控制</h2>
+    <div class="middle-panels">
+        <!-- Chassis Control + Lift -->
+        <section id="chassis-panel" class="panel panel-chassis">
+            <h2 class="panel-title">底盘与升降控制</h2>
         <div class="panel-body">
             <div class="chassis-left">
-                <!-- Speed Feedback -->
-                <div id="feedback-display" class="feedback-display">
-                    vx=0.00 m/s, vy=0.00 m/s, angularZ=0.00 rad/s
-                </div>
-
-                <!-- Keyboard hints -->
-                <div class="key-hints">
-                    <span class="key-hint">W/S</span> 前进/后退 &nbsp;
-                    <span class="key-hint">A/D</span> 左平移/右平移 &nbsp;
-                    <span class="key-hint">Q/E</span> 旋转 &nbsp;
-                    <span class="key-hint">Space</span> 停止
-                </div>
+                <!-- Chassis Control Title -->
+                <h3 class="motor-section-title" style="margin-bottom:16px; align-self: center;">底盘控制</h3>
 
                 <!-- Direction Indicator -->
                 <div class="direction-display">
@@ -112,38 +103,40 @@
                         <div id="dir-nw" class="dir-segment dir-nw">W+Q</div>
                         <div class="dir-center"></div>
                     </div>
-                    <!-- Rotation indicators -->
-                    <div class="rotation-indicators">
-                        <div id="dir-ccw" class="rot-indicator">逆时针 (Q)</div>
-                        <div id="dir-cw"  class="rot-indicator">顺时针 (E)</div>
-                    </div>
+                    <!-- Rotation indicators moved to corners -->
+                    <div id="dir-ccw" class="rot-indicator rot-bl">逆时针 (Q)</div>
+                    <div id="dir-cw"  class="rot-indicator rot-br">顺时针 (E)</div>
                 </div>
 
                 <!-- Speed Control -->
                 <div class="speed-control">
-                    <label>速度: <span id="speed-value">0.30</span> m/s</label>
-                    <input type="range" id="speed-slider" min="0.05" max="0.50" step="0.01" value="0.30">
+                    <label>速度: <span id="speed-value">0.05</span> m/s</label>
+                    <input type="range" id="speed-slider" min="0.05" max="0.50" step="0.01" value="0.05">
                 </div>
             </div>
             <div class="chassis-right">
                 <!-- Lift Control (moved here) -->
                 <h3 class="motor-section-title" style="margin-bottom:16px">升降控制</h3>
                 <div class="lift-controls-vertical">
-                    <button id="lift-up" class="btn btn-action btn-up" style="width:100%">上升</button>
-                    <div class="vertical-slider-wrap">
-                        <span class="vertical-slider-label" id="lift-speed-value">300</span>
-                        <span class="vertical-slider-unit">RPM</span>
-                        <input type="range" id="lift-speed-slider" class="vertical-slider" min="0" max="500" step="10" value="300">
+                    <div class="lift-slider-container">
+                        <div class="lift-slider-header">
+                            <span class="lift-slider-title">速度</span>
+                            <span class="lift-slider-val"><span id="lift-speed-value">50</span> <small>RPM</small></span>
+                        </div>
+                        <input type="range" id="lift-speed-slider" class="modern-slider" min="0" max="500" step="10" value="50">
                     </div>
-                    <button id="lift-stop" class="btn btn-stop" style="width:100%">停止</button>
-                    <button id="lift-down" class="btn btn-action btn-down" style="width:100%">下降</button>
+                    <div class="lift-buttons-group">
+                        <button id="lift-up" class="btn btn-action btn-up">上升</button>
+                        <button id="lift-stop" class="btn btn-stop">停止</button>
+                        <button id="lift-down" class="btn btn-action btn-down">下降</button>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Motor Status -->
-    <section class="panel panel-motor-status panel-full">
+    <section class="panel panel-motor-status">
         <h2 class="panel-title">电机状态</h2>
         <div class="motor-status-body">
             <!-- Steer Motors -->
@@ -160,25 +153,25 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="motor-label-cell">FL</td>
+                            <td class="motor-label-cell">前左</td>
                             <td><span id="steer-fl-angle">--</span></td>
                             <td><span id="steer-fl-vel">--</span></td>
                             <td><span id="steer-fl-torque">--</span></td>
                         </tr>
                         <tr>
-                            <td class="motor-label-cell">FR</td>
+                            <td class="motor-label-cell">前右</td>
                             <td><span id="steer-fr-angle">--</span></td>
                             <td><span id="steer-fr-vel">--</span></td>
                             <td><span id="steer-fr-torque">--</span></td>
                         </tr>
                         <tr>
-                            <td class="motor-label-cell">RL</td>
+                            <td class="motor-label-cell">后左</td>
                             <td><span id="steer-rl-angle">--</span></td>
                             <td><span id="steer-rl-vel">--</span></td>
                             <td><span id="steer-rl-torque">--</span></td>
                         </tr>
                         <tr>
-                            <td class="motor-label-cell">RR</td>
+                            <td class="motor-label-cell">后右</td>
                             <td><span id="steer-rr-angle">--</span></td>
                             <td><span id="steer-rr-vel">--</span></td>
                             <td><span id="steer-rr-torque">--</span></td>
@@ -199,22 +192,22 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="motor-label-cell">FL</td>
+                            <td class="motor-label-cell">前左</td>
                             <td><span id="wheel-fl-target">--</span></td>
                             <td><span id="wheel-fl-actual">--</span></td>
                         </tr>
                         <tr>
-                            <td class="motor-label-cell">FR</td>
+                            <td class="motor-label-cell">前右</td>
                             <td><span id="wheel-fr-target">--</span></td>
                             <td><span id="wheel-fr-actual">--</span></td>
                         </tr>
                         <tr>
-                            <td class="motor-label-cell">RL</td>
+                            <td class="motor-label-cell">后左</td>
                             <td><span id="wheel-rl-target">--</span></td>
                             <td><span id="wheel-rl-actual">--</span></td>
                         </tr>
                         <tr>
-                            <td class="motor-label-cell">RR</td>
+                            <td class="motor-label-cell">后右</td>
                             <td><span id="wheel-rr-target">--</span></td>
                             <td><span id="wheel-rr-actual">--</span></td>
                         </tr>
@@ -223,6 +216,7 @@
             </div>
         </div>
     </section>
+    </div>
 
     <div class="bottom-panels">
         <!-- Battery Status -->
@@ -244,22 +238,22 @@
             </div>
             <div class="motor-diag-grid">
                 <div class="motor-diag-item">
-                    <div class="battery-label">FL 电机</div>
+                    <div class="battery-label">前左电机</div>
                     <div class="motor-diag-value" id="motor-fl-temp">-- °C</div>
                     <div class="motor-diag-error" id="motor-fl-err"></div>
                 </div>
                 <div class="motor-diag-item">
-                    <div class="battery-label">FR 电机</div>
+                    <div class="battery-label">前右电机</div>
                     <div class="motor-diag-value" id="motor-fr-temp">-- °C</div>
                     <div class="motor-diag-error" id="motor-fr-err"></div>
                 </div>
                 <div class="motor-diag-item">
-                    <div class="battery-label">RL 电机</div>
+                    <div class="battery-label">后左电机</div>
                     <div class="motor-diag-value" id="motor-rl-temp">-- °C</div>
                     <div class="motor-diag-error" id="motor-rl-err"></div>
                 </div>
                 <div class="motor-diag-item">
-                    <div class="battery-label">RR 电机</div>
+                    <div class="battery-label">后右电机</div>
                     <div class="motor-diag-value" id="motor-rr-temp">-- °C</div>
                     <div class="motor-diag-error" id="motor-rr-err"></div>
                 </div>

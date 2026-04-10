@@ -144,16 +144,46 @@
 
 ### 3.2 Topic 列表
 
-| Topic | 消息类型 | 方向 | 所属节点 | 说明 |
-|-------|---------|------|---------|------|
-| `/svtrobot_cmd` | `geometry_msgs/msg/Twist` | Sub（输入）| `chassis_control` | 底盘速度指令 |
-| `/lift_control_cmd` | `std_msgs/msg/Int32MultiArray` | Sub（输入）| `lift_control_node` | 升降控制指令 |
+| Topic | 消息类型 | 方向 | 所属节点 | 频率 | 说明 |
+|-------|---------|------|---------|------|------|
+| `/svtrobot_cmd` | `geometry_msgs/msg/Twist` | Sub（输入）| `chassis_control` | 按需 | 底盘速度指令 |
+| `/lift_control_cmd` | `std_msgs/msg/Int32MultiArray` | Sub（输入）| `lift_control_node` | 按需 | 升降控制指令 |
+| `/chassis/joint_states` | `sensor_msgs/msg/JointState` | Pub（输出）| `chassis_control` | 100Hz | 底盘关节状态（舵向角度/速度/力矩、轮速） |
+| `/chassis/cmd_feedback` | `geometry_msgs/msg/Twist` | Pub（输出）| `chassis_control` | 100Hz | 当前指令回显（vx, vy, wz） |
+| `/chassis/diagnostics` | `chassis_control/msg/ChassisDiagnostics` | Pub（输出）| `chassis_control` | 100Hz | 诊断数据（电压、温度、错误码、实际轮速） |
 
-### 3.3 当前发布的 Topic
+### 3.3 已发布的状态/反馈 Topic
 
-**当前系统没有发布任何状态/反馈 Topic。** 所有电机反馈数据（位置、速度、力矩等）仅在节点内部通过 CAN 总线获取，未暴露到 ROS 层面。
+系统通过以下三个 Topic 发布底盘状态数据：
 
-> 如果需要采集数据用于深度学习训练，需要自行添加 Publisher（详见第 10 节）。
+**`/chassis/joint_states`**（100Hz）— 标准关节状态：
+
+| 字段 | name[0..3] | name[4..7] |
+|------|-----------|-----------|
+| `name` | `fl_steer`, `fr_steer`, `rl_steer`, `rr_steer` | `fl_wheel`, `fr_wheel`, `rl_wheel`, `rr_wheel` |
+| `position` | 4 个舵向电机实际角度 (rad) | 0.0（轮子无位置反馈） |
+| `velocity` | 4 个舵向电机速度 (rad/s) | 4 个轮子目标转速 (RPM) |
+| `effort` | 4 个舵向电机力矩 (Nm) | 0.0（轮子无力矩反馈） |
+
+**`/chassis/cmd_feedback`**（100Hz）— 当前指令回显：
+
+| 字段 | 说明 |
+|------|------|
+| `linear.x` | 当前设定的前进速度 (m/s) |
+| `linear.y` | 当前设定的横移速度 (m/s) |
+| `angular.z` | 当前设定的旋转角速度 (rad/s) |
+
+**`/chassis/diagnostics`**（100Hz）— 自定义诊断消息：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `header` | `std_msgs/Header` | 时间戳 |
+| `vbus` | `float32` | 电机驱动器总线电压 (V) |
+| `motor_temperatures` | `float32[4]` | 4 个舵向电机温度 (°C)：FL, FR, RL, RR |
+| `motor_error_codes` | `uint8[4]` | 4 个舵向电机错误码：FL, FR, RL, RR |
+| `wheel_speeds_actual` | `float32[4]` | ZLAC8015D 实际轮速 (RPM)：FL, FR, RL, RR |
+
+> `vbus` 约每 20 秒从 RobStride 电机读取一次（参数 0x701C）。`wheel_speeds_actual` 约每 10 秒从 ZLAC8015D 读取一次。
 
 ### 3.4 ROS2 参数
 
