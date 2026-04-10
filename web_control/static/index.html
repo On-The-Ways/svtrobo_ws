@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVTROBO 控制台</title>
+    <!-- Modern typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="/static/js/roslib.min.js"></script>
+</head>
+<body>
+
+<!-- Header -->
+<header class="top-bar">
+    <div class="logo">
+        <div class="logo-icon"></div>
+        SVTROBO 控制台
+    </div>
+    <div class="connection-panel">
+        <input type="text" id="rosbridge-url" placeholder="ws://host:9090">
+        <button id="connect-btn" class="btn btn-primary">连接</button>
+        <span id="connection-status" class="connection-status status-disconnected">已断开</span>
+    </div>
+</header>
+
+<main class="dashboard">
+
+    <!-- Camera Feeds moved to top -->
+    <section class="panel panel-cameras panel-full">
+        <h2 class="panel-title">相机画面</h2>
+        <div class="camera-grid">
+            <!-- D405 #1 -->
+            <div class="camera-card">
+                <div class="camera-header">
+                    <span class="camera-name">D405 #1</span>
+                    <span id="cam-d405-1-status" class="cam-status cam-stopped">已停止</span>
+                </div>
+                <div class="camera-feed-container">
+                    <div id="cam-d405-1-fallback" class="camera-fallback-text">相机未启动</div>
+                    <img id="cam-d405-1-feed" class="camera-feed" alt="D405 #1">
+                </div>
+                <div class="camera-actions">
+                    <button id="cam-d405-1-start" class="btn btn-sm btn-primary">启动</button>
+                    <button id="cam-d405-1-stop" class="btn btn-sm btn-stop">停止</button>
+                </div>
+            </div>
+            <!-- D405 #2 -->
+            <div class="camera-card">
+                <div class="camera-header">
+                    <span class="camera-name">D405 #2</span>
+                    <span id="cam-d405-2-status" class="cam-status cam-stopped">已停止</span>
+                </div>
+                <div class="camera-feed-container">
+                    <div id="cam-d405-2-fallback" class="camera-fallback-text">相机未启动</div>
+                    <img id="cam-d405-2-feed" class="camera-feed" alt="D405 #2">
+                </div>
+                <div class="camera-actions">
+                    <button id="cam-d405-2-start" class="btn btn-sm btn-primary">启动</button>
+                    <button id="cam-d405-2-stop" class="btn btn-sm btn-stop">停止</button>
+                </div>
+            </div>
+            <!-- ZED 2i -->
+            <div class="camera-card">
+                <div class="camera-header">
+                    <span class="camera-name">ZED 2i</span>
+                    <span id="cam-zed-status" class="cam-status cam-stopped">已停止</span>
+                </div>
+                <div class="camera-feed-container">
+                    <div id="cam-zed-fallback" class="camera-fallback-text">相机未启动</div>
+                    <img id="cam-zed-feed" class="camera-feed" alt="ZED 2i">
+                </div>
+                <div class="camera-actions">
+                    <button id="cam-zed-start" class="btn btn-sm btn-primary">启动</button>
+                    <button id="cam-zed-stop" class="btn btn-sm btn-stop">停止</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chassis Control -->
+    <section id="chassis-panel" class="panel panel-chassis panel-full">
+        <h2 class="panel-title">底盘控制</h2>
+        <div class="panel-body">
+            <div class="chassis-left">
+                <!-- Keyboard hints -->
+                <div class="key-hints">
+                    <span class="key-hint">W/S</span> 前进/后退 &nbsp;
+                    <span class="key-hint">A/D</span> 左平移/右平移 &nbsp;
+                    <span class="key-hint">Q/E</span> 旋转 &nbsp;
+                    <span class="key-hint">Space</span> 停止
+                </div>
+
+                <!-- Direction Indicator -->
+                <div class="direction-display">
+                    <div id="keyboard-hint" class="keyboard-focus-hint">点击此处启用键盘控制</div>
+                    <div class="dir-ring">
+                        <div id="dir-n"  class="dir-segment dir-n">W</div>
+                        <div id="dir-ne" class="dir-segment dir-ne">W+E</div>
+                        <div id="dir-e"  class="dir-segment dir-e">E</div>
+                        <div id="dir-se" class="dir-segment dir-se">S+E</div>
+                        <div id="dir-s"  class="dir-segment dir-s">S</div>
+                        <div id="dir-sw" class="dir-segment dir-sw">S+Q</div>
+                        <div id="dir-w"  class="dir-segment dir-w">Q</div>
+                        <div id="dir-nw" class="dir-segment dir-nw">W+Q</div>
+                        <div class="dir-center"></div>
+                    </div>
+                    <!-- Rotation indicators -->
+                    <div class="rotation-indicators">
+                        <div id="dir-ccw" class="rot-indicator">逆时针 (Q)</div>
+                        <div id="dir-cw"  class="rot-indicator">顺时针 (E)</div>
+                    </div>
+                </div>
+
+                <!-- Speed Control -->
+                <div class="speed-control">
+                    <label>速度: <span id="speed-value">0.30</span> m/s</label>
+                    <input type="range" id="speed-slider" min="0.05" max="0.50" step="0.01" value="0.30">
+                </div>
+            </div>
+            <div class="chassis-right">
+                <div id="feedback-display" class="feedback-display">
+                    vx=0.00 m/s, vy=0.00 m/s, angularZ=0.00 rad/s
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="bottom-panels">
+        <!-- Lift Control -->
+        <section class="panel panel-lift">
+            <h2 class="panel-title">升降控制</h2>
+            <div class="lift-controls">
+                <div class="lift-buttons">
+                    <button id="lift-up" class="btn btn-action btn-up">上升</button>
+                    <button id="lift-stop" class="btn btn-stop">停止</button>
+                    <button id="lift-down" class="btn btn-action btn-down">下降</button>
+                </div>
+                <div class="speed-control">
+                    <label>速度: <span id="lift-speed-value">300</span> RPM</label>
+                    <input type="range" id="lift-speed-slider" min="50" max="6000" step="50" value="300">
+                </div>
+            </div>
+        </section>
+
+        <!-- Battery Status -->
+        <section class="panel panel-battery">
+            <h2 class="panel-title">电池状态</h2>
+            <div class="battery-grid">
+                <div class="battery-item">
+                    <div class="battery-label">电压</div>
+                    <div class="battery-value" id="battery-voltage">-- V</div>
+                </div>
+                <div class="battery-item">
+                    <div class="battery-label">电量</div>
+                    <div class="battery-value" id="battery-percent">-- %</div>
+                </div>
+                <div class="battery-item">
+                    <div class="battery-label">温度</div>
+                    <div class="battery-value" id="battery-temp">-- °C</div>
+                </div>
+            </div>
+            <div class="motor-diag-grid">
+                <div class="motor-diag-item">
+                    <div class="battery-label">FL 电机</div>
+                    <div class="motor-diag-value" id="motor-fl-temp">-- °C</div>
+                    <div class="motor-diag-error" id="motor-fl-err"></div>
+                </div>
+                <div class="motor-diag-item">
+                    <div class="battery-label">FR 电机</div>
+                    <div class="motor-diag-value" id="motor-fr-temp">-- °C</div>
+                    <div class="motor-diag-error" id="motor-fr-err"></div>
+                </div>
+                <div class="motor-diag-item">
+                    <div class="battery-label">RL 电机</div>
+                    <div class="motor-diag-value" id="motor-rl-temp">-- °C</div>
+                    <div class="motor-diag-error" id="motor-rl-err"></div>
+                </div>
+                <div class="motor-diag-item">
+                    <div class="battery-label">RR 电机</div>
+                    <div class="motor-diag-value" id="motor-rr-temp">-- °C</div>
+                    <div class="motor-diag-error" id="motor-rr-err"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Topic List -->
+        <section class="panel panel-topics">
+            <h2 class="panel-title">话题列表 <span id="topic-count" class="topic-count">0</span></h2>
+            <div id="topic-list" class="topic-container">
+                <div class="topic-empty">暂无订阅话题</div>
+            </div>
+        </section>
+    </div>
+
+</main>
+
+<!-- Load JS modules -->
+<script src="/static/js/app.js"></script>
+<script src="/static/js/chassis.js"></script>
+<script src="/static/js/lift.js"></script>
+<script src="/static/js/camera.js"></script>
+<script src="/static/js/status.js"></script>
+<script src="/static/js/diagnostics.js"></script>
+
+</body>
+</html>
