@@ -104,6 +104,11 @@ private:
     double dt;
     int publish_decimation_ = 0;
     int vbus_decimation_ = 0;
+    int wheel_speed_decimation_ = 0;
+    float wheel_actual_fl_ = 0.0f;
+    float wheel_actual_fr_ = 0.0f;
+    float wheel_actual_rl_ = 0.0f;
+    float wheel_actual_rr_ = 0.0f;
 
     void chassis_control_loop(void);
     void arc_judge(void);

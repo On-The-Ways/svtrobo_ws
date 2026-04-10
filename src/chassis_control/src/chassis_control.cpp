@@ -274,6 +274,22 @@ void ChassisControlNode::excute_loop(void)
           motor1.Get_RobStrite_Motor_parameter(0x701C);
         }
 
+        // Wheel actual speed polling (every 50 publish cycles ≈ 10s)
+        wheel_speed_decimation_++;
+        if (wheel_speed_decimation_ >= 50) {
+          wheel_speed_decimation_ = 0;
+          try {
+            auto [fl_spd, fr_spd] = front_->read_actual_speed_lr_0p1rpm();
+            auto [rl_spd, rr_spd] = rear_->read_actual_speed_lr_0p1rpm();
+            wheel_actual_fl_ = static_cast<float>(fl_spd) * 0.1f;
+            wheel_actual_fr_ = static_cast<float>(fr_spd) * 0.1f;
+            wheel_actual_rl_ = static_cast<float>(rl_spd) * 0.1f;
+            wheel_actual_rr_ = static_cast<float>(rr_spd) * 0.1f;
+          } catch (...) {
+            // ZLAC8015D read failure — keep last known values
+          }
+        }
+
         // Publish diagnostics
         auto diag_msg = chassis_control::msg::ChassisDiagnostics();
         diag_msg.header.stamp = this->now();
@@ -284,6 +300,9 @@ void ChassisControlNode::excute_loop(void)
         diag_msg.motor_error_codes = {
           motor1.error_code, motor2.error_code,
           motor3.error_code, motor4.error_code};
+        diag_msg.wheel_speeds_actual = {
+          wheel_actual_fl_, wheel_actual_fr_,
+          wheel_actual_rl_, wheel_actual_rr_};
         diagnostics_pub_->publish(diag_msg);
       }
     }

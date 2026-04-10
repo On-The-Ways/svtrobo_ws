@@ -19,7 +19,16 @@ const Diagnostics = {
 
         this.diagTopic.subscribe((msg) => {
             this.updateBatteryDisplay(msg.vbus);
-            this.updateMotorDisplay(msg.motor_temperatures, msg.motor_error_codes);
+            // rosbridge encodes uint8[] as base64 string — decode it
+            let errorCodes = msg.motor_error_codes;
+            if (typeof errorCodes === 'string') {
+                const raw = atob(errorCodes);
+                errorCodes = [];
+                for (let i = 0; i < raw.length; i++) {
+                    errorCodes.push(raw.charCodeAt(i));
+                }
+            }
+            this.updateMotorDisplay(msg.motor_temperatures, errorCodes);
         });
     },
 

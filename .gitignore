@@ -4,3 +4,9 @@ log/
 __pycache__/
 *.pyc
 .DS_Store
+
+# 测试截图
+camera_driver/captures/
+
+# Office 文档
+*.docx

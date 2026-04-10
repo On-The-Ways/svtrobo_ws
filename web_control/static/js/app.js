@@ -49,6 +49,7 @@ const App = {
             Lift.init(this.ros);
             StatusMonitor.init(this.ros);
             Diagnostics.init(this.ros);
+            ChassisStatus.init(this.ros);
             Camera.init(this.serverUrl);
         });
 
