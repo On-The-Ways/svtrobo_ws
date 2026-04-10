@@ -20,10 +20,10 @@ find_package(sensor_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 # Generate messages
-# rosidl_generate_interfaces(${PROJECT_NAME}
-#   "msg/MotorFeedback.msg"
-#   DEPENDENCIES std_msgs
-# )
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/ChassisDiagnostics.msg"
+  DEPENDENCIES std_msgs
+)
 
 # Create a ament index resource to make the package findable
 ament_export_dependencies(rosidl_default_runtime)
@@ -54,12 +54,12 @@ ament_target_dependencies(${PROJECT_NAME}_lib
   sensor_msgs
 )
 
-# rosidl_target_interfaces(${PROJECT_NAME}_lib 
-#   ${PROJECT_NAME} "rosidl_typesupport_cpp")
+rosidl_target_interfaces(${PROJECT_NAME}_lib
+  ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 
-# Motor control test executable
-add_executable(chassis_control
+# Motor control executable
+add_executable(chassis_control_node
   src/main.cpp
 )
 
@@ -71,7 +71,7 @@ add_executable(lift_control
 #   src/enable_motor.cpp
 # )
 
-ament_target_dependencies(chassis_control
+ament_target_dependencies(chassis_control_node
   rclcpp
   std_msgs
 )
@@ -87,7 +87,7 @@ ament_target_dependencies(lift_control
 #   can_msgs
 # )
 
-target_link_libraries(chassis_control
+target_link_libraries(chassis_control_node
   ${PROJECT_NAME}_lib
 )
 
@@ -107,7 +107,7 @@ install(
 
 # Install targets
 install(
-  TARGETS ${PROJECT_NAME}_lib chassis_control
+  TARGETS ${PROJECT_NAME}_lib chassis_control_node
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}

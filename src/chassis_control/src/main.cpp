@@ -4,7 +4,7 @@
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
 
-  auto controller = std::make_shared<chassis_control>();
+  auto controller = std::make_shared<ChassisControlNode>();
 
   rclcpp::executors::MultiThreadedExecutor executor;
 

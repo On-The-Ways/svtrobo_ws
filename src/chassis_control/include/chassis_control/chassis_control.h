@@ -7,6 +7,8 @@
 #include <std_msgs/msg/float64.hpp>
 #include <std_msgs/msg/int32.hpp>
 #include <geometry_msgs/msg/twist.hpp>
+#include <sensor_msgs/msg/joint_state.hpp>
+#include "chassis_control/msg/chassis_diagnostics.hpp"
 #include <atomic>
 #include <memory>
 #include <thread>
@@ -61,11 +63,11 @@ typedef struct chassis_param_t
     double rr_motor_start_angle;
 } chassis_param_t;
 
-class chassis_control : public rclcpp::Node {
+class ChassisControlNode : public rclcpp::Node {
 public:
-    chassis_control(void);
+    ChassisControlNode(void);
     void excute_loop(void);
-    ~chassis_control(void);
+    ~ChassisControlNode(void);
 
 private:
     std::thread worker_thread_;
@@ -76,6 +78,10 @@ private:
     chassis_param_t chassis_param;
 
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr svtrobot_cmd_sub;
+
+    rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_state_pub_;
+    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_feedback_pub_;
+    rclcpp::Publisher<chassis_control::msg::ChassisDiagnostics>::SharedPtr diagnostics_pub_;
     
     RobStrideMotor motor1;
     RobStrideMotor motor2;
@@ -96,6 +102,8 @@ private:
     std::unique_ptr<ZLAC8015D> rear_;
 
     double dt;
+    int publish_decimation_ = 0;
+    int vbus_decimation_ = 0;
 
     void chassis_control_loop(void);
     void arc_judge(void);

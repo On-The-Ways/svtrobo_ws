@@ -1,8 +1,8 @@
 #include "chassis_control/chassis_control.h"
 
-chassis_control::chassis_control(void):rclcpp::Node("chassis_control_node"),
+ChassisControlNode::ChassisControlNode(void):rclcpp::Node("chassis_control_node"),
                                         motor1(RobStrideMotor(STEER_MOTOR_CAN, 0xFF, 0x65, 0)),
-                                        motor2(RobStrideMotor(STEER_MOTOR_CAN, 0xFF, 0x66, 0)), 
+                                        motor2(RobStrideMotor(STEER_MOTOR_CAN, 0xFF, 0x66, 0)),
                                         motor3(RobStrideMotor(STEER_MOTOR_CAN, 0xFF, 0x67, 0)),
                                         motor4(RobStrideMotor(STEER_MOTOR_CAN, 0xFF, 0x68, 0)),
                                         fl_angle_filter(FILTER_ALPHA),
@@ -29,8 +29,12 @@ chassis_control::chassis_control(void):rclcpp::Node("chassis_control_node"),
     this->get_parameter("robot.rl_motor_start_angle", chassis_param.rl_motor_start_angle);
     this->get_parameter("robot.rr_motor_start_angle", chassis_param.rr_motor_start_angle);
 
-    svtrobot_cmd_sub = this->create_subscription<geometry_msgs::msg::Twist>("/svtrobot_cmd", 10, 
-                       std::bind(&chassis_control::svtrobot_cmd_callback, this, std::placeholders::_1));
+    svtrobot_cmd_sub = this->create_subscription<geometry_msgs::msg::Twist>("/svtrobot_cmd", 10,
+                       std::bind(&ChassisControlNode::svtrobot_cmd_callback, this, std::placeholders::_1));
+
+    joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>("/chassis/joint_states", 10);
+    cmd_feedback_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("/chassis/cmd_feedback", 10);
+    diagnostics_pub_ = this->create_publisher<chassis_control::msg::ChassisDiagnostics>("/chassis/diagnostics", 10);
 
     motor1.Get_RobStrite_Motor_parameter(0x7005);
     usleep(100);
@@ -39,6 +43,10 @@ chassis_control::chassis_control(void):rclcpp::Node("chassis_control_node"),
     motor3.Get_RobStrite_Motor_parameter(0x7005);
     usleep(100);
     motor4.Get_RobStrite_Motor_parameter(0x7005);
+    usleep(100);
+
+    // Read initial VBUS
+    motor1.Get_RobStrite_Motor_parameter(0x701C);
     usleep(100);
 
     motor1.enable_motor();
@@ -51,33 +59,33 @@ chassis_control::chassis_control(void):rclcpp::Node("chassis_control_node"),
     usleep(100);
 
     // RCLCPP_INFO(this->get_logger(), "Creating front and rear ZLAC8015D on interface '%s'...", WHEEL_MOTOR_CAN);
-    try 
+    try
     {
       front_ = std::make_unique<ZLAC8015D>(WHEEL_MOTOR_CAN, 1, 0.3);
       rear_  = std::make_unique<ZLAC8015D>(WHEEL_MOTOR_CAN, 2, 0.3);
 
-      for (auto *drv : std::vector<ZLAC8015D*>{front_.get(), rear_.get()}) 
+      for (auto *drv : std::vector<ZLAC8015D*>{front_.get(), rear_.get()})
       {
         int hb = drv->wait_heartbeat(1.0);
         (void)hb;
-        try 
-        { 
-          drv->clear_fault(); 
-          } 
-        catch (...) 
+        try
+        {
+          drv->clear_fault();
+          }
+        catch (...)
         {
 
         }
         drv->set_velocity_mode();
         drv->enable_operation();
       }
-    } 
-    catch (const std::exception &e) 
+    }
+    catch (const std::exception &e)
     {
       RCLCPP_ERROR(this->get_logger(), "Error during initial device setup: %s", e.what());
       throw;
     }
-    signal(SIGINT, [](int sig) 
+    signal(SIGINT, [](int sig)
     {
       (void)sig;
       rclcpp::shutdown();
@@ -88,13 +96,13 @@ chassis_control::chassis_control(void):rclcpp::Node("chassis_control_node"),
     chassis_control_para.rear_left_angle = chassis_param.rl_motor_start_angle;
     chassis_control_para.rear_right_angle = chassis_param.rr_motor_start_angle;
     RCLCPP_INFO(this->get_logger(), "chassis init finished");
-    worker_thread_ = std::thread(&chassis_control::excute_loop, this);
+    worker_thread_ = std::thread(&ChassisControlNode::excute_loop, this);
 }
 
-void chassis_control::excute_loop(void)
+void ChassisControlNode::excute_loop(void)
 {
     const double LOOP_DT = 0.001;      // 循环周期 1ms
-    
+
     // 记录上次循环时间
     auto last_time = std::chrono::steady_clock::now();
 
@@ -115,39 +123,39 @@ void chassis_control::excute_loop(void)
         double fr_angle_target = chassis_control_para.front_right_angle;
         double rl_angle_target = chassis_control_para.rear_left_angle;
         double rr_angle_target = chassis_control_para.rear_right_angle;
-    
+
             // 应用变化率限制
         double fl_angle_limited = fl_rate_limiter.limit(fl_angle_target, dt);
         double fr_angle_limited = fr_rate_limiter.limit(fr_angle_target, dt);
         double rl_angle_limited = rl_rate_limiter.limit(rl_angle_target, dt);
         double rr_angle_limited = rr_rate_limiter.limit(rr_angle_target, dt);
-        
+
         // 应用低通滤波
         chassis_control_para.front_left_angle = fl_angle_filter.filter(fl_angle_limited);
         chassis_control_para.front_right_angle = fr_angle_filter.filter(fr_angle_limited);
         chassis_control_para.rear_left_angle = rl_angle_filter.filter(rl_angle_limited);
         chassis_control_para.rear_right_angle = rr_angle_filter.filter(rr_angle_limited);
-        
-        if (!std::isfinite(chassis_control_para.front_left_angle )) 
+
+        if (!std::isfinite(chassis_control_para.front_left_angle ))
         {
-            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
+            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
                                 "Invalid fl_angle: %f, using previous value", chassis_control_para.front_left_angle );
             chassis_control_para.front_left_angle  = fl_angle_filter.getOutput();  // 使用上次有效值
         }
-        if (!std::isfinite(chassis_control_para.front_right_angle)) 
+        if (!std::isfinite(chassis_control_para.front_right_angle))
         {
-            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,   
+            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
                                 "Invalid fr_angle: %f, using previous value", chassis_control_para.front_right_angle);
             chassis_control_para.front_right_angle = fr_angle_filter.getOutput();
-        }  
-        if (!std::isfinite(chassis_control_para.rear_left_angle )) 
+        }
+        if (!std::isfinite(chassis_control_para.rear_left_angle ))
         {
-            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
+            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
                                 "Invalid rl_angle: %f, using previous value", chassis_control_para.rear_left_angle );
             chassis_control_para.rear_left_angle  = rl_angle_filter.getOutput();
         }
         if (!std::isfinite(chassis_control_para.rear_right_angle)) {
-            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
+            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
                                "Invalid rr_angle: %f, using previous value", chassis_control_para.rear_right_angle);
             chassis_control_para.rear_right_angle = rr_angle_filter.getOutput();
         }
@@ -157,57 +165,57 @@ void chassis_control::excute_loop(void)
             // motor1.send_motion_command(0.0f, fl_angle_f, 0.0f, motor_kp, motor_kd);
             motor1.RobStrite_Motor_PosCSP_control(20.0f, fl_angle_f);
           } else {
-            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
+            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
                                  "Motor1: Skipping invalid angle %f", fl_angle_f);
           }
         } catch (const std::exception& e) {
-          RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
+          RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
                                "Motor1 command failed: %s", e.what());
         }
-        
+
         try {
           float fr_angle_f = static_cast<float>(chassis_control_para.front_right_angle);
           if (std::isfinite(fr_angle_f)) {
             // motor2.send_motion_command(0.0f, fr_angle_f, 0.0f, motor_kp, motor_kd);
             motor2.RobStrite_Motor_PosCSP_control(20.0f, fr_angle_f);
           } else {
-            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
+            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
                                  "Motor2: Skipping invalid angle %f", fr_angle_f);
           }
         } catch (const std::exception& e) {
-          RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
+          RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
                                "Motor2 command failed: %s", e.what());
         }
-        
+
         try {
           float rl_angle_f = static_cast<float>(chassis_control_para.rear_left_angle);
           if (std::isfinite(rl_angle_f)) {
            // motor3.send_motion_command(0.0f, rl_angle_f, 0.0f, motor_kp, motor_kd);
             motor3.RobStrite_Motor_PosCSP_control(20.0f, rl_angle_f);
           } else {
-            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
+            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
                                  "Motor3: Skipping invalid angle %f", rl_angle_f);
           }
         } catch (const std::exception& e) {
-          RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
+          RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
                                "Motor3 command failed: %s", e.what());
         }
-        
+
         try {
           float rr_angle_f = static_cast<float>(chassis_control_para.rear_right_angle);
           if (std::isfinite(rr_angle_f)) {
             // motor4.send_motion_command(0.0f, rr_angle_f, 0.0f, motor_kp, motor_kd);
             motor4.RobStrite_Motor_PosCSP_control(20.0f, rr_angle_f);
           } else {
-            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
+            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
                                  "Motor4: Skipping invalid angle %f", rr_angle_f);
           }
         } catch (const std::exception& e) {
-          RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
+          RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
                                "Motor4 command failed: %s", e.what());
         }
       }catch (const std::exception& e) {
-        RCLCPP_ERROR_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
+        RCLCPP_ERROR_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
                               "Error in control loop: %s", e.what());
         std::this_thread::sleep_for(std::chrono::milliseconds(10)); // 出错时稍长等待
       }
@@ -220,18 +228,69 @@ void chassis_control::excute_loop(void)
                                         chassis_control_para.front_left_speed*WHEEL_FL_DIRETION);
           rear_->set_target_speed_lr_rpm(chassis_control_para.rear_left_speed*WHEEL_RL_DIRETION,
                                         chassis_control_para.rear_right_speed*WHEEL_RR_DIRETION);
-  
+
       }
       else
       {
         front_->set_target_speed_lr_rpm(0,0);
         rear_->set_target_speed_lr_rpm(0,0);
       }
+
+      // 发布状态 (降频到 100Hz, 每 10 次循环发布一次)
+      publish_decimation_++;
+      if (publish_decimation_ >= 10)
+      {
+        publish_decimation_ = 0;
+
+        auto joint_msg = sensor_msgs::msg::JointState();
+        joint_msg.header.stamp = this->now();
+        joint_msg.name = {"fl_steer", "fr_steer", "rl_steer", "rr_steer",
+                          "fl_wheel", "fr_wheel", "rl_wheel", "rr_wheel"};
+        joint_msg.position = {
+          motor1.position_, motor2.position_, motor3.position_, motor4.position_,
+          0.0, 0.0, 0.0, 0.0
+        };
+        joint_msg.velocity = {
+          motor1.velocity_, motor2.velocity_, motor3.velocity_, motor4.velocity_,
+          chassis_control_para.front_left_speed, chassis_control_para.front_right_speed,
+          chassis_control_para.rear_left_speed, chassis_control_para.rear_right_speed
+        };
+        joint_msg.effort = {
+          motor1.torque_, motor2.torque_, motor3.torque_, motor4.torque_,
+          0.0, 0.0, 0.0, 0.0
+        };
+        joint_state_pub_->publish(joint_msg);
+
+        auto cmd_msg = geometry_msgs::msg::Twist();
+        cmd_msg.linear.x = chassis_control_para.vx_set;
+        cmd_msg.linear.y = chassis_control_para.vy_set;
+        cmd_msg.angular.z = chassis_control_para.wz_set;
+        cmd_feedback_pub_->publish(cmd_msg);
+
+        // VBUS polling (every 100 publish cycles ≈ 20s)
+        vbus_decimation_++;
+        if (vbus_decimation_ >= 100) {
+          vbus_decimation_ = 0;
+          motor1.Get_RobStrite_Motor_parameter(0x701C);
+        }
+
+        // Publish diagnostics
+        auto diag_msg = chassis_control::msg::ChassisDiagnostics();
+        diag_msg.header.stamp = this->now();
+        diag_msg.vbus = motor1.drw.VBUS.data;
+        diag_msg.motor_temperatures = {
+          motor1.temperature_, motor2.temperature_,
+          motor3.temperature_, motor4.temperature_};
+        diag_msg.motor_error_codes = {
+          motor1.error_code, motor2.error_code,
+          motor3.error_code, motor4.error_code};
+        diagnostics_pub_->publish(diag_msg);
+      }
     }
 
 }
 
-chassis_control::~chassis_control(void)
+ChassisControlNode::~ChassisControlNode(void)
 {
     motor1.Disenable_Motor(0);
     motor2.Disenable_Motor(0);
@@ -244,15 +303,15 @@ chassis_control::~chassis_control(void)
       worker_thread_.join(); // 等待线程结束
 }
 
-void chassis_control::chassis_control_loop(void)
+void ChassisControlNode::chassis_control_loop(void)
 {
     this->get_parameter("robot.chassis_radius", chassis_param.chassis_radius);
     this->get_parameter("robot.wheel_perimeter",chassis_param.wheel_perimeter);
 
     float wheel_rpm_ratio;
-	
-    wheel_rpm_ratio = 60.0f/chassis_param.wheel_perimeter;	
-	
+
+    wheel_rpm_ratio = 60.0f/chassis_param.wheel_perimeter;
+
     chassis_control_para.front_left_speed = sqrt(	pow(chassis_control_para.vy_set + chassis_control_para.wz_set * chassis_param.chassis_radius * 0.707107f,2)
                        +	pow(chassis_control_para.vx_set - chassis_control_para.wz_set * chassis_param.chassis_radius * 0.707107f,2)
                        ) * wheel_rpm_ratio ;
@@ -263,9 +322,9 @@ void chassis_control::chassis_control_loop(void)
                        +	pow(chassis_control_para.vx_set + chassis_control_para.wz_set * chassis_param.chassis_radius * 0.707107f,2)
                        ) * wheel_rpm_ratio ;
     chassis_control_para.rear_right_speed = sqrt(	pow(chassis_control_para.vy_set + chassis_control_para.wz_set * chassis_param.chassis_radius * 0.707107f,2)
-                       +	pow(chassis_control_para.vx_set - chassis_control_para.wz_set * chassis_param.chassis_radius * 0.707107f,2) 
+                       +	pow(chassis_control_para.vx_set - chassis_control_para.wz_set * chassis_param.chassis_radius * 0.707107f,2)
                        ) * wheel_rpm_ratio ;
-    
+
     // // 按比例限制速度：找出最大速度，如果超过限制则按比例缩放所有速度
     double max_speed = fabs(chassis_control_para.front_left_speed);
     if (fabs(chassis_control_para.front_right_speed) > max_speed)
@@ -274,7 +333,7 @@ void chassis_control::chassis_control_loop(void)
         max_speed = fabs(chassis_control_para.rear_left_speed);
     if (fabs(chassis_control_para.rear_right_speed) > max_speed)
         max_speed = fabs(chassis_control_para.rear_right_speed);
-    
+
     // // 如果最大速度超过限制，按比例缩放所有速度（保持运动方向）
     if (max_speed > MAX_WHEEL_SPEED) {
         double scale = MAX_WHEEL_SPEED / max_speed;
@@ -286,7 +345,7 @@ void chassis_control::chassis_control_loop(void)
 
     //舵向控制
     chassis_control_para.front_left_angle = atan2((chassis_control_para.vy_set + chassis_control_para.wz_set * chassis_param.chassis_radius * 0.707107f),
-                                                (chassis_control_para.vx_set - chassis_control_para.wz_set * chassis_param.chassis_radius * 0.707107f)) + chassis_param.fl_motor_start_angle;        
+                                                (chassis_control_para.vx_set - chassis_control_para.wz_set * chassis_param.chassis_radius * 0.707107f)) + chassis_param.fl_motor_start_angle;
     chassis_control_para.front_right_angle = atan2((chassis_control_para.vy_set + chassis_control_para.wz_set * chassis_param.chassis_radius * 0.707107f),
                                                 (chassis_control_para.vx_set + chassis_control_para.wz_set * chassis_param.chassis_radius * 0.707107f)) + chassis_param.fr_motor_start_angle;
     chassis_control_para.rear_left_angle = atan2((chassis_control_para.vy_set - chassis_control_para.wz_set * chassis_param.chassis_radius * 0.707107f),
@@ -295,7 +354,7 @@ void chassis_control::chassis_control_loop(void)
                                                 (chassis_control_para.vx_set + chassis_control_para.wz_set * chassis_param.chassis_radius * 0.707107f)) + chassis_param.rr_motor_start_angle;
 }
 
-void chassis_control::arc_judge(void)
+void ChassisControlNode::arc_judge(void)
 {
 
 
@@ -347,7 +406,7 @@ void chassis_control::arc_judge(void)
             chassis_control_para.rear_left_speed = -chassis_control_para.rear_left_speed;
           }
         }
-        
+
         if(fabs(chassis_control_para.rear_right_angle-motor4.position_)>PI/2.0f+0.02f)
         {
           if(rr_angle>0)
@@ -363,7 +422,7 @@ void chassis_control::arc_judge(void)
         }
 }
 
-void chassis_control::svtrobot_cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
+void ChassisControlNode::svtrobot_cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
     chassis_control_para.vx_set = msg->linear.x;
     chassis_control_para.vy_set = msg->linear.y;
