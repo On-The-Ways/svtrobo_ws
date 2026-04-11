@@ -5,6 +5,7 @@
 const Lift = {
     liftTopic: null,
     speed: 300,
+    _disabled: false,
 
     init(ros) {
         this.liftTopic = new ROSLIB.Topic({
@@ -33,10 +34,22 @@ const Lift = {
     },
 
     publish(direction) {
-        if (!this.liftTopic) return;
+        if (this._disabled || !this.liftTopic) return;
         const msg = new ROSLIB.Message({
             data: [direction, this.speed],
         });
         this.liftTopic.publish(msg);
+    },
+
+    disable() {
+        this._disabled = true;
+        // Send stop command when disabling
+        if (this.liftTopic) {
+            this.liftTopic.publish(new ROSLIB.Message({ data: [0, 0] }));
+        }
+    },
+
+    enable() {
+        this._disabled = false;
     },
 };

@@ -6,7 +6,7 @@ from typing import List
 import rclpy
 from geometry_msgs.msg import Twist
 from rclpy.node import Node
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Bool, Int32MultiArray
 
 
 JS_EVENT_BUTTON = 0x01
@@ -204,6 +204,11 @@ class F710TeleopNode(Node):
         self.joy = LinuxJoystickReader(device_path=device_path)
         self.joy.start()
 
+        # 外部使能控制（Web 端可通过 /f710/enable 远程启停手柄控制）
+        self._f710_enabled = False
+        self.enable_sub = self.create_subscription(Bool, "/f710/enable", self._on_enable_cmd, 10)
+        self.status_pub = self.create_publisher(Bool, "/f710/status", 10)
+
         # 发布者
         self.cmd_vel_pub = self.create_publisher(Twist, "/svtrobot_cmd", 10)
         self.lift_pub = self.create_publisher(Int32MultiArray, "/lift_control_cmd", 10)
@@ -232,6 +237,23 @@ class F710TeleopNode(Node):
             f"gate_until_first_a={self.gate_until_first_a}, require_deadman={self.require_deadman}, "
             f"estop_latch={self.estop_latch}"
         )
+
+    def _publish_status(self) -> None:
+        msg = Bool()
+        msg.data = self._f710_enabled
+        self.status_pub.publish(msg)
+
+    def _on_enable_cmd(self, msg: Bool) -> None:
+        new_state = bool(msg.data)
+        if new_state == self._f710_enabled:
+            return
+        self._f710_enabled = new_state
+        if not new_state:
+            self._publish_all_stop()
+            self.get_logger().warn("F710 手柄控制已由外部禁用（/f710/enable → false）")
+        else:
+            self.get_logger().info("F710 手柄控制已恢复（/f710/enable → true）")
+        self._publish_status()
 
     def _apply_deadzone(self, value: float) -> float:
         a = abs(value)
@@ -368,6 +390,12 @@ class F710TeleopNode(Node):
         self._prev_cmd_vel_active = False
 
     def _on_timer(self) -> None:
+        # 外部禁用时只发全零，不读取摇杆
+        if not self._f710_enabled:
+            self._publish_all_stop()
+            self._publish_status()
+            return
+
         a_now = self._get_button(self.btn_a)
         b_now = self._get_button(self.btn_b)
         try:
@@ -464,6 +492,7 @@ class F710TeleopNode(Node):
 
     def destroy_node(self) -> bool:
         self.joy.stop()
+        self._publish_status()
         return super().destroy_node()
 
 

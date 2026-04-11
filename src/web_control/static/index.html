@@ -83,8 +83,17 @@
     <div class="middle-panels">
         <!-- Chassis Control + Lift -->
         <section id="chassis-panel" class="panel panel-chassis">
-            <h2 class="panel-title">底盘与升降控制</h2>
-        <div class="panel-body">
+            <div class="panel-title-row">
+                <h2 class="panel-title">底盘与升降控制</h2>
+                <div class="f710-control">
+                    <div id="control-mode-toggle" class="mode-toggle">
+                        <div id="mode-opt-web" class="toggle-option">网页控制</div>
+                        <div id="mode-opt-gamepad" class="toggle-option">手柄控制</div>
+                    </div>
+                </div>
+            </div>
+        <div class="panel-body" style="position: relative;">
+            <div id="web-control-mask" class="mode-disabled-mask" style="display: none;">已切换至手柄模式，网页控制已禁用</div>
             <div class="chassis-left">
                 <!-- Chassis Control Title -->
                 <h3 class="motor-section-title" style="margin-bottom:16px; align-self: center;">底盘控制</h3>
@@ -279,6 +288,7 @@
 <script src="/static/js/status.js"></script>
 <script src="/static/js/diagnostics.js"></script>
 <script src="/static/js/chassis-status.js"></script>
+<script src="/static/js/f710-toggle.js"></script>
 
 </body>
 </html>

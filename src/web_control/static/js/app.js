@@ -50,6 +50,8 @@ const App = {
             StatusMonitor.init(this.ros);
             Diagnostics.init(this.ros);
             ChassisStatus.init(this.ros);
+            F710Toggle.init(this.ros);
+            ControlMode.init(this.ros);
             Camera.init(this.serverUrl);
         });
 

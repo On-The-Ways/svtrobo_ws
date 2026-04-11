@@ -13,6 +13,7 @@ const Chassis = {
     currentVx: 0,
     currentVy: 0,
     currentWz: 0,
+    _disabled: false,
 
     // Key mapping: key code -> {vx, vy, wz} direction unit vectors
     keyMap: {
@@ -129,7 +130,7 @@ const Chassis = {
     },
 
     publish() {
-        if (!this.cmdTopic || this.activeKeys.size === 0) return;
+        if (this._disabled || !this.cmdTopic || this.activeKeys.size === 0) return;
         const vel = this.computeVelocity();
         const msg = new ROSLIB.Message({
             linear: { x: vel.vx, y: vel.vy, z: 0 },
@@ -195,6 +196,15 @@ const Chassis = {
     activateDir(name) {
         const el = document.getElementById('dir-' + name);
         if (el) el.classList.add('active');
+    },
+
+    disable() {
+        this._disabled = true;
+        this.stopAll();
+    },
+
+    enable() {
+        this._disabled = false;
     },
 
     updateFeedbackDisplay() {
