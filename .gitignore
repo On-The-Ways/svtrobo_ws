@@ -8,5 +8,11 @@ __pycache__/
 # 测试截图
 **/captures/
 
+# 数据采集录制的图像和 rosbag
+recordings/
+
+# Web 日志
+web.log
+
 # Office 文档
 *.docx

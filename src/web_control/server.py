@@ -5,10 +5,14 @@ import argparse
 import asyncio
 import json
 import logging
+import os
 import queue
+import subprocess
 import sys
 import threading
+import time
 import traceback
+from datetime import datetime
 from pathlib import Path
 
 import cv2
@@ -161,9 +165,136 @@ class CameraManager:
             self.stop_camera(name)
 
 
+# --- Recording Manager ---
+
+
+RECORDING_DIR = Path('/home/openarm/svtrobo_ws/recordings')
+
+# Topics to record via ros2 bag
+RECORD_TOPICS = [
+    '/svtrobot_cmd',
+    '/lift_control_cmd',
+    '/chassis/joint_states',
+    '/chassis/diagnostics',
+]
+
+
+class RecordingManager:
+    """Manages data collection: ros2 bag subprocess + periodic camera frame saving."""
+
+    def __init__(self, camera_mgr: CameraManager):
+        self.camera_mgr = camera_mgr
+        self.running = False
+        self.bag_process = None
+        self.save_thread = None
+        self.stop_event = threading.Event()
+        self.output_dir = None
+        self.start_time = None
+        self._lock = threading.Lock()
+
+    def start(self):
+        """Start data recording. Returns (ok, message, path)."""
+        with self._lock:
+            if self.running:
+                return False, 'Already recording', None
+
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            self.output_dir = RECORDING_DIR / timestamp
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+
+            # Start ros2 bag record
+            bag_dir = self.output_dir / 'rosbag'
+            try:
+                self.bag_process = subprocess.Popen(
+                    ['ros2', 'bag', 'record'] + RECORD_TOPICS + ['-o', str(bag_dir)],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                logger.info(f"ros2 bag record started, saving to {bag_dir}")
+            except FileNotFoundError:
+                return False, 'ros2 command not found. Is ROS2 sourced?', None
+            except Exception as e:
+                return False, str(e), None
+
+            # Start camera frame saver
+            self.stop_event.clear()
+            self.save_thread = threading.Thread(
+                target=self._save_camera_frames_loop,
+                daemon=True,
+            )
+            self.save_thread.start()
+
+            self.running = True
+            self.start_time = time.time()
+            return True, 'Recording started', str(self.output_dir)
+
+    def stop(self):
+        """Stop recording. Returns (ok, message, info_dict)."""
+        with self._lock:
+            if not self.running:
+                return False, 'Not recording', {}
+
+            # Stop ros2 bag
+            if self.bag_process and self.bag_process.poll() is None:
+                self.bag_process.terminate()
+                try:
+                    self.bag_process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    self.bag_process.kill()
+                logger.info("ros2 bag record stopped")
+
+            # Stop camera frame saver
+            self.stop_event.set()
+            if self.save_thread:
+                self.save_thread.join(timeout=5)
+
+            duration = time.time() - self.start_time if self.start_time else 0
+            info = {
+                'path': str(self.output_dir),
+                'duration': round(duration, 1),
+            }
+            self.running = False
+            self.start_time = None
+            return True, 'Recording stopped', info
+
+    def get_status(self):
+        """Return current recording status."""
+        elapsed = 0
+        if self.running and self.start_time:
+            elapsed = time.time() - self.start_time
+        return {
+            'running': self.running,
+            'path': str(self.output_dir) if self.output_dir else None,
+            'elapsed': round(elapsed, 1),
+        }
+
+    def _save_camera_frames_loop(self):
+        """Periodically save camera frames from CameraManager queues."""
+        cam_names = ['d405_1', 'd405_2', 'zed']
+        frame_count = 0
+
+        while not self.stop_event.is_set():
+            for name in cam_names:
+                frame = self.camera_mgr.get_frame(name)
+                if frame:
+                    img_dir = self.output_dir / 'images' / name
+                    img_dir.mkdir(parents=True, exist_ok=True)
+                    path = img_dir / f'frame_{frame_count:06d}.jpg'
+                    try:
+                        path.write_bytes(frame)
+                    except Exception as e:
+                        logger.warning(f"Failed to save {name} frame: {e}")
+
+            frame_count += 1
+            self.stop_event.wait(1.0)  # 1 fps
+
+        logger.info(f"Camera frame saver exiting, saved {frame_count} frames per camera")
+
+
 # --- HTTP Handlers ---
 
 camera_mgr = CameraManager()
+recording_mgr = RecordingManager(camera_mgr)
 
 
 async def index_handler(request):
@@ -217,7 +348,24 @@ async def camera_status_handler(request):
     return web.json_response(camera_mgr.get_status())
 
 
+async def recording_start_handler(request):
+    ok, msg, path = recording_mgr.start()
+    return web.json_response({'ok': ok, 'message': msg, 'path': path})
+
+
+async def recording_stop_handler(request):
+    ok, msg, info = recording_mgr.stop()
+    resp = {'ok': ok, 'message': msg}
+    resp.update(info)
+    return web.json_response(resp)
+
+
+async def recording_status_handler(request):
+    return web.json_response(recording_mgr.get_status())
+
+
 async def on_shutdown(app):
+    recording_mgr.stop()
     camera_mgr.stop_all()
 
 
@@ -232,6 +380,9 @@ def create_app():
     app.router.add_post('/camera/start', camera_start_handler)
     app.router.add_post('/camera/stop', camera_stop_handler)
     app.router.add_get('/camera/status', camera_status_handler)
+    app.router.add_post('/recording/start', recording_start_handler)
+    app.router.add_post('/recording/stop', recording_stop_handler)
+    app.router.add_get('/recording/status', recording_status_handler)
 
     return app
 

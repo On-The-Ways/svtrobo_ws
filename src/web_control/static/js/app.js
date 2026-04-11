@@ -53,6 +53,7 @@ const App = {
             F710Toggle.init(this.ros);
             ControlMode.init(this.ros);
             Camera.init(this.serverUrl);
+            DataRecord.enable();
         });
 
         this.ros.on('error', (error) => {
@@ -64,6 +65,7 @@ const App = {
             this.connected = false;
             this.setStatus('disconnected');
             document.getElementById('connect-btn').textContent = '连接';
+            DataRecord.disable();
         });
     },
 

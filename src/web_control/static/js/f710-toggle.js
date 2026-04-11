@@ -79,3 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     ControlMode.updateUI();
 });
+
+// Alias for backward compatibility with app.js
+const F710Toggle = ControlMode;

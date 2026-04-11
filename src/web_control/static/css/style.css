@@ -869,3 +869,152 @@ input[type="range"].modern-slider::-webkit-slider-thumb:hover {
     }
     .connection-panel input { width: 100%; max-width: 300px; }
 }
+
+/* === Floating Record Button === */
+#record-btn {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 1000;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--bg-surface);
+    backdrop-filter: var(--glass-blur);
+    border: 2px solid var(--danger);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#record-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(239, 68, 68, 0.5);
+    border-color: #f87171;
+}
+
+#record-btn:active {
+    transform: scale(0.95);
+}
+
+/* Disabled state (not connected to ROS) */
+#record-btn.record-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    border-color: var(--text-muted);
+    box-shadow: none;
+}
+
+#record-btn.record-disabled:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: var(--text-muted);
+}
+
+#record-btn.record-disabled .record-dot {
+    background: var(--text-muted);
+}
+
+#record-btn .record-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--danger);
+    transition: all 0.3s;
+}
+
+#record-btn .record-text {
+    font-size: 10px;
+    color: var(--text-primary);
+    margin-top: 3px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Recording active state */
+#record-btn.recording {
+    background: var(--danger);
+    border-color: #fff;
+    box-shadow: 0 4px 24px rgba(239, 68, 68, 0.6);
+}
+
+#record-btn.recording .record-dot {
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    border-radius: 3px;
+    animation: record-pulse 1.2s ease-in-out infinite;
+}
+
+#record-btn.recording .record-text {
+    color: #fff;
+}
+
+@keyframes record-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* Recording timer */
+#record-timer {
+    position: fixed;
+    bottom: 106px;
+    right: 18px;
+    z-index: 1000;
+    background: var(--danger);
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 14px;
+    font-family: 'Consolas', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    display: none;
+    box-shadow: 0 2px 12px rgba(239, 68, 68, 0.4);
+    letter-spacing: 1px;
+}
+
+/* Toast notification */
+.record-toast {
+    position: fixed;
+    bottom: 120px;
+    right: 32px;
+    z-index: 1001;
+    max-width: 400px;
+    padding: 14px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.6;
+    white-space: pre-line;
+    backdrop-filter: var(--glass-blur);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    transition: opacity 0.5s;
+}
+
+.record-toast-success {
+    background: rgba(16, 185, 129, 0.9);
+    color: #fff;
+    border: 1px solid rgba(16, 185, 129, 0.6);
+}
+
+.record-toast-error {
+    background: rgba(239, 68, 68, 0.9);
+    color: #fff;
+    border: 1px solid rgba(239, 68, 68, 0.6);
+}
+
+.record-toast-info {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+
+.record-toast-fade {
+    opacity: 0;
+}
