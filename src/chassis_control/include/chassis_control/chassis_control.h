@@ -105,6 +105,7 @@ private:
     int publish_decimation_ = 0;
     int vbus_decimation_ = 0;
     int wheel_speed_decimation_ = 0;
+    std::chrono::steady_clock::time_point last_cmd_time_;
     float wheel_actual_fl_ = 0.0f;
     float wheel_actual_fr_ = 0.0f;
     float wheel_actual_rl_ = 0.0f;

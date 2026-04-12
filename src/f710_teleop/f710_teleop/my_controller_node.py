@@ -6,6 +6,7 @@ from typing import List
 import rclpy
 from geometry_msgs.msg import Twist
 from rclpy.node import Node
+from sensor_msgs.msg import Joy
 from std_msgs.msg import Bool, Int32MultiArray
 
 
@@ -205,13 +206,14 @@ class F710TeleopNode(Node):
         self.joy.start()
 
         # 外部使能控制（Web 端可通过 /f710/enable 远程启停手柄控制）
-        self._f710_enabled = False
+        self._f710_enabled = True
         self.enable_sub = self.create_subscription(Bool, "/f710/enable", self._on_enable_cmd, 10)
         self.status_pub = self.create_publisher(Bool, "/f710/status", 10)
 
         # 发布者
         self.cmd_vel_pub = self.create_publisher(Twist, "/svtrobot_cmd", 10)
         self.lift_pub = self.create_publisher(Int32MultiArray, "/lift_control_cmd", 10)
+        self.joy_pub = self.create_publisher(Joy, "/f710/joy", 10)
 
         # 发布频率
         self.timer = self.create_timer(1.0 / publish_rate, self._on_timer)
@@ -390,7 +392,14 @@ class F710TeleopNode(Node):
         self._prev_cmd_vel_active = False
 
     def _on_timer(self) -> None:
-        # 外部禁用时只发全零，不读取摇杆
+        # 发布原始手柄状态（始终发布，供录制使用）
+        joy_msg = Joy()
+        joy_msg.header.stamp = self.get_clock().now().to_msg()
+        joy_msg.axes = list(self.joy.axes)
+        joy_msg.buttons = list(self.joy.buttons)
+        self.joy_pub.publish(joy_msg)
+
+        # 外部禁用时只发全零
         if not self._f710_enabled:
             self._publish_all_stop()
             self._publish_status()
@@ -492,6 +501,7 @@ class F710TeleopNode(Node):
 
     def destroy_node(self) -> bool:
         self.joy.stop()
+        self._publish_all_stop()
         self._publish_status()
         return super().destroy_node()
 

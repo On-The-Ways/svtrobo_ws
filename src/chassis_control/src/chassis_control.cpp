@@ -91,6 +91,7 @@ ChassisControlNode::ChassisControlNode(void):rclcpp::Node("chassis_control_node"
       rclcpp::shutdown();
     });
     RCLCPP_INFO(this->get_logger(), "chassis is initing");
+    last_cmd_time_ = std::chrono::steady_clock::now();
     chassis_control_para.front_left_angle = chassis_param.fl_motor_start_angle;
     chassis_control_para.front_right_angle = chassis_param.fr_motor_start_angle;
     chassis_control_para.rear_left_angle = chassis_param.rl_motor_start_angle;
@@ -115,6 +116,14 @@ void ChassisControlNode::excute_loop(void)
         // 限制dt在合理范围内，避免异常值
         if (dt > 0.1) dt = LOOP_DT;  // 如果dt过大，使用默认值
         if (dt < 0.0001) dt = LOOP_DT;  // 如果dt过小，使用默认值
+
+        // 指令超时保护：0.5s 无新指令则自动归零
+        double cmd_age = std::chrono::duration<double>(current_time - last_cmd_time_).count();
+        if (cmd_age > 0.5) {
+            chassis_control_para.vx_set = 0.0;
+            chassis_control_para.vy_set = 0.0;
+            chassis_control_para.wz_set = 0.0;
+        }
 
         chassis_control_loop();
         arc_judge();
@@ -443,6 +452,7 @@ void ChassisControlNode::arc_judge(void)
 
 void ChassisControlNode::svtrobot_cmd_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
+    last_cmd_time_ = std::chrono::steady_clock::now();
     chassis_control_para.vx_set = msg->linear.x;
     chassis_control_para.vy_set = msg->linear.y;
     chassis_control_para.wz_set = msg->angular.z;

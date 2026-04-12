@@ -12,6 +12,18 @@ const Camera = {
         this.refreshStatus();
         // Auto-refresh status every 5s
         setInterval(() => this.refreshStatus(), 5000);
+
+        // Stop all cameras when page is refreshed or closed
+        window.addEventListener('beforeunload', () => {
+            for (const name of this.cameras) {
+                fetch(`${this.serverUrl}/camera/stop`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ camera: name }),
+                    keepalive: true,
+                }).catch(() => {});
+            }
+        });
     },
 
     setupButtons() {

@@ -62,7 +62,7 @@ const Chassis = {
             document.getElementById('keyboard-hint').style.display = 'none';
         });
         panel.addEventListener('blur', () => {
-            document.getElementById('keyboard-hint').style.display = 'block';
+            document.getElementById('keyboard-hint').style.display = 'flex';
             this.stopAll();
         });
 

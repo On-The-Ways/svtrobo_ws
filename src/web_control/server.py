@@ -7,6 +7,7 @@ import json
 import logging
 import os
 import queue
+import signal
 import subprocess
 import sys
 import threading
@@ -176,6 +177,7 @@ RECORD_TOPICS = [
     '/lift_control_cmd',
     '/chassis/joint_states',
     '/chassis/diagnostics',
+    '/f710/joy',
 ]
 
 
@@ -291,10 +293,64 @@ class RecordingManager:
         logger.info(f"Camera frame saver exiting, saved {frame_count} frames per camera")
 
 
+# --- F710 Manager ---
+
+
+class F710Manager:
+    """Manages the f710_teleop node lifecycle."""
+
+    def __init__(self):
+        self.process = None
+        self._lock = threading.Lock()
+
+    def start(self):
+        """Start the f710_teleop node. Returns (ok, message)."""
+        with self._lock:
+            if self.process and self.process.poll() is None:
+                return False, 'F710 node already running'
+
+            try:
+                self.process = subprocess.Popen(
+                    ['ros2', 'launch', 'f710_teleop', 'f710_teleop.launch.py'],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    preexec_fn=os.setpgrp,
+                )
+                logger.info(f"F710 node started (pid={self.process.pid})")
+                return True, 'F710 node started'
+            except FileNotFoundError:
+                return False, 'ros2 command not found. Is ROS2 sourced?'
+            except Exception as e:
+                return False, str(e)
+
+    def stop(self):
+        """Stop the f710_teleop node. Returns (ok, message)."""
+        with self._lock:
+            if not self.process or self.process.poll() is not None:
+                return False, 'F710 node not running'
+
+            try:
+                os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
+                self.process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                os.killpg(os.getpgid(self.process.pid), signal.SIGKILL)
+            except Exception:
+                pass
+            self.process = None
+            logger.info("F710 node stopped")
+            return True, 'F710 node stopped'
+
+    def get_status(self):
+        """Return whether the f710 node process is alive."""
+        alive = self.process is not None and self.process.poll() is None
+        return {'running': alive}
+
+
 # --- HTTP Handlers ---
 
 camera_mgr = CameraManager()
 recording_mgr = RecordingManager(camera_mgr)
+f710_mgr = F710Manager()
 
 
 async def index_handler(request):
@@ -364,7 +420,22 @@ async def recording_status_handler(request):
     return web.json_response(recording_mgr.get_status())
 
 
+async def f710_start_handler(request):
+    ok, msg = f710_mgr.start()
+    return web.json_response({'ok': ok, 'message': msg})
+
+
+async def f710_stop_handler(request):
+    ok, msg = f710_mgr.stop()
+    return web.json_response({'ok': ok, 'message': msg})
+
+
+async def f710_status_handler(request):
+    return web.json_response(f710_mgr.get_status())
+
+
 async def on_shutdown(app):
+    f710_mgr.stop()
     recording_mgr.stop()
     camera_mgr.stop_all()
 
@@ -383,6 +454,9 @@ def create_app():
     app.router.add_post('/recording/start', recording_start_handler)
     app.router.add_post('/recording/stop', recording_stop_handler)
     app.router.add_get('/recording/status', recording_status_handler)
+    app.router.add_post('/f710/start', f710_start_handler)
+    app.router.add_post('/f710/stop', f710_stop_handler)
+    app.router.add_get('/f710/status', f710_status_handler)
 
     return app
 

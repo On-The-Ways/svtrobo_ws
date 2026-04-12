@@ -16,3 +16,6 @@ web.log
 
 # Office 文档
 *.docx
+
+# tmp 目录
+tmp/
