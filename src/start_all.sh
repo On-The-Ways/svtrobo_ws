@@ -50,12 +50,21 @@ if ! kill -0 $SERVER_PID 2>/dev/null; then
 fi
 echo "  [已启动] web 控制服务 (PID: $SERVER_PID)"
 
-# [4/4] 检查 f710 手柄设备
-echo "[4/4] 检查手柄设备..."
+# [4/4] f710 手柄控制
+echo "[4/4] 启动 f710 手柄控制..."
 if [ -e /dev/input/js0 ]; then
-    echo "  [已就绪] 手柄设备 /dev/input/js0 已连接（网页切换到"手柄控制"时自动启动）"
+    ros2 launch f710_teleop f710_teleop.launch.py &
+    F710_PID=$!
+    sleep 2
+    if kill -0 $F710_PID 2>/dev/null; then
+        echo "  [已启动] 手柄控制节点 (PID: $F710_PID)"
+    else
+        echo "  [警告] 手柄控制节点启动失败"
+        F710_PID=""
+    fi
 else
-    echo "  [提示] 未检测到手柄设备，切换到手柄控制时将无法使用"
+    echo "  [跳过] 未检测到手柄设备 /dev/input/js0"
+    F710_PID=""
 fi
 
 echo ""
@@ -74,6 +83,7 @@ cleanup() {
     ros2 topic pub --once /svtrobot_cmd geometry_msgs/msg/Twist "{linear: {x: 0, y: 0, z: 0}, angular: {x: 0, y: 0, z: 0}}" 2>/dev/null
     ros2 topic pub --once /lift_control_cmd std_msgs/msg/Int32MultiArray "{data: [0, 0]}" 2>/dev/null
     sleep 0.5
+    kill $F710_PID 2>/dev/null
     kill $SERVER_PID 2>/dev/null
     kill $CHASSIS_PID 2>/dev/null
     kill $ROSBRIDGE_PID 2>/dev/null

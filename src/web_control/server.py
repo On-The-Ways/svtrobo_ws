@@ -180,6 +180,9 @@ RECORD_TOPICS = [
     '/f710/joy',
 ]
 
+# After recording stops, convert .db3 to JSONL and delete the original db file
+DELETE_DB_AFTER_CONVERT = False
+
 
 class RecordingManager:
     """Manages data collection: ros2 bag subprocess + periodic camera frame saving."""
@@ -257,7 +260,32 @@ class RecordingManager:
             }
             self.running = False
             self.start_time = None
+
+            # Convert .db3 to JSONL in background
+            if self.output_dir:
+                bag_dir = self.output_dir / 'rosbag'
+                if bag_dir.exists():
+                    self._convert_bag(bag_dir, self.output_dir)
+
             return True, 'Recording stopped', info
+
+    def _convert_bag(self, bag_dir, output_dir):
+        """Run bag-to-JSONL conversion in a background thread."""
+        def _do():
+            try:
+                script = Path(__file__).parent / 'bag_converter.py'
+                cmd = [sys.executable, str(script), str(bag_dir), str(output_dir)]
+                if DELETE_DB_AFTER_CONVERT:
+                    cmd.append('--delete-db')
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+                if result.returncode == 0:
+                    logger.info(f"Bag→JSONL: {result.stdout.strip()}")
+                else:
+                    logger.warning(f"Bag→JSONL failed: {result.stderr.strip()}")
+            except Exception as e:
+                logger.warning(f"Bag→JSONL error: {e}")
+
+        threading.Thread(target=_do, daemon=True, name='bag-converter').start()
 
     def get_status(self):
         """Return current recording status."""
