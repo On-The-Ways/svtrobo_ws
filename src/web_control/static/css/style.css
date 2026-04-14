@@ -1018,3 +1018,25 @@ input[type="range"].modern-slider::-webkit-slider-thumb:hover {
 .record-toast-fade {
     opacity: 0;
 }
+
+/* === Gamepad X-Mode Warning Banner === */
+.gamepad-mode-warning {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    margin-bottom: 12px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    border-radius: 8px;
+    color: #fca5a5;
+    font-size: 14px;
+    font-weight: 500;
+    animation: gamepad-warning-pulse 2s ease-in-out infinite;
+}
+
+@keyframes gamepad-warning-pulse {
+    0%, 100% { border-color: rgba(239, 68, 68, 0.5); }
+    50% { border-color: rgba(239, 68, 68, 0.9); }
+}

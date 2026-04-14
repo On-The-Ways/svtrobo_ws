@@ -1,3 +1,5 @@
+import os
+import re
 import struct
 import threading
 import time
@@ -7,7 +9,7 @@ import rclpy
 from geometry_msgs.msg import Twist
 from rclpy.node import Node
 from sensor_msgs.msg import Joy
-from std_msgs.msg import Bool, Int32MultiArray
+from std_msgs.msg import Bool, Int32MultiArray, String
 
 
 JS_EVENT_BUTTON = 0x01
@@ -76,6 +78,28 @@ class LinuxJoystickReader(threading.Thread):
 
 class F710TeleopNode(Node):
     """根据 docs/方案.md 与 手柄数据说明 实现的控制节点."""
+
+    @staticmethod
+    def _detect_gamepad_mode(device_path: str) -> str:
+        """通过 sysfs 设备名判断手柄模式.
+
+        D 模式 (DirectInput): 设备名含 "Logitech" 或 "F710"
+        X 模式 (XInput):      设备名含 "X-Box" / "Xbox" / "Microsoft"
+        """
+        try:
+            m = re.search(r'js(\d+)', device_path)
+            if not m:
+                return "unknown"
+            name_path = f"/sys/class/input/js{m.group(1)}/device/name"
+            with open(name_path, "r") as f:
+                dev_name = f.read().strip()
+            if any(kw in dev_name for kw in ("X-Box", "Xbox", "Microsoft")):
+                return "X"
+            if any(kw in dev_name for kw in ("Logitech", "F710")):
+                return "D"
+            return "unknown"
+        except (OSError, IOError):
+            return "unknown"
 
     def __init__(self) -> None:
         super().__init__("my_controller_node")
@@ -209,6 +233,11 @@ class F710TeleopNode(Node):
         self._f710_enabled = True
         self.enable_sub = self.create_subscription(Bool, "/f710/enable", self._on_enable_cmd, 10)
         self.status_pub = self.create_publisher(Bool, "/f710/status", 10)
+
+        # 手柄模式检测与发布 (X / D / unknown)
+        self._gamepad_mode = self._detect_gamepad_mode(device_path)
+        self.mode_pub = self.create_publisher(String, "/f710/mode", 10)
+        self._mode_publish_counter = 0
 
         # 发布者
         self.cmd_vel_pub = self.create_publisher(Twist, "/svtrobot_cmd", 10)
@@ -391,6 +420,26 @@ class F710TeleopNode(Node):
         self._last_lift_speed = 0
         self._prev_cmd_vel_active = False
 
+    def _publish_mode(self) -> None:
+        """发布手柄模式 (X/D/unknown)，约每秒发布一次."""
+        self._mode_publish_counter += 1
+        # publish_rate 默认 25Hz，每 25 次即约 1 秒发一次
+        if self._mode_publish_counter >= 25:
+            self._mode_publish_counter = 0
+            # 重新检测（手柄可能被拔插或切换）
+            new_mode = self._detect_gamepad_mode(self.joy.device_path)
+            if new_mode != self._gamepad_mode:
+                if new_mode == "X":
+                    self.get_logger().warn(
+                        f"手柄模式从 {self._gamepad_mode} 变为 X 模式，已阻断控制！请拨到 D 模式"
+                    )
+                elif new_mode == "D" and self._gamepad_mode == "X":
+                    self.get_logger().info("手柄已切换到 D 模式，恢复正常控制")
+                self._gamepad_mode = new_mode
+            msg = String()
+            msg.data = self._gamepad_mode
+            self.mode_pub.publish(msg)
+
     def _on_timer(self) -> None:
         # 发布原始手柄状态（始终发布，供录制使用）
         joy_msg = Joy()
@@ -398,6 +447,15 @@ class F710TeleopNode(Node):
         joy_msg.axes = list(self.joy.axes)
         joy_msg.buttons = list(self.joy.buttons)
         self.joy_pub.publish(joy_msg)
+
+        # 定期检测并发布手柄模式
+        self._publish_mode()
+
+        # X 模式下阻断所有控制指令
+        if self._gamepad_mode == "X":
+            self._publish_all_stop()
+            self._publish_status()
+            return
 
         # 外部禁用时只发全零
         if not self._f710_enabled:
