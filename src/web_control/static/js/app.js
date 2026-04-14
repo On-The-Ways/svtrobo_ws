@@ -21,6 +21,9 @@ const App = {
         // Derive server URL for camera streams
         const loc = window.location;
         this.serverUrl = `${loc.protocol}//${loc.host}`;
+
+        // Camera module does not depend on ROS, initialize immediately
+        Camera.init(this.serverUrl);
     },
 
     toggleConnection() {
@@ -50,9 +53,8 @@ const App = {
             StatusMonitor.init(this.ros);
             Diagnostics.init(this.ros);
             ChassisStatus.init(this.ros);
-            F710Toggle.init(this.ros);
             ControlMode.init(this.ros);
-            Camera.init(this.serverUrl);
+            Camera.setEnabled(true);
             DataRecord.enable();
         });
 
@@ -65,6 +67,13 @@ const App = {
             this.connected = false;
             this.setStatus('disconnected');
             document.getElementById('connect-btn').textContent = '连接';
+            Chassis.disable();
+            Lift.disable();
+            StatusMonitor.disable();
+            Diagnostics.disable();
+            ChassisStatus.disable();
+            ControlMode.disable();
+            Camera.setEnabled(false);
             DataRecord.disable();
         });
     },

@@ -58,6 +58,25 @@ const Diagnostics = {
         }
     },
 
+    disable() {
+        // Reset battery display
+        const voltageEl = document.getElementById('battery-voltage');
+        const percentEl = document.getElementById('battery-percent');
+        const tempEl = document.getElementById('battery-temp');
+        if (voltageEl) voltageEl.textContent = '-- V';
+        if (percentEl) { percentEl.textContent = '-- %'; percentEl.style.color = ''; }
+        if (tempEl) tempEl.textContent = '-- °C';
+
+        // Reset motor display
+        const positions = ['fl', 'fr', 'rl', 'rr'];
+        for (const pos of positions) {
+            const tEl = document.getElementById('motor-' + pos + '-temp');
+            const eEl = document.getElementById('motor-' + pos + '-err');
+            if (tEl) { tEl.textContent = '-- °C'; tEl.style.color = ''; }
+            if (eEl) { eEl.textContent = '--'; eEl.className = 'motor-diag-error'; }
+        }
+    },
+
     updateMotorDisplay(temperatures, errorCodes) {
         const positions = ['fl', 'fr', 'rl', 'rr'];
         let maxTemp = 0;

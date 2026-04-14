@@ -13,6 +13,13 @@ const StatusMonitor = {
         setInterval(() => this.refreshTopics(), 5000);
     },
 
+    disable() {
+        const container = document.getElementById('topic-list');
+        if (container) container.innerHTML = '<div class="topic-empty">未连接</div>';
+        const countEl = document.getElementById('topic-count');
+        if (countEl) countEl.textContent = '0';
+    },
+
     async refreshTopics() {
         if (!this.ros || !this.ros.isConnected) return;
 

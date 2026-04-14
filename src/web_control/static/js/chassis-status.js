@@ -30,6 +30,22 @@ const ChassisStatus = {
         });
     },
 
+    disable() {
+        const positions = ['fl', 'fr', 'rl', 'rr'];
+        for (const pos of positions) {
+            const angleEl = document.getElementById('steer-' + pos + '-angle');
+            const velEl = document.getElementById('steer-' + pos + '-vel');
+            const torqueEl = document.getElementById('steer-' + pos + '-torque');
+            const targetEl = document.getElementById('wheel-' + pos + '-target');
+            const actualEl = document.getElementById('wheel-' + pos + '-actual');
+            if (angleEl) angleEl.textContent = '--°';
+            if (velEl) velEl.textContent = '-- rad/s';
+            if (torqueEl) torqueEl.textContent = '-- Nm';
+            if (targetEl) targetEl.textContent = '-- RPM';
+            if (actualEl) { actualEl.textContent = '-- RPM'; actualEl.style.color = ''; }
+        }
+    },
+
     updateSteerDisplay(msg) {
         const positions = ['fl', 'fr', 'rl', 'rr'];
 

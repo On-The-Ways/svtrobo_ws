@@ -4,11 +4,13 @@
 
 const Camera = {
     serverUrl: '',
+    enabled: false,
     cameras: ['d405_1', 'd405_2', 'zed'],
 
     init(serverUrl) {
         this.serverUrl = serverUrl;
         this.setupButtons();
+        this.setEnabled(false);
         this.refreshStatus();
         // Auto-refresh status every 5s
         setInterval(() => this.refreshStatus(), 5000);
@@ -26,6 +28,41 @@ const Camera = {
         });
     },
 
+    setEnabled(enabled) {
+        this.enabled = enabled;
+        if (!enabled) {
+            this.stopAll();
+        }
+        for (const name of this.cameras) {
+            const safeId = name.replace('_', '-');
+            const startBtn = document.getElementById(`cam-${safeId}-start`);
+            const stopBtn = document.getElementById(`cam-${safeId}-stop`);
+            if (startBtn) startBtn.disabled = !enabled;
+            if (stopBtn) stopBtn.disabled = !enabled;
+        }
+    },
+
+    async stopAll() {
+        for (const name of this.cameras) {
+            const safeId = name.replace('_', '-');
+            const img = document.getElementById(`cam-${safeId}-feed`);
+            const fallback = document.getElementById(`cam-${safeId}-fallback`);
+            if (img) img.src = '';
+            if (fallback) {
+                fallback.textContent = '相机未启动';
+                fallback.style.display = 'block';
+            }
+            try {
+                await fetch(`${this.serverUrl}/camera/stop`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ camera: name }),
+                });
+            } catch (e) {}
+        }
+        this.refreshStatus();
+    },
+
     setupButtons() {
         for (const name of this.cameras) {
             const safeId = name.replace('_', '-');
@@ -37,6 +74,16 @@ const Camera = {
     },
 
     async startCamera(name) {
+        if (!this.enabled) return;
+        const safeId = name.replace('_', '-');
+        const fallback = document.getElementById(`cam-${safeId}-fallback`);
+        const displayName = {d405_1: 'D405 (1)', d405_2: 'D405 (2)', zed: 'ZED 2i'}[name] || name;
+
+        if (fallback) {
+            fallback.textContent = '正在启动...';
+            fallback.style.display = 'block';
+        }
+
         try {
             const resp = await fetch(`${this.serverUrl}/camera/start`, {
                 method: 'POST',
@@ -44,28 +91,28 @@ const Camera = {
                 body: JSON.stringify({ camera: name }),
             });
             const data = await resp.json();
-            const safeId = name.replace('_', '-');
-            const fallback = document.getElementById(`cam-${safeId}-fallback`);
             const img = document.getElementById(`cam-${safeId}-feed`);
 
             if (data.ok) {
-                // Set the img src to start streaming
                 if (img) img.src = `${this.serverUrl}/camera/${name}`;
                 if (fallback) fallback.style.display = 'none';
             } else {
                 if (img) img.src = '';
                 if (fallback) {
-                    fallback.textContent = '无法启动相机';
+                    const msg = data.message || '';
+                    if (msg.includes('未找到') || msg.includes('not found') || msg.includes('No such')) {
+                        fallback.textContent = `${displayName} 设备未连接`;
+                    } else {
+                        fallback.textContent = '启动失败: ' + msg;
+                    }
                     fallback.style.display = 'block';
                 }
             }
             this.refreshStatus();
         } catch (e) {
             console.error('Start camera error:', e);
-            const safeId = name.replace('_', '-');
-            const fallback = document.getElementById(`cam-${safeId}-fallback`);
             if (fallback) {
-                fallback.textContent = '请求失败';
+                fallback.textContent = `${displayName} 请求失败，请检查服务`;
                 fallback.style.display = 'block';
             }
         }
@@ -110,7 +157,13 @@ const Camera = {
 
                     if (!running && fallback && img) {
                         img.src = '';
-                        fallback.textContent = '相机未启动';
+                        // Preserve error messages from startCamera, only reset default text
+                        const isDefault = !fallback.textContent ||
+                            fallback.textContent === '相机未启动' ||
+                            fallback.textContent === '正在启动...';
+                        if (isDefault) {
+                            fallback.textContent = '相机未启动';
+                        }
                         fallback.style.display = 'block';
                     } else if (running && fallback) {
                         fallback.style.display = 'none';
