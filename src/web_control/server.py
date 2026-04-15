@@ -124,7 +124,11 @@ class CameraManager:
         }
 
     def get_frame(self, name):
-        """Get the latest JPEG frame for a camera (non-blocking)."""
+        """Get the latest JPEG frame and timestamp for a camera (non-blocking).
+
+        Returns:
+            (jpeg_bytes, timestamp_us) or None
+        """
         if name not in self.cameras or not self.cameras[name]['running']:
             return None
         try:
@@ -146,13 +150,14 @@ class CameraManager:
 
                 _, jpeg = cv2.imencode('.jpg', color, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
                 frame_bytes = jpeg.tobytes()
+                timestamp_us = int(time.time() * 1_000_000)
 
                 # Drop old frame if queue is full
                 try:
                     frame_queue.get_nowait()
                 except queue.Empty:
                     pass
-                frame_queue.put(frame_bytes)
+                frame_queue.put((frame_bytes, timestamp_us))
 
             except Exception as e:
                 logger.warning(f"Camera {name} capture error: {e}")
@@ -304,24 +309,23 @@ class RecordingManager:
     def _save_camera_frames_loop(self):
         """Periodically save camera frames from CameraManager queues."""
         cam_names = ['d405_1', 'd405_2', 'zed']
-        frame_count = 0
 
         while not self.stop_event.is_set():
             for name in cam_names:
-                frame = self.camera_mgr.get_frame(name)
-                if frame:
+                result = self.camera_mgr.get_frame(name)
+                if result:
+                    frame, timestamp_us = result
                     img_dir = self.output_dir / 'images' / name
                     img_dir.mkdir(parents=True, exist_ok=True)
-                    path = img_dir / f'frame_{frame_count:06d}.jpg'
+                    path = img_dir / f'{timestamp_us}.jpg'
                     try:
                         path.write_bytes(frame)
                     except Exception as e:
                         logger.warning(f"Failed to save {name} frame: {e}")
 
-            frame_count += 1
-            self.stop_event.wait(1.0)  # 1 fps
+            self.stop_event.wait(0.1)  # 10 Hz
 
-        logger.info(f"Camera frame saver exiting, saved {frame_count} frames per camera")
+        logger.info("Camera frame saver exiting")
 
 
 # --- F710 Manager ---
@@ -407,8 +411,9 @@ async def camera_stream_handler(request):
 
     try:
         while True:
-            frame = camera_mgr.get_frame(name)
-            if frame is not None:
+            result = camera_mgr.get_frame(name)
+            if result is not None:
+                frame, _ = result
                 msg = boundary + header + frame + b'\r\n'
                 await response.write(msg)
             await asyncio.sleep(1.0 / STREAM_FPS)

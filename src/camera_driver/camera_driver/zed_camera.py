@@ -256,7 +256,7 @@ class ZEDCamera:
             save_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'captures')
         os.makedirs(save_dir, exist_ok=True)
 
-        ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+        ts = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
 
         left_path = os.path.join(save_dir, f'{name}_{ts}_left.png')
         depth_path = os.path.join(save_dir, f'{name}_{ts}_depth.png')

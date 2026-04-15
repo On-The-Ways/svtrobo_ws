@@ -173,7 +173,7 @@ class RealSenseCamera:
         os.makedirs(save_dir, exist_ok=True)
 
         tag = name or self.serial or 'd405'
-        ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+        ts = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
 
         color_path = os.path.join(save_dir, f'{tag}_{ts}_color.png')
         depth_path = os.path.join(save_dir, f'{tag}_{ts}_depth.png')
