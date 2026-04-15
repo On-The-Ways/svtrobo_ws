@@ -178,6 +178,9 @@ RECORD_TOPICS = [
     '/chassis/joint_states',
     '/chassis/diagnostics',
     '/f710/joy',
+    '/zed/imu/data',
+    '/zed/imu/mag',
+    '/zed/imu/temperature',
 ]
 
 # After recording stops, convert .db3 to JSONL and delete the original db file

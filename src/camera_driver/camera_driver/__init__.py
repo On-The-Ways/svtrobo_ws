@@ -19,5 +19,6 @@
 
 from .realsense_camera import RealSenseCamera
 from .zed_camera import ZEDCamera
+from .zed_imu import ZEDIMU
 
-__all__ = ['RealSenseCamera', 'ZEDCamera']
+__all__ = ['RealSenseCamera', 'ZEDCamera', 'ZEDIMU']

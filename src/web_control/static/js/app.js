@@ -53,6 +53,7 @@ const App = {
             StatusMonitor.init(this.ros);
             Diagnostics.init(this.ros);
             ChassisStatus.init(this.ros);
+            IMUStatus.init(this.ros);
             ControlMode.init(this.ros);
             Camera.setEnabled(true);
             DataRecord.enable();
@@ -72,6 +73,7 @@ const App = {
             StatusMonitor.disable();
             Diagnostics.disable();
             ChassisStatus.disable();
+            IMUStatus.disable();
             ControlMode.disable();
             Camera.setEnabled(false);
             DataRecord.disable();

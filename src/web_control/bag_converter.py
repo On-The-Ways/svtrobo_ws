@@ -15,7 +15,7 @@ from pathlib import Path
 import yaml
 from rclpy.serialization import deserialize_message
 from geometry_msgs.msg import Twist
-from sensor_msgs.msg import JointState, Joy
+from sensor_msgs.msg import JointState, Joy, Imu, MagneticField, Temperature
 from std_msgs.msg import Int32MultiArray
 from chassis_control.msg import ChassisDiagnostics
 
@@ -23,6 +23,9 @@ MSG_TYPE_MAP = {
     'geometry_msgs/msg/Twist': Twist,
     'sensor_msgs/msg/JointState': JointState,
     'sensor_msgs/msg/Joy': Joy,
+    'sensor_msgs/msg/Imu': Imu,
+    'sensor_msgs/msg/MagneticField': MagneticField,
+    'sensor_msgs/msg/Temperature': Temperature,
     'std_msgs/msg/Int32MultiArray': Int32MultiArray,
     'chassis_control/msg/ChassisDiagnostics': ChassisDiagnostics,
 }

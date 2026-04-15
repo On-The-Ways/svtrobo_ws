@@ -147,84 +147,101 @@
         </div>
     </section>
 
-    <!-- Motor Status -->
+    <!-- Robot Status -->
     <section class="panel panel-motor-status">
-        <h2 class="panel-title">电机状态</h2>
-        <div class="motor-status-body">
-            <!-- Steer Motors -->
+        <h2 class="panel-title">机器人状态</h2>
+        <div class="robot-status-body">
+            <!-- Motor Status (merged steer + wheel) -->
             <div class="motor-status-section">
-                <h3 class="motor-section-title">舵向电机</h3>
+                <h3 class="motor-section-title">电机</h3>
                 <table class="motor-table">
                     <thead>
                         <tr>
                             <th></th>
-                            <th>角度</th>
-                            <th>速度</th>
-                            <th>力矩</th>
+                            <th>前左</th>
+                            <th>前右</th>
+                            <th>后左</th>
+                            <th>后右</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="motor-label-cell">前左</td>
+                            <td class="motor-label-cell">角度</td>
                             <td><span id="steer-fl-angle">--</span></td>
-                            <td><span id="steer-fl-vel">--</span></td>
-                            <td><span id="steer-fl-torque">--</span></td>
-                        </tr>
-                        <tr>
-                            <td class="motor-label-cell">前右</td>
                             <td><span id="steer-fr-angle">--</span></td>
-                            <td><span id="steer-fr-vel">--</span></td>
-                            <td><span id="steer-fr-torque">--</span></td>
-                        </tr>
-                        <tr>
-                            <td class="motor-label-cell">后左</td>
                             <td><span id="steer-rl-angle">--</span></td>
-                            <td><span id="steer-rl-vel">--</span></td>
-                            <td><span id="steer-rl-torque">--</span></td>
+                            <td><span id="steer-rr-angle">--</span></td>
                         </tr>
                         <tr>
-                            <td class="motor-label-cell">后右</td>
-                            <td><span id="steer-rr-angle">--</span></td>
+                            <td class="motor-label-cell">速度</td>
+                            <td><span id="steer-fl-vel">--</span></td>
+                            <td><span id="steer-fr-vel">--</span></td>
+                            <td><span id="steer-rl-vel">--</span></td>
                             <td><span id="steer-rr-vel">--</span></td>
+                        </tr>
+                        <tr>
+                            <td class="motor-label-cell">力矩</td>
+                            <td><span id="steer-fl-torque">--</span></td>
+                            <td><span id="steer-fr-torque">--</span></td>
+                            <td><span id="steer-rl-torque">--</span></td>
                             <td><span id="steer-rr-torque">--</span></td>
                         </tr>
-                    </tbody>
-                </table>
-            </div>
-            <!-- Wheel Speeds -->
-            <div class="motor-status-section">
-                <h3 class="motor-section-title">轮速</h3>
-                <table class="motor-table">
-                    <thead>
                         <tr>
-                            <th></th>
-                            <th>目标</th>
-                            <th>实际</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="motor-label-cell">前左</td>
+                            <td class="motor-label-cell">轮速目标</td>
                             <td><span id="wheel-fl-target">--</span></td>
-                            <td><span id="wheel-fl-actual">--</span></td>
-                        </tr>
-                        <tr>
-                            <td class="motor-label-cell">前右</td>
                             <td><span id="wheel-fr-target">--</span></td>
-                            <td><span id="wheel-fr-actual">--</span></td>
-                        </tr>
-                        <tr>
-                            <td class="motor-label-cell">后左</td>
                             <td><span id="wheel-rl-target">--</span></td>
-                            <td><span id="wheel-rl-actual">--</span></td>
+                            <td><span id="wheel-rr-target">--</span></td>
                         </tr>
                         <tr>
-                            <td class="motor-label-cell">后右</td>
-                            <td><span id="wheel-rr-target">--</span></td>
+                            <td class="motor-label-cell">轮速实际</td>
+                            <td><span id="wheel-fl-actual">--</span></td>
+                            <td><span id="wheel-fr-actual">--</span></td>
+                            <td><span id="wheel-rl-actual">--</span></td>
                             <td><span id="wheel-rr-actual">--</span></td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            <!-- IMU Status -->
+            <div class="motor-status-section imu-status-section">
+                <h3 class="motor-section-title">IMU 传感器</h3>
+                <div class="imu-data-grid">
+                    <div class="imu-group">
+                        <div class="imu-group-title">加速度 (m/s²)</div>
+                        <div class="imu-values">
+                            <div class="imu-row"><span class="imu-axis">X</span><span id="imu-acc-x" class="imu-val">--</span></div>
+                            <div class="imu-row"><span class="imu-axis">Y</span><span id="imu-acc-y" class="imu-val">--</span></div>
+                            <div class="imu-row"><span class="imu-axis">Z</span><span id="imu-acc-z" class="imu-val">--</span></div>
+                        </div>
+                    </div>
+                    <div class="imu-group">
+                        <div class="imu-group-title">角速度 (deg/s)</div>
+                        <div class="imu-values">
+                            <div class="imu-row"><span class="imu-axis">X</span><span id="imu-gyro-x" class="imu-val">--</span></div>
+                            <div class="imu-row"><span class="imu-axis">Y</span><span id="imu-gyro-y" class="imu-val">--</span></div>
+                            <div class="imu-row"><span class="imu-axis">Z</span><span id="imu-gyro-z" class="imu-val">--</span></div>
+                        </div>
+                    </div>
+                    <div class="imu-group">
+                        <div class="imu-group-title">磁力计 (µT)</div>
+                        <div class="imu-values">
+                            <div class="imu-row"><span class="imu-axis">X</span><span id="imu-mag-x" class="imu-val">--</span></div>
+                            <div class="imu-row"><span class="imu-axis">Y</span><span id="imu-mag-y" class="imu-val">--</span></div>
+                            <div class="imu-row"><span class="imu-axis">Z</span><span id="imu-mag-z" class="imu-val">--</span></div>
+                        </div>
+                    </div>
+                    <div class="imu-group imu-meta">
+                        <div class="imu-meta-item">
+                            <span class="imu-meta-label">温度</span>
+                            <span id="imu-temp" class="imu-meta-val">-- °C</span>
+                        </div>
+                        <div class="imu-meta-item">
+                            <span class="imu-meta-label">频率</span>
+                            <span id="imu-freq" class="imu-meta-val">-- Hz</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -291,6 +308,7 @@
 <script src="/static/js/status.js"></script>
 <script src="/static/js/diagnostics.js"></script>
 <script src="/static/js/chassis-status.js"></script>
+<script src="/static/js/imu-status.js"></script>
 <script src="/static/js/f710-toggle.js"></script>
 <script src="/static/js/data-record.js"></script>
 

@@ -779,10 +779,10 @@ input[type="range"].modern-slider::-webkit-slider-thumb:hover {
     padding-left: 20px;
 }
 
-/* === Motor Status Panel === */
-.motor-status-body {
+/* === Robot Status Panel === */
+.robot-status-body {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1.2fr 1fr;
     gap: 24px;
 }
 
@@ -842,6 +842,95 @@ input[type="range"].modern-slider::-webkit-slider-thumb:hover {
     text-align: left !important;
 }
 
+/* === IMU Status === */
+.imu-status-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.imu-data-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.imu-group {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 10px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.imu-group-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.imu-values {
+    display: flex;
+    gap: 6px;
+}
+
+.imu-row {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 4px;
+    padding: 4px 6px;
+}
+
+.imu-axis {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+}
+
+.imu-val {
+    font-family: 'Consolas', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.imu-meta {
+    display: flex;
+    gap: 16px;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.imu-meta-item {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 8px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.imu-meta-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.imu-meta-val {
+    font-family: 'Consolas', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
 .panel-full {
     grid-column: 1 / -1;
 }
@@ -860,7 +949,7 @@ input[type="range"].modern-slider::-webkit-slider-thumb:hover {
     .panel-chassis .panel-body {
         grid-template-columns: 1fr;
     }
-    .motor-status-body {
+    .robot-status-body {
         grid-template-columns: 1fr;
     }
     .top-bar {

@@ -12,9 +12,10 @@
 4. [快速开始](#4-快速开始)
 5. [RealSense D405 API](#5-realsense-d405-api)
 6. [ZED 2i API](#6-zed-2i-api)
-7. [ROS2 相机节点](#7-ros2-相机节点)
-8. [文件结构](#8-文件结构)
-9. [注意事项与常见问题](#9-注意事项与常见问题)
+7. [ZED 2i IMU API](#7-zed-2i-imu-api)
+8. [ROS2 相机节点](#8-ros2-相机节点)
+9. [文件结构](#9-文件结构)
+10. [注意事项与常见问题](#10-注意事项与常见问题)
 
 ---
 
@@ -24,6 +25,7 @@
 
 - 彩色图像 + 深度图同时采集
 - 自动深度对齐到彩色图（RealSense）
+- ZED 2i IMU 传感器数据采集（加速度计、陀螺仪、磁力计）
 - 上下文管理器自动管理生命周期
 - 采集并保存到磁盘（按相机名称区分）
 - 相机内参获取
@@ -39,7 +41,7 @@
 |------|------|--------|----------|
 | D405 #1 | Intel RealSense D405 | `409122272399` | Bus 001 |
 | D405 #2 | Intel RealSense D405 | `409122273344` | Bus 001 |
-| ZED 2i | STEREOLABS ZED 2i | - | `/dev/video0` |
+| ZED 2i | STEREOLABS ZED 2i | - | `/dev/video0` (视频), `/dev/hidraw*` (IMU) |
 
 ### 2.2 分辨率支持
 
@@ -77,6 +79,11 @@ pip3 install pyrealsense2
 
 # 通用依赖（通常已安装）
 pip3 install numpy opencv-python
+
+# ZED 2i IMU 需要的 udev 规则（一次性设置）
+echo 'SUBSYSTEM=="hidraw", ATTRS{idVendor}=="2b03", ATTRS{idProduct}=="f881", MODE="0666"' \
+  | sudo tee /etc/udev/rules.d/99-zed-imu.rules
+sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 
 ### 验证设备
@@ -99,7 +106,7 @@ cat /sys/class/video4linux/video0/name
 import sys
 sys.path.insert(0, '/home/openarm/svtrobo_ws')
 
-from camera_driver.camera_driver import RealSenseCamera, ZEDCamera
+from camera_driver.camera_driver import RealSenseCamera, ZEDCamera, ZEDIMU
 ```
 
 ---
@@ -300,7 +307,7 @@ cam2.stop()
 | 右眼彩色图 | 672x376（通过 `capture_stereo()`） |
 | 深度图 | SGBM 估算，精度较低 |
 | 高分辨率 | 不支持（需要 SDK） |
-| IMU | 不支持（需要 SDK） |
+| IMU | 支持（通过 USB HID 接口，无需 SDK） |
 
 ### 6.2 构造函数
 
@@ -358,11 +365,144 @@ with ZEDCamera() as zed:
 
 ---
 
-## 7. ROS2 相机节点
+## 7. ZED 2i IMU API
+
+> 源文件：`camera_driver/camera_driver/zed_imu.py`
+>
+> 通过 USB HID 接口直接读取 ZED 2i 内置 IMU 传感器数据，**不需要 ZED SDK 或 NVIDIA GPU**。
+> 基于开源协议 [stereolabs/zed-open-capture](https://github.com/stereolabs/zed-open-capture)。
+
+### 7.1 传感器规格
+
+| 传感器 | 数据 | 单位 | 频率 |
+|--------|------|------|------|
+| 加速度计 | X, Y, Z | m/s² | 400 Hz |
+| 陀螺仪 | X, Y, Z | deg/s, rad/s | 400 Hz |
+| 磁力计 | X, Y, Z | µT | ~50 Hz |
+| 温度 | IMU 芯片温度 | °C | 1 Hz |
+| 环境传感器 | 气压、湿度 | hPa, % | 1 Hz |
+
+### 7.2 构造函数
+
+```python
+ZEDIMU(
+    hidraw_path=None,      # hidraw 设备路径，默认自动搜索
+    ping_interval=400,     # ping 保活间隔（读取次数，~400=1秒）
+)
+```
+
+### 7.3 `start()` — 启动 IMU 数据流
+
+```python
+imu = ZEDIMU()
+imu.start()
+# 自动搜索 /dev/hidraw* 找到 ZED 2i MCU 设备 (VID=2b03, PID=f881)
+# 后台线程持续读取数据，自动 ping 保活
+```
+
+### 7.4 `stop()` — 停止数据流
+
+```python
+imu.stop()
+# 关闭 HID 设备，停止后台线程
+```
+
+### 7.5 `read()` — 读取最新数据
+
+```python
+data = imu.read()
+# 返回 dict，包含:
+#   'valid':        bool, IMU 数据是否有效
+#   'timestamp_ns': int, 纳秒时间戳
+#   'timestamp_s':  float, 秒时间戳
+#   'accel':        (float, float, float), 加速度 m/s²
+#   'gyro_rad':     (float, float, float), 角速度 rad/s
+#   'gyro_dps':     (float, float, float), 角速度 deg/s
+#   'mag':          (float, float, float), 磁力 µT
+#   'mag_valid':    int, 磁力计数据状态 (0=无, 1=旧, 2=新)
+#   'imu_temp':     float, IMU 温度 °C
+#   'env_valid':    int, 环境传感器有效标志
+#   'env_temp':     float, 环境温度 °C
+#   'pressure':     float, 气压 hPa
+#   'humidity':     float, 湿度 %
+#   'frame_sync':   int, 帧同步标志
+# 无数据时返回 None
+```
+
+### 7.6 `find_hidraw()` — 查找设备（静态方法）
+
+```python
+path = ZEDIMU.find_hidraw()
+# 返回 '/dev/hidraw3' 或 None
+```
+
+### 7.7 上下文管理器
+
+```python
+with ZEDIMU() as imu:
+    data = imu.read()
+    if data:
+        print(f"加速度: {data['accel']}")
+        print(f"角速度: {data['gyro_dps']} deg/s")
+# 退出 with 时自动 stop()
+```
+
+### 7.8 完整示例
+
+```python
+import sys
+sys.path.insert(0, '/home/openarm/svtrobo_ws')
+from camera_driver.camera_driver import ZEDIMU
+import time
+
+with ZEDIMU() as imu:
+    time.sleep(0.5)  # 等待首批数据
+    for i in range(20):
+        data = imu.read()
+        if data:
+            a = data['accel']
+            g = data['gyro_dps']
+            print(f'Accel: X={a[0]:+.4f} Y={a[1]:+.4f} Z={a[2]:+.4f}  '
+                  f'Gyro: X={g[0]:+.3f} Y={g[1]:+.3f} Z={g[2]:+.3f}')
+        time.sleep(0.05)
+```
+
+### 7.9 ROS2 IMU 节点
+
+> 源文件：`camera_driver/camera_driver/zed_imu_node.py`
+
+**发布话题：**
+
+| 话题 | 消息类型 | 说明 | 频率 |
+|------|---------|------|------|
+| `~/zed/imu/data` | `sensor_msgs/Imu` | 加速度 + 角速度 | ~100 Hz |
+| `~/zed/imu/mag` | `sensor_msgs/MagneticField` | 磁力计 | ~50 Hz |
+| `~/zed/imu/temperature` | `sensor_msgs/Temperature` | IMU 温度 | ~1 Hz |
+
+**参数：**
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `frame_id` | str | `'zed_imu_link'` | TF frame ID |
+| `publish_mag` | bool | `True` | 是否发布磁力计 |
+| `publish_temp` | bool | `True` | 是否发布温度 |
+| `publish_env` | bool | `False` | 是否发布气压/湿度 |
+
+**启动：**
+
+```bash
+python3 src/camera_driver/camera_driver/zed_imu_node.py
+```
+
+**前提：** 需要 udev 规则允许用户空间访问 hidraw 设备（见第 3 节）。
+
+---
+
+## 8. ROS2 相机节点
 
 除了 Python 采集 API，camera_driver 还提供了 ROS2 节点，可直接发布 sensor_msgs/Image 和 CameraInfo 话题。
 
-### 7.1 RealSense D405 ROS2 节点
+### 8.1 RealSense D405 ROS2 节点
 
 > 源文件：`camera_driver/camera_driver/realsense_node.py`
 
@@ -396,7 +536,7 @@ ros2 run camera_driver realsense_node --ros-args \
   -p namespace:=d405_1
 ```
 
-### 7.2 ZED 2i ROS2 节点
+### 8.2 ZED 2i ROS2 节点
 
 > 源文件：`camera_driver/camera_driver/zed_node.py`
 
@@ -431,17 +571,19 @@ ros2 run camera_driver zed_node --ros-args \
 
 ---
 
-## 8. 文件结构
+## 9. 文件结构
 
 ```
 svtrobo_ws/
 └── camera_driver/
     ├── camera_driver/
-    │   ├── __init__.py              # 模块入口，导出 RealSenseCamera, ZEDCamera
+    │   ├── __init__.py              # 模块入口，导出 RealSenseCamera, ZEDCamera, ZEDIMU
     │   ├── realsense_camera.py      # D405 采集模块
     │   ├── realsense_node.py        # D405 ROS2 发布节点
     │   ├── zed_camera.py            # ZED 2i 采集模块
-    │   └── zed_node.py              # ZED 2i ROS2 发布节点
+    │   ├── zed_node.py              # ZED 2i ROS2 发布节点
+    │   ├── zed_imu.py               # ZED 2i IMU 传感器驱动（USB HID）
+    │   └── zed_imu_node.py          # ZED 2i IMU ROS2 发布节点
     └── captures/                    # 默认保存目录
         ├── d405_1_*_color.png       # D405 #1 彩色图
         ├── d405_1_*_depth.png       # D405 #1 深度图
@@ -453,7 +595,7 @@ svtrobo_ws/
 
 ---
 
-## 9. 注意事项与常见问题
+## 10. 注意事项与常见问题
 
 ### Q1: D405 启动报错 `Couldn't resolve requests`
 
@@ -506,7 +648,8 @@ cv2.imwrite('depth_visual.png', depth_color)
 pip3 install pyzed
 ```
 
-SDK 模式自动获得：高分辨率深度、NEURAL 深度模式、IMU 数据、点云等。
+SDK 模式自动获得：高分辨率深度、NEURAL 深度模式、点云等。
+> 注：IMU 数据已通过 USB HID 接口直接读取，无需 SDK。
 
 ### Q6: 如何修改默认保存路径？
 
@@ -517,3 +660,24 @@ cam.capture_and_save(save_dir='/your/custom/path', name='d405_1')
 ### Q7: 相机预热时间长吗？
 
 预热丢弃 30 帧，约 1-6 秒（取决于帧率）。如果不需要稳定曝光，可以修改 `realsense_camera.py` 中的预热帧数。
+
+### Q8: IMU 启动报错 `未找到 ZED 2i IMU HID 设备`
+
+检查 hidraw 设备和权限：
+
+```bash
+# 查看 ZED HID 设备是否存在
+lsusb | grep -i stereolabs
+# 应看到: ID 2b03:f881 STEREOLABS ZED-2i HID INTERFACE
+
+# 检查 hidraw 设备权限
+ls -la /dev/hidraw*
+# 应该是 crw-rw-rw-（0666），如果是 crw------- 需要安装 udev 规则：
+echo 'SUBSYSTEM=="hidraw", ATTRS{idVendor}=="2b03", ATTRS{idProduct}=="f881", MODE="0666"' \
+  | sudo tee /etc/udev/rules.d/99-zed-imu.rules
+sudo udevadm control --reload-rules && sudo udevadm trigger
+```
+
+### Q9: IMU 数据突然停止更新
+
+IMU 需要周期性 ping 保持数据流（驱动已内置自动 ping）。如果 USB 连接不稳定导致设备断开，需重新调用 `start()`。
