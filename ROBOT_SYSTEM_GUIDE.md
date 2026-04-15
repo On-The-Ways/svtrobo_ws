@@ -1,6 +1,6 @@
 # SVTROBO 底盘控制系统技术文档
 
-> 适用于深度学习训练与推理部署的完整参考文档
+> SVTROBO 四轮独立转向/独立驱动全向移动机器人完整技术文档
 
 ---
 
@@ -15,9 +15,8 @@
 7. [状态数据与参数](#7-状态数据与参数)
 8. [安全机制](#8-安全机制)
 9. [启动与运行](#9-启动与运行)
-10. [深度学习数据采集指南](#10-深度学习数据采集指南)
-11. [推理部署指南](#11-推理部署指南)
-12. [文件结构](#12-文件结构)
+10. [数据录制](#10-数据录制)
+11. [文件结构](#11-文件结构)
 
 ---
 
@@ -141,6 +140,7 @@
 |--------|-----------|------|
 | `chassis_control` | `chassis_control` | 底盘运动控制（舵向 + 轮速）|
 | `lift_control_node` | `lift_control` | 升降机构控制 |
+| `f710_teleop` | `my_controller_node.py` | F710 手柄遥操作（含 X/D 模式检测）|
 
 ### 3.2 Topic 列表
 
@@ -151,6 +151,10 @@
 | `/chassis/joint_states` | `sensor_msgs/msg/JointState` | Pub（输出）| `chassis_control` | 100Hz | 底盘关节状态（舵向角度/速度/力矩、轮速） |
 | `/chassis/cmd_feedback` | `geometry_msgs/msg/Twist` | Pub（输出）| `chassis_control` | 100Hz | 当前指令回显（vx, vy, wz） |
 | `/chassis/diagnostics` | `chassis_control/msg/ChassisDiagnostics` | Pub（输出）| `chassis_control` | 100Hz | 诊断数据（电压、温度、错误码、实际轮速） |
+| `/f710/joy` | `sensor_msgs/msg/Joy` | Pub（输出）| `f710_teleop` | 25Hz | 手柄原始摇杆/按钮状态 |
+| `/f710/enable` | `std_msgs/msg/Bool` | Sub（输入）| `f710_teleop` | 按需 | Web 远程启停手柄控制 |
+| `/f710/status` | `std_msgs/msg/Bool` | Pub（输出）| `f710_teleop` | 按需 | 手柄使能状态 |
+| `/f710/mode` | `std_msgs/msg/String` | Pub（输出）| `f710_teleop` | ~1Hz | 手柄模式检测："X"/"D"/"unknown" |
 
 ### 3.3 已发布的状态/反馈 Topic
 
@@ -606,9 +610,46 @@ ros2 param get /chassis_control robot.rr_motor_start_angle  # → 3.5
 - 支持故障码读取和自动复位
 - 析构时自动断开使能
 
+### 8.8 F710 手柄 X/D 模式保护
+
+- **自动模式检测**：节点通过读取 `/sys/class/input/js{N}/device/name` 判断手柄模式
+  - X 模式（XInput）：设备名称包含 "X-Box"、"Xbox"、"Microsoft"
+  - D 模式（DirectInput）：设备名称包含 "Logitech"、"F710"
+- **X 模式阻断**：检测到手柄处于 X 模式时，自动阻止所有控制指令并发布零速
+- **前端警告**：Web 控制台显示红色脉冲警告横幅，提示用户将手柄拨到 D 模式
+- **模式切换禁止**：X 模式下无法从 Web 切换到手柄控制
+- **模式发布**：通过 `/f710/mode` 话题（~1Hz）发布当前检测到的模式
+
+### 8.9 Web 控制台连接断开保护
+
+- ROS 连接断开时，所有模块统一清理状态：
+  - 摄像头停止并禁用按钮
+  - 底盘状态面板归位（角度/速度/力矩显示为 "--"）
+  - 诊断面板归位（电压/温度/错误码显示为 "--"）
+  - 模式切换归位
+
 ---
 
 ## 9. 启动与运行
+
+### 9.0 一键启动/停止
+
+```bash
+# 启动全部服务（底盘 → rosbridge → Web → 手柄[自动检测]）
+bash src/start_all.sh
+
+# 停止全部服务
+bash src/stop_all.sh
+```
+
+启动脚本 `start_all.sh` 按顺序启动：
+
+1. **底盘 + 升降控制**：`ros2 launch chassis_control svtrobo_bringup.launch.py`
+2. **rosbridge**：`ros2 launch rosbridge_server rosbridge_websocket_launch.py`（端口 9090）
+3. **Web 服务**：`python3 src/web_control/server.py`（端口 8080）
+4. **手柄节点**（可选）：检测到 `/dev/input/js0` 时自动启动 `f710_teleop`
+
+访问 http://localhost:8080 打开 Web 控制台。
 
 ### 9.1 编译
 
@@ -660,339 +701,121 @@ ros2 param dump /chassis_control
 
 ---
 
-## 10. 深度学习数据采集指南
+## 10. 数据录制
 
-### 10.1 需要采集的数据
+### 10.1 Web 控制台录制
 
-对于深度学习训练，以下数据是有价值的：
+Web 控制台右下角录制按钮可一键采集所有数据：
 
-#### 输入特征（观测 / Observation）
+**采集内容：**
 
-| 数据 | 来源 | 类型 | 说明 |
-|------|------|------|------|
-| 目标速度 (vx, vy, wz) | `/svtrobot_cmd` 订阅 | 3 × float | 用户/策略网络的指令 |
-| 4个舵向实际角度 | motor1~4.position_ | 4 × float | CAN 反馈，rad |
-| 4个舵向实际速度 | motor1~4.velocity_ | 4 × float | CAN 反馈，rad/s |
-| 4个轮子目标转速 | chassis_control_para | 4 × float | RPM |
-| 4个舵向力矩 | motor1~4.torque_ | 4 × float | CAN 反馈，Nm |
-| 电机温度 | motor1~4.temperature_ | 4 × float | °C |
-| 外部传感器数据 | 依传感器而定 | - | IMU、激光雷达、相机等 |
+| 类型 | 数据源 | 格式 | 频率 |
+|------|--------|------|------|
+| ROS2 bag | `/svtrobot_cmd` `/lift_control_cmd` `/f710/joy` `/chassis/joint_states` `/chassis/diagnostics` | .db3 | 原始频率 |
+| 摄像头帧 | D405 #1, D405 #2, ZED 2i | JPEG | 1 FPS |
 
-#### 输出标签（动作 / Action）
+**录制目录结构：**
 
-| 数据 | 类型 | 说明 |
-|------|------|------|
-| 目标速度 (vx, vy, wz) | 3 × float | 即为动作空间，与输入特征中的指令相同 |
-
-#### 状态/奖励信号
-
-| 数据 | 类型 | 说明 |
-|------|------|------|
-| 舵向跟踪误差 | 4 × float | 目标角 - 实际角，用于评估跟踪性能 |
-| 力矩 | 4 × float | 可用作能量消耗指标 |
-| 到位标志 | bool | 4个舵向是否全部到位 |
-
-### 10.2 已实现的状态发布
-
-当前系统已通过以下 Topic 发布状态数据（详见第 3.3 节）：
-
-- `/chassis/joint_states`（100Hz）— 舵向角度/速度/力矩 + 轮子目标转速
-- `/chassis/cmd_feedback`（100Hz）— 当前指令回显
-- `/chassis/diagnostics`（100Hz）— VBUS 电压、电机温度、错误码、ZLAC8015D 实际轮速
-
-数据通过 `publish_decimation` 机制降频：控制循环 1ms 周期，每 10 个循环发布一次（即 100Hz）。
-
-> VBUS 电压约每 20 秒从 RobStride 电机读取一次（参数 0x701C），ZLAC8015D 实际轮速约每 10 秒读取一次。
-
-### 10.3 Python 数据记录脚本示例
-
-### 10.3 Python 数据记录脚本示例
-
-```python
-#!/usr/bin/env python3
-"""
-数据记录脚本 — 记录底盘指令和状态用于深度学习训练
-"""
-import rclpy
-from rclpy.node import Node
-from geometry_msgs.msg import Twist
-from sensor_msgs.msg import JointState
-from chassis_control.msg import ChassisDiagnostics
-import csv
-import time
-
-class DataRecorder(Node):
-    def __init__(self, output_file='chassis_data.csv'):
-        super().__init__('data_recorder')
-        self.output_file = output_file
-        self.data = []
-
-        self.cmd_sub = self.create_subscription(
-            Twist, '/svtrobot_cmd', self.cmd_callback, 10)
-        self.state_sub = self.create_subscription(
-            JointState, '/chassis/joint_states', self.state_callback, 10)
-        self.diag_sub = self.create_subscription(
-            ChassisDiagnostics, '/chassis/diagnostics', self.diag_callback, 10)
-
-        self.last_cmd = {'vx': 0.0, 'vy': 0.0, 'wz': 0.0}
-        self.last_state = None
-        self.last_diag = None
-
-        self.get_logger().info(f'数据记录已启动，输出文件: {output_file}')
-
-    def cmd_callback(self, msg):
-        self.last_cmd = {
-            'vx': msg.linear.x,
-            'vy': msg.linear.y,
-            'wz': msg.angular.z,
-        }
-
-    def state_callback(self, msg):
-        row = {
-            'timestamp': time.time(),
-            'vx_cmd': self.last_cmd['vx'],
-            'vy_cmd': self.last_cmd['vy'],
-            'wz_cmd': self.last_cmd['wz'],
-        }
-        # 添加关节状态数据
-        for i, name in enumerate(msg.name):
-            if i < len(msg.position):
-                row[f'{name}_pos'] = msg.position[i]
-            if i < len(msg.velocity):
-                row[f'{name}_vel'] = msg.velocity[i]
-            if i < len(msg.effort):
-                row[f'{name}_eff'] = msg.effort[i]
-
-        self.data.append(row)
-
-    def save(self):
-        if not self.data:
-            return
-        keys = self.data[0].keys()
-        with open(self.output_file, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=keys)
-            writer.writeheader()
-            writer.writerows(self.data)
-        self.get_logger().info(f'已保存 {len(self.data)} 条记录到 {self.output_file}')
-
-
-if __name__ == '__main__':
-    rclpy.init()
-    recorder = DataRecorder('chassis_data.csv')
-    try:
-        rclpy.spin(recorder)
-    except KeyboardInterrupt:
-        recorder.save()
-    rclpy.shutdown()
+```
+recordings/YYYYMMDD_HHMMSS/
+├── images/
+│   ├── d405_1/frame_000000.jpg
+│   ├── d405_2/frame_000000.jpg
+│   └── zed/frame_000000.jpg
+├── rosbag/
+│   ├── rosbag_0.db3
+│   └── metadata.yaml
+├── chassis_joint_states.jsonl   # 8 关节状态 (~10Hz)
+├── chassis_diagnostics.jsonl    # 电压/温度/错误码/轮速 (~10Hz)
+├── svtrobot_cmd.jsonl           # 底盘速度指令 (~50Hz)
+├── f710_joy.jsonl               # 手柄原始数据 (~50Hz)
+└── lift_control_cmd.jsonl       # 升降控制指令 (~25Hz)
 ```
 
-### 10.4 推荐的数据采集方案
+**自动 JSONL 转换：** 录制结束后，`bag_converter.py` 自动在后台将 .db3 转换为 JSONL 格式。每个话题生成一个 .jsonl 文件，所有记录包含 `_timestamp_ns` 字段用于多话题时间对齐。
 
-对于强化学习（RL）训练，建议的采集方案：
+**手动转换：**
 
-1. **阶段一：开环数据采集**
-   - 遥控底盘执行各种运动（前进、后退、横移、旋转、组合）
-   - 记录 (指令, 状态) 对
-   - 用于行为克隆（BC）预训练
+```bash
+# 转换已有录制数据
+python3 src/web_control/bag_converter.py recordings/YYYYMMDD_HHMMSS/rosbag recordings/YYYYMMDD_HHMMSS
 
-2. **阶段二：闭环在线训练**
-   - 在仿真环境中训练策略（推荐使用 Isaac Gym / MuJoCo）
-   - 将训练好的策略部署到真实机器人
-   - 通过 ROS2 Topic 接收策略输出并发送控制指令
+# 转换并删除原始 .db3
+python3 src/web_control/bag_converter.py recordings/YYYYMMDD_HHMMSS/rosbag recordings/YYYYMMDD_HHMMSS --delete-db
+```
 
-3. **数据频率**
-   - 控制循环：1ms（1000Hz）
-   - 建议发布频率：100Hz（每 10ms 发布一次，平衡数据量和性能）
-   - 深度学习推理频率：10~50Hz（取决于模型复杂度）
+> 详细数据格式说明见 [recordings/README.md](recordings/README.md)。
 
 ---
 
-## 11. 推理部署指南
-
-### 11.1 推理节点架构
-
-```
-┌─────────────────────────────────────────────────┐
-│              ROS2 推理节点                        │
-│                                                   │
-│  Sub: /chassis/joint_states (传感器反馈)          │
-│  Sub: /chassis/diagnostics (诊断数据)             │
-│  Sub: /task_goal (任务目标，可选)                  │
-│                                                   │
-│         ┌─────────────────┐                      │
-│         │   DL 推理引擎    │                      │
-│         │ (ONNX/PyTorch)  │                      │
-│         └────────┬────────┘                      │
-│                  │                                │
-│  Pub: /svtrobot_cmd (Twist)                      │
-│                                                   │
-└─────────────────────────────────────────────────┘
-```
-
-### 11.2 Python 推理节点模板
-
-```python
-#!/usr/bin/env python3
-"""
-深度学习推理节点 — 将模型输出转化为底盘控制指令
-"""
-import numpy as np
-import rclpy
-from rclpy.node import Node
-from geometry_msgs.msg import Twist
-from sensor_msgs.msg import JointState
-
-class InferenceNode(Node):
-    def __init__(self, model_path):
-        super().__init__('dl_inference')
-        self.model = self.load_model(model_path)
-
-        # 订阅状态反馈
-        self.state_sub = self.create_subscription(
-            JointState, '/chassis/joint_states',
-            self.state_callback, 10)
-
-        # 发布控制指令
-        self.cmd_pub = self.create_publisher(
-            Twist, '/svtrobot_cmd', 10)
-
-        # 推理频率控制
-        self.timer = self.create_timer(0.05, self.inference_step)  # 20Hz
-        self.latest_state = None
-
-        self.get_logger().info('推理节点已启动')
-
-    def load_model(self, path):
-        """加载模型 — 根据你的框架修改"""
-        # 示例：ONNX Runtime
-        # import onnxruntime as ort
-        # return ort.InferenceSession(path)
-        # 示例：PyTorch
-        # import torch
-        # return torch.jit.load(path)
-        return None
-
-    def state_callback(self, msg):
-        """接收状态反馈"""
-        self.latest_state = msg
-
-    def inference_step(self):
-        """执行一次推理"""
-        if self.latest_state is None:
-            return
-
-        # 构造观测向量（根据模型输入格式调整）
-        obs = self.build_observation(self.latest_state)
-
-        # 模型推理
-        action = self.predict(obs)
-
-        # 发布控制指令
-        self.publish_action(action)
-
-    def build_observation(self, state_msg):
-        """从 ROS 消息构造模型输入"""
-        # 示例：提取舵向角度和速度
-        steer_pos = state_msg.position[:4]   # 4个舵向角度
-        steer_vel = state_msg.velocity[:4]   # 4个舵向速度
-        wheel_vel = state_msg.velocity[4:8]  # 4个轮速
-
-        obs = np.array(list(steer_pos) + list(steer_vel) +
-                       list(wheel_vel), dtype=np.float32)
-        return obs.reshape(1, -1)
-
-    def predict(self, obs):
-        """运行模型推理"""
-        # 根据你的模型框架实现
-        # return self.model.run(None, {'obs': obs})[0]
-        pass
-
-    def publish_action(self, action):
-        """将模型输出发布为控制指令"""
-        msg = Twist()
-        msg.linear.x = float(np.clip(action[0], -1.0, 1.0))  # vx
-        msg.linear.y = float(np.clip(action[1], -1.0, 1.0))  # vy
-        msg.angular.z = float(np.clip(action[2], -1.0, 1.0))  # wz
-        self.cmd_pub.publish(msg)
-
-        # 安全超时：如果状态反馈中断，自动停止
-        # 可通过检查 latest_state 的时间戳实现
-
-
-def main():
-    rclpy.init()
-    node = InferenceNode('model.onnx')
-    rclpy.spin(node)
-    rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
-```
-
-### 11.3 安全注意事项
-
-在推理部署时，务必实现以下安全措施：
-
-1. **指令超时**：如果状态反馈中断超过 N ms，自动发送零速指令
-2. **输出钳位**：限制模型输出在安全范围内（速度、角速度上限）
-3. **人工接管**：保留手动发布 `/svtrobot_cmd` 的能力，可随时覆盖模型输出
-4. **紧急停止**：准备好 `Ctrl+C` 或外部信号触发的停止机制
-
----
-
-## 12. 文件结构
+## 11. 文件结构
 
 ```
 svtrobo_ws/
 ├── src/
-│   └── chassis_control/
-│       ├── CMakeLists.txt                        # 构建配置
-│       ├── package.xml                           # 包描述
+│   ├── start_all.sh                              # 一键启动全部服务
+│   ├── stop_all.sh                               # 一键停止全部服务
+│   ├── chassis_control/
+│   │   ├── CMakeLists.txt                        # 构建配置
+│   │   ├── package.xml                           # 包描述
+│   │   ├── config/
+│   │   │   └── params.yaml                       # ROS2 参数配置
+│   │   ├── launch/
+│   │   │   └── svtrobo_bringup.launch.py         # 启动文件
+│   │   ├── msg/
+│   │   │   └── ChassisDiagnostics.msg            # 诊断消息定义
+│   │   ├── include/chassis_control/
+│   │   │   ├── chassis_control.h                  # 主控制节点头文件
+│   │   │   ├── steering_motor.h                   # RobStride 舵向电机驱动
+│   │   │   ├── wheel_motor.h                      # ZLAC8015D 轮驱动器
+│   │   │   └── filters.h                          # 低通滤波 & 变化率限制
+│   │   ├── scripts/
+│   │   │   ├── svtrobo_controller.py              # Python 控制器封装
+│   │   │   └── test_chassis.py                    # 交互式测试脚本
+│   │   └── src/
+│   │       ├── main.cpp                           # 底盘控制入口
+│   │       ├── chassis_control.cpp                # 主控制逻辑
+│   │       ├── steering_motor.cpp                 # 舵向电机实现
+│   │       ├── wheel_motor.cpp                    # 轮驱动器实现
+│   │       ├── filters.cpp                        # 滤波器实现
+│   │       └── lift_RS485_control.cpp             # 升降机构控制
+│   ├── camera_driver/
+│   │   └── camera_driver/
+│   │       ├── __init__.py                        # 模块入口
+│   │       ├── realsense_camera.py                # RealSense D405 驱动
+│   │       ├── zed_camera.py                      # ZED 2i 驱动
+│   │       ├── realsense_node.py                  # RealSense ROS2 节点
+│   │       └── zed_node.py                        # ZED ROS2 节点
+│   ├── web_control/
+│   │   ├── server.py                              # aiohttp Web 服务器
+│   │   ├── bag_converter.py                       # bag (.db3) → JSONL 转换器
+│   │   └── static/
+│   │       ├── index.html                         # 控制台主页面
+│   │       ├── css/style.css                      # 样式表
+│   │       └── js/
+│   │           ├── app.js                         # 主应用（rosbridge 连接管理）
+│   │           ├── chassis.js                     # 底盘键盘控制
+│   │           ├── chassis-status.js              # 底盘电机状态面板
+│   │           ├── camera.js                      # 相机画面控制
+│   │           ├── diagnostics.js                 # 电池/电机诊断面板
+│   │           ├── f710-toggle.js                 # 手柄/Web 模式切换 & X/D 检测
+│   │           ├── lift.js                        # 升降机构控制
+│   │           ├── status.js                      # ROS 话题状态监控
+│   │           └── roslib.min.js                  # roslibjs 库
+│   └── f710_teleop/
+│       ├── package.xml                            # 包描述
+│       ├── setup.py                               # Python 包安装
 │       ├── config/
-│       │   └── params.yaml                       # ROS2 参数配置
+│       │   └── f710_teleop.yaml                   # 手柄参数配置
 │       ├── launch/
-│       │   └── svtrobo_bringup.launch.py         # 启动文件
-│       ├── msg/
-│       │   └── ChassisDiagnostics.msg            # 诊断消息定义
-│       ├── include/chassis_control/
-│       │   ├── chassis_control.h                  # 主控制节点头文件
-│       │   ├── steering_motor.h                   # RobStride 舵向电机驱动
-│       │   ├── wheel_motor.h                      # ZLAC8015D 轮驱动器
-│       │   └── filters.h                          # 低通滤波 & 变化率限制
-│       ├── scripts/
-│       │   ├── svtrobo_controller.py              # Python 控制器封装
-│       │   └── test_chassis.py                    # 交互式测试脚本
-│       └── src/
-│           ├── main.cpp                           # 底盘控制入口
-│           ├── chassis_control.cpp                # 主控制逻辑
-│           ├── steering_motor.cpp                 # 舵向电机实现
-│           ├── wheel_motor.cpp                    # 轮驱动器实现
-│           ├── filters.cpp                        # 滤波器实现
-│           └── lift_RS485_control.cpp             # 升降机构控制
-├── camera_driver/
-│   └── camera_driver/
-│       ├── __init__.py                            # 模块入口
-│       ├── realsense_camera.py                    # RealSense D405 驱动
-│       └── zed_camera.py                          # ZED 2i 驱动
-├── web_control/
-│   ├── server.py                                  # aiohttp Web 服务器
-│   ├── start_web.sh                               # 一键启动脚本
-│   └── static/
-│       ├── index.html                             # 控制台主页面
-│       ├── css/style.css                          # 样式表
-│       └── js/
-│           ├── app.js                             # 主应用（rosbridge 连接管理）
-│           ├── chassis.js                         # 底盘键盘控制
-│           ├── chassis-status.js                  # 底盘电机状态面板
-│           ├── camera.js                          # 相机画面控制
-│           ├── diagnostics.js                     # 电池/电机诊断面板
-│           ├── lift.js                            # 升降机构控制
-│           ├── status.js                          # ROS 话题状态监控
-│           └── roslib.min.js                      # roslibjs 库
+│       │   └── f710_teleop.launch.py              # 手柄节点启动文件
+│       ├── f710_teleop/
+│       │   └── my_controller_node.py              # F710 手柄控制节点（含 X/D 检测）
+│       └── 手柄操作指导说明.md                      # 手柄按键说明
+├── recordings/                                    # 录制数据存储目录
+│   └── README.md                                  # 录制数据格式文档
 ├── ROBOT_SYSTEM_GUIDE.md                          # 本文档
-├── PYTHON_API_GUIDE.md                            # Python API 使用指南
-├── CAMERA_DRIVER_GUIDE.md                         # 相机驱动使用指南
-└── WEB_CONTROL_GUIDE.md                           # Web 控制台使用指南
+└── README.md                                      # 项目概览
 ```
 
 ---

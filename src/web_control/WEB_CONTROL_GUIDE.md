@@ -160,6 +160,8 @@ http://<机器人IP>:8080
 | Diagnostics | `diagnostics.js` | VBUS 电压、电量、电机温度、错误码 |
 | Lift | `lift.js` | 升降机构速度滑条 + 方向按钮 |
 | StatusMonitor | `status.js` | ROS Topic 列表显示 |
+| ControlMode | `f710-toggle.js` | 手柄/Web 模式互斥切换、X/D 模式检测与警告 |
+| DataRecord | `data-record.js` | 数据录制悬浮按钮，一键采集 bag + 摄像头帧 |
 
 ---
 
@@ -175,6 +177,10 @@ Web 控制台通过 rosbridge WebSocket 订阅和发布以下 ROS2 Topic：
 | ChassisStatus | `/chassis/diagnostics` | `chassis_control/msg/ChassisDiagnostics` | 订阅 | ZLAC8015D 实际轮速 |
 | Diagnostics | `/chassis/diagnostics` | `chassis_control/msg/ChassisDiagnostics` | 订阅 | VBUS、温度、错误码 |
 | Lift | `/lift_control_cmd` | `std_msgs/Int32MultiArray` | 发布 | 升降控制指令 |
+| ControlMode | `/f710/enable` | `std_msgs/Bool` | 发布 | 启停手柄控制 |
+| ControlMode | `/f710/status` | `std_msgs/Bool` | 订阅 | 手柄使能状态 |
+| ControlMode | `/f710/mode` | `std_msgs/String` | 订阅 | 手柄模式检测 "X"/"D"/"unknown" |
+| DataRecord | `/f710/joy` | `sensor_msgs/Joy` | - | 手柄数据录制（通过 ros2 bag） |
 
 ---
 
@@ -205,6 +211,22 @@ Web 控制台通过 rosbridge WebSocket 订阅和发布以下 ROS2 Topic：
 | `/camera/status` | GET | 获取所有相机状态 |
 
 > 相机采集线程以后台守护线程运行，帧通过有界队列传递，MJPEG 编码质量为 70。
+
+### 数据录制
+
+| 端点 | 方法 | 说明 |
+|------|------|------|
+| `/recording/start` | POST | 开始录制（bag + 摄像头帧） |
+| `/recording/stop` | POST | 停止录制并自动转换 JSONL |
+| `/recording/status` | GET | 获取录制状态（running, elapsed, path） |
+
+### F710 手柄控制
+
+| 端点 | 方法 | 说明 |
+|------|------|------|
+| `/f710/start` | POST | 启动 F710 手柄节点 |
+| `/f710/stop` | POST | 停止 F710 手柄节点 |
+| `/f710/status` | GET | 获取 F710 节点运行状态 |
 
 ---
 
@@ -333,6 +355,7 @@ msg.data = [0, 0]        // direction=0
 ```
 web_control/
 ├── server.py                  # aiohttp Web 服务器（静态文件 + 相机流 + REST API）
+├── bag_converter.py            # bag (.db3) → JSONL 自动转换（录制结束后后台执行）
 ├── start_web.sh               # 一键启动脚本（rosbridge + aiohttp）
 └── static/
     ├── index.html             # 控制台主页面
@@ -345,6 +368,8 @@ web_control/
         ├── chassis-status.js  # 舵向电机角度/速度/力矩 + 轮速显示
         ├── camera.js          # 相机启停控制 + MJPEG 显示
         ├── diagnostics.js     # VBUS/温度/错误码诊断面板
+        ├── f710-toggle.js     # 手柄/Web 模式互斥切换 + X/D 模式警告
+        ├── data-record.js     # 数据录制悬浮按钮（bag + 摄像头帧）
         ├── lift.js            # 升降机构控制
         └── status.js          # ROS Topic 列表显示
 ```

@@ -21,6 +21,35 @@ Logitech F710（或兼容手柄）控制底盘与升降机构的 ROS2 Python 功
     - `direction = 0`：停止
     - `speed = 500`（可配置）
 - LT / RT 调整底盘速度缩放因子 `speed_scale ∈ [0.01, 1.0]`。
+- **X/D 模式自动检测**：读取 sysfs 设备名称判断手柄模式（XInput / DirectInput），X 模式下自动阻断所有控制指令。
+- **外部使能控制**：通过 `/f710/enable` 话题远程启停手柄控制，状态通过 `/f710/status` 发布。
+- **原始数据录制**：发布原始手柄数据到 `/f710/joy`（sensor_msgs/Joy），支持 ros2 bag 录制。
+- **模式检测发布**：通过 `/f710/mode`（std_msgs/String）发布当前检测到的模式："X"/"D"/"unknown"（~1Hz）。
+- **Web 控制台集成**：Web 前端可远程启动/停止手柄节点，手柄/Web 模式互斥切换。
+
+## 话题列表
+
+| 话题 | 消息类型 | 方向 | 说明 |
+|------|---------|------|------|
+| `/svtrobot_cmd` | `geometry_msgs/Twist` | 发布 | 底盘速度指令（左摇杆前后→linear.x，左右→linear.y，右摇杆→angular.z） |
+| `/lift_control_cmd` | `std_msgs/Int32MultiArray` | 发布 | 升降控制 [direction, speed] |
+| `/f710/joy` | `sensor_msgs/Joy` | 发布 | 原始手柄摇杆/按钮数据 (25Hz)，用于录制 |
+| `/f710/enable` | `std_msgs/Bool` | 订阅 | 外部启停控制（Web 前端使用） |
+| `/f710/status` | `std_msgs/Bool` | 发布 | 手柄使能状态 |
+| `/f710/mode` | `std_msgs/String` | 发布 | 模式检测："X"/"D"/"unknown" (~1Hz) |
+
+## X/D 模式检测
+
+节点启动后自动检测手柄模式：
+
+- **检测方式**：读取 `/sys/class/input/js{N}/device/name`
+- **X 模式**（XInput）：设备名称包含 "X-Box"、"Xbox"、"Microsoft"
+- **D 模式**（DirectInput）：设备名称包含 "Logitech"、"F710"
+- **X 模式保护**：检测到 X 模式时，所有控制指令被阻断并发布零速
+- **前端警告**：Web 控制台显示红色警告横幅提示切换到 D 模式
+- **模式变更日志**：模式切换时自动打印日志
+
+> **必须使用 D 模式**。手柄背面开关拨到 D（DirectInput）。X 模式下按钮/轴索引映射完全不同，会导致控制异常。
 
 ## 依赖与环境
 

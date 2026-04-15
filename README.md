@@ -2,6 +2,39 @@
 
 基于 ROS2 Humble 的 4WIS4WID 全向移动机器人控制系统，支持 Web 浏览器、F710 手柄、Python API 多种控制方式。
 
+## 项目结构
+
+```
+svtrobo_ws/
+├── src/
+│   ├── start_all.sh                                  # 一键启动全部服务
+│   ├── stop_all.sh                                   # 一键停止全部服务
+│   ├── chassis_control/                              # 底盘控制 (C++, 1kHz)
+│   │   ├── src/                                      #   底盘/舵向/轮驱/升降/滤波 实现文件
+│   │   ├── include/chassis_control/                  #   头文件
+│   │   ├── config/params.yaml                        #   ROS2 参数（底盘半径、零位角度等）
+│   │   ├── launch/svtrobo_bringup.launch.py          #   底盘+升降 启动文件
+│   │   ├── msg/ChassisDiagnostics.msg                #   自定义诊断消息
+│   │   └── scripts/                                  #   Python 控制器封装 & 测试脚本
+│   ├── f710_teleop/                                  # F710 手柄遥操作
+│   │   ├── f710_teleop/my_controller_node.py         #   手柄节点（X/D 模式检测）
+│   │   ├── config/f710_teleop.yaml                   #   手柄参数（死区、速度上限等）
+│   │   └── launch/f710_teleop.launch.py              #   启动文件
+│   ├── web_control/                                  # Web 控制台 (aiohttp)
+│   │   ├── server.py                                 #   Web 服务器 (8080)
+│   │   ├── bag_converter.py                          #   bag (.db3) → JSONL 自动转换
+│   │   └── static/                                   #   前端（HTML/CSS/JS 模块）
+│   └── camera_driver/                                # 摄像头驱动 (Python)
+│       └── camera_driver/
+│           ├── realsense_camera.py                    #   RealSense D405 驱动
+│           ├── realsense_node.py                      #   RealSense ROS2 节点
+│           ├── zed_camera.py                          #   ZED 2i 驱动
+│           └── zed_node.py                            #   ZED ROS2 节点
+├── recordings/                                       # 录制数据存储（含 README 格式说明）
+├── ROBOT_SYSTEM_GUIDE.md                             # 系统完整技术文档
+└── README.md                                         # 本文件
+```
+
 ## 系统架构
 
 ```
@@ -47,11 +80,13 @@ ros2 launch chassis_control svtrobo_bringup.launch.py
 Python ROS2 节点，直接读取 `/dev/input/jsX` 设备。
 
 - **手柄模式：D 模式（DirectInput）**，不是 X 模式
+- **X/D 模式自动检测**：读取 sysfs 设备名称判断手柄模式，X 模式自动禁用控制并前端警告
 - 左摇杆控制前后/平移，右摇杆控制转向
 - A 解锁使能，B 急停，LB/RB 升降，LT/RT 加减速
 - 40% 死区 + 低通滤波，运动平滑
 - 发布原始手柄数据到 `/f710/joy`，支持录制
 - Web 前端可通过 `/f710/enable` 远程启停
+- 发布模式状态到 `/f710/mode`（"X"/"D"/"unknown"）
 
 ```
 ros2 launch f710_teleop f710_teleop.launch.py
@@ -65,7 +100,10 @@ ros2 launch f710_teleop f710_teleop.launch.py
 - WASD/Q/E 键盘控制底盘
 - 升降控制、电机状态、电池/温度诊断
 - 手柄/Web 模式一键切换（默认手柄模式）
+- X 模式手柄自动检测与前端警告横幅
 - 数据采集：ros2 bag + 摄像头帧同步录制
+- **录制结束后自动转换**：bag (.db3) → JSONL 格式，方便深度学习训练
+- ROS 连接断开时统一清理所有模块状态（摄像头、底盘、诊断面板归位）
 
 ```
 python3 src/web_control/server.py          # Web 服务 (8080)
@@ -91,7 +129,7 @@ source install/setup.bash
 bash src/start_all.sh
 ```
 
-启动内容：底盘控制 → rosbridge → Web 服务。手柄设备检测到则自动启动手柄节点。
+启动内容：底盘控制 → rosbridge → Web 服务。手柄设备 `/dev/input/js0` 检测到则自动启动手柄节点。
 
 ### 一键停止
 
@@ -131,6 +169,7 @@ source install/setup.bash
 | `/f710/joy` | sensor_msgs/Joy | 手柄 → 外部 | 原始摇杆/按钮状态 |
 | `/f710/enable` | std_msgs/Bool | Web → 手柄 | 启停手柄控制 |
 | `/f710/status` | std_msgs/Bool | 手柄 → Web | 手柄使能状态 |
+| `/f710/mode` | std_msgs/String | 手柄 → Web | 手柄模式检测："X"/"D"/"unknown" |
 | `/chassis/joint_states` | sensor_msgs/JointState | 底盘 → 外部 | 电机位置/速度/力矩 (100Hz) |
 | `/chassis/diagnostics` | ChassisDiagnostics | 底盘 → 外部 | 电压/温度/错误码 (100Hz) |
 
@@ -140,14 +179,34 @@ Web 控制台右下角录制按钮，采集内容：
 
 - ROS2 bag：`/svtrobot_cmd` `/lift_control_cmd` `/f710/joy` `/chassis/joint_states` `/chassis/diagnostics`
 - 摄像头帧：D405 ×2 + ZED，1fps 保存为 JPEG
+- **录制结束后自动转换**：bag (.db3) → JSONL 格式（每个话题一个 .jsonl 文件）
 
 保存路径：`~/svtrobo_ws/recordings/<时间戳>/`
+
+```
+recordings/YYYYMMDD_HHMMSS/
+├── images/
+│   ├── d405_1/frame_000000.jpg
+│   ├── d405_2/frame_000000.jpg
+│   └── zed/frame_000000.jpg
+├── rosbag/
+│   ├── rosbag_0.db3
+│   └── metadata.yaml
+├── chassis_joint_states.jsonl   # 8 关节状态 (~10Hz)
+├── chassis_diagnostics.jsonl    # 电压/温度/错误码/轮速 (~10Hz)
+├── svtrobot_cmd.jsonl           # 底盘速度指令 (~50Hz)
+├── f710_joy.jsonl               # 手柄原始数据 (~50Hz)
+└── lift_control_cmd.jsonl       # 升降控制指令 (~25Hz)
+```
+
+> 所有 JSONL 记录均包含 `_timestamp_ns` 字段，可用于多话题时间对齐。详见 [recordings/README.md](recordings/README.md)。
 
 ## 文档索引
 
 | 文档 | 内容 |
 |------|------|
 | [ROBOT_SYSTEM_GUIDE.md](ROBOT_SYSTEM_GUIDE.md) | 系统完整技术文档 |
+| [recordings/README.md](recordings/README.md) | 录制数据格式与 JSONL 字段说明 |
 | [src/chassis_control/PYTHON_API_GUIDE.md](src/chassis_control/PYTHON_API_GUIDE.md) | Python 控制接口文档 |
 | [src/web_control/WEB_CONTROL_GUIDE.md](src/web_control/WEB_CONTROL_GUIDE.md) | Web 控制台使用说明 |
 | [src/camera_driver/CAMERA_DRIVER_GUIDE.md](src/camera_driver/CAMERA_DRIVER_GUIDE.md) | 摄像头驱动 API 文档 |

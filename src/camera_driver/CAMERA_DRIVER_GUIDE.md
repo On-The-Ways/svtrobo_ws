@@ -12,8 +12,9 @@
 4. [快速开始](#4-快速开始)
 5. [RealSense D405 API](#5-realsense-d405-api)
 6. [ZED 2i API](#6-zed-2i-api)
-7. [文件结构](#7-文件结构)
-8. [注意事项与常见问题](#8-注意事项与常见问题)
+7. [ROS2 相机节点](#7-ros2-相机节点)
+8. [文件结构](#8-文件结构)
+9. [注意事项与常见问题](#9-注意事项与常见问题)
 
 ---
 
@@ -357,7 +358,80 @@ with ZEDCamera() as zed:
 
 ---
 
-## 7. 文件结构
+## 7. ROS2 相机节点
+
+除了 Python 采集 API，camera_driver 还提供了 ROS2 节点，可直接发布 sensor_msgs/Image 和 CameraInfo 话题。
+
+### 7.1 RealSense D405 ROS2 节点
+
+> 源文件：`camera_driver/camera_driver/realsense_node.py`
+
+**发布话题：**
+
+| 话题 | 消息类型 | 说明 |
+|------|---------|------|
+| `{namespace}/color/image_raw` | `sensor_msgs/Image` | 彩色图 (BGR8) |
+| `{namespace}/depth/image_raw` | `sensor_msgs/Image` | 深度图 (16UC1, 对齐到彩色) |
+| `{namespace}/color/camera_info` | `sensor_msgs/CameraInfo` | 彩色相机内参 |
+| `{namespace}/depth/camera_info` | `sensor_msgs/CameraInfo` | 深度相机内参 |
+
+**参数：**
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `serial_number` | str | `''` | 设备序列号，空则选第一个 |
+| `namespace` | str | `'d405_1'` | 话题命名空间 |
+| `color_width` | int | `640` | 彩色图宽度 |
+| `color_height` | int | `480` | 彩色图高度 |
+| `depth_width` | int | `640` | 深度图宽度 |
+| `depth_height` | int | `480` | 深度图高度 |
+| `fps` | int | `30` | 帧率 |
+| `frame_id` | str | `'camera_link'` | TF frame ID |
+
+**启动：**
+
+```bash
+ros2 run camera_driver realsense_node --ros-args \
+  -p serial_number:=409122272399 \
+  -p namespace:=d405_1
+```
+
+### 7.2 ZED 2i ROS2 节点
+
+> 源文件：`camera_driver/camera_driver/zed_node.py`
+
+双模式：SDK 优先（需 NVIDIA GPU），OpenCV 降级（SGBM 估算深度）。
+
+**发布话题：**
+
+| 话题 | 消息类型 | 说明 |
+|------|---------|------|
+| `zed/left/image_raw` | `sensor_msgs/Image` | 左眼彩色图 (BGR8) |
+| `zed/right/image_raw` | `sensor_msgs/Image` | 右眼彩色图 (BGR8，仅 OpenCV 模式) |
+| `zed/depth/image_raw` | `sensor_msgs/Image` | 深度图 (16UC1) |
+| `zed/left/camera_info` | `sensor_msgs/CameraInfo` | 左眼相机内参（仅 SDK 模式） |
+
+**参数：**
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `resolution` | str | `'HD720'` | 分辨率：HD2K/HD1080/HD720/VGA |
+| `fps` | int | `30` | 帧率 |
+| `depth_mode` | str | `'NEURAL'` | SDK 深度模式：NEURAL/ULTRA/QUALITY/PERFORMANCE |
+| `min_depth` | float | `100.0` | 最小深度 mm（仅 SDK） |
+| `frame_id` | str | `'zed_link'` | TF frame ID |
+| `force_opencv` | bool | `False` | 强制使用 OpenCV 模式 |
+
+**启动：**
+
+```bash
+ros2 run camera_driver zed_node --ros-args \
+  -p resolution:=HD720 -p depth_mode:=NEURAL
+```
+
+---
+
+## 8. 文件结构
 
 ```
 svtrobo_ws/
@@ -365,7 +439,9 @@ svtrobo_ws/
     ├── camera_driver/
     │   ├── __init__.py              # 模块入口，导出 RealSenseCamera, ZEDCamera
     │   ├── realsense_camera.py      # D405 采集模块
-    │   └── zed_camera.py            # ZED 2i 采集模块
+    │   ├── realsense_node.py        # D405 ROS2 发布节点
+    │   ├── zed_camera.py            # ZED 2i 采集模块
+    │   └── zed_node.py              # ZED 2i ROS2 发布节点
     └── captures/                    # 默认保存目录
         ├── d405_1_*_color.png       # D405 #1 彩色图
         ├── d405_1_*_depth.png       # D405 #1 深度图
@@ -377,7 +453,7 @@ svtrobo_ws/
 
 ---
 
-## 8. 注意事项与常见问题
+## 9. 注意事项与常见问题
 
 ### Q1: D405 启动报错 `Couldn't resolve requests`
 
