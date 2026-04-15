@@ -13,14 +13,14 @@ recordings/
 └── YYYYMMDD_HHMMSS/                  # 录制会话（如 20260414_165813）
     ├── images/                        # 相机图像
     │   ├── d405_1/                    # D405 #1 相机（前方）
-    │   │   ├── frame_000000.jpg
-    │   │   ├── frame_000001.jpg
+    │   │   ├── 1713163200123456.jpg   # 文件名 = Unix 微秒时间戳
+    │   │   ├── 1713163201123456.jpg
     │   │   └── ...
     │   ├── d405_2/                    # D405 #2 相机（侧方）
-    │   │   ├── frame_000000.jpg
+    │   │   ├── 1713163200234567.jpg
     │   │   └── ...
     │   └── zed/                       # ZED 2i 相机（全局视角）
-    │       ├── frame_000000.jpg
+    │       ├── 1713163200345678.jpg
     │       └── ...
     ├── rosbag/                        # ROS2 原始录制数据
     │   ├── rosbag_0.db3               # SQLite3 数据库（二进制，ROS2 bag 格式）
@@ -42,9 +42,9 @@ recordings/
 |------|------|
 | 来源 | 3 个相机：D405 #1、D405 #2、ZED 2i |
 | 格式 | JPEG（质量参数 70） |
-| 采集频率 | 1 FPS（每秒 1 帧） |
-| 命名规则 | `frame_XXXXXX.jpg`（6 位零填充序号） |
-| 对齐方式 | 3 个相机同步采集（同一帧序号对应同一时刻），通过 `_timestamp_ns` 与传感器数据对齐 |
+| 采集频率 | 10 Hz（每秒 10 帧） |
+| 命名规则 | `{timestamp_us}.jpg`（Unix 微秒时间戳，如 `1713163200123456.jpg`） |
+| 对齐方式 | 文件名即精确采集时间戳（微秒级），可直接与 JSONL 中的 `_timestamp_ns`（纳秒级）对齐 |
 
 ### 1.2 各相机参数
 
@@ -261,7 +261,7 @@ JSONL (JSON Lines) 格式：每行一条独立的 JSON 对象，便于逐行读�
 | `/svtrobot_cmd` | `svtrobot_cmd.jsonl` | ~50 Hz | Web 控制或手柄节点 |
 | `/f710/joy` | `f710_joy.jsonl` | ~50 Hz | f710_teleop 节点 |
 | `/lift_control_cmd` | `lift_control_cmd.jsonl` | ~25 Hz | f710_teleop 节点 |
-| 相机帧 | `images/*/frame_*.jpg` | 1 FPS | CameraManager |
+| 相机帧 | `images/*/{timestamp_us}.jpg` | 10 Hz | CameraManager |
 
 频率由各 ROS2 节点的发布设置决定，`ros2 bag record` 忠实记录原始频率。
 
@@ -272,9 +272,9 @@ JSONL (JSON Lines) 格式：每行一条独立的 JSON 对象，便于逐行读�
 所有数据源通过 `_timestamp_ns`（纳秒级 Unix 时间戳）进行时间对齐：
 
 - JSONL 中的 `_timestamp_ns` 字段
-- 图像帧的时间可通过帧序号 × 1 秒近似推算（1 FPS 采集）
+- 图像帧的文件名即精确的采集时间戳（微秒级），直接转为纳秒即可与传感器数据对齐
 
-精确对齐方式：对于图像帧序号 N，其采集时间约为 `recording_start_time + N` 秒，可在 JSONL 中查找 `_timestamp_ns` 最接近的传感器记录。
+对齐方式：图像文件名中的微秒时间戳 `T_us`，对应纳秒时间戳 `T_ns = T_us * 1000`，在 JSONL 中查找 `_timestamp_ns` 最接近的传感器记录。
 
 ---
 
