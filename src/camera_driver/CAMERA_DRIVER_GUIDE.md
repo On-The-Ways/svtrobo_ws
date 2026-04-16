@@ -104,7 +104,7 @@ cat /sys/class/video4linux/video0/name
 
 ```python
 import sys
-sys.path.insert(0, '/home/openarm/svtrobo_ws')
+sys.path.insert(0, '/home/svt/svtrobo_ws')
 
 from camera_driver.camera_driver import RealSenseCamera, ZEDCamera, ZEDIMU
 ```
@@ -117,7 +117,7 @@ from camera_driver.camera_driver import RealSenseCamera, ZEDCamera, ZEDIMU
 
 ```python
 import sys
-sys.path.insert(0, '/home/openarm/svtrobo_ws')
+sys.path.insert(0, '/home/svt/svtrobo_ws')
 from camera_driver.camera_driver import RealSenseCamera
 
 # 列出所有设备
@@ -140,7 +140,7 @@ with RealSenseCamera(serial='409122272399') as cam:
 
 ```python
 import sys
-sys.path.insert(0, '/home/openarm/svtrobo_ws')
+sys.path.insert(0, '/home/svt/svtrobo_ws')
 from camera_driver.camera_driver import ZEDCamera
 
 with ZEDCamera() as zed:
@@ -225,8 +225,8 @@ color_path, depth_path = cam.capture_and_save(
 **输出文件命名规则：**
 
 ```
-{name}_{YYYYMMDD}_{HHMMSS}_color.png
-{name}_{YYYYMMDD}_{HHMMSS}_depth.png
+{name}_{YYYYMMDD}_{HHMMSS}_{微秒}_color.png
+{name}_{YYYYMMDD}_{HHMMSS}_{微秒}_depth.png
 ```
 
 ### 5.6 `get_intrinsics()` — 获取相机内参
@@ -369,8 +369,8 @@ with ZEDCamera() as zed:
 
 > 源文件：`camera_driver/camera_driver/zed_imu.py`
 >
-> 通过 USB HID 接口直接读取 ZED 2i 内置 IMU 传感器数据，**不需要 ZED SDK 或 NVIDIA GPU**。
-> 基于开源协议 [stereolabs/zed-open-capture](https://github.com/stereolabs/zed-open-capture)。
+> 双模式 IMU 驱动：SDK 优先（精度更高，与相机时间戳同步），USB HID 备用（无需 CUDA）。
+> 基于 [stereolabs/zed-open-capture](https://github.com/stereolabs/zed-open-capture) 协议。
 
 ### 7.1 传感器规格
 
@@ -388,6 +388,7 @@ with ZEDCamera() as zed:
 ZEDIMU(
     hidraw_path=None,      # hidraw 设备路径，默认自动搜索
     ping_interval=400,     # ping 保活间隔（读取次数，~400=1秒）
+    force_hid=False,       # 强制使用 USB HID 模式，跳过 SDK
 )
 ```
 
@@ -396,7 +397,8 @@ ZEDIMU(
 ```python
 imu = ZEDIMU()
 imu.start()
-# 自动搜索 /dev/hidraw* 找到 ZED 2i MCU 设备 (VID=2b03, PID=f881)
+# 自动选择模式: SDK 优先(若 pyzed 可用), 失败则降级 USB HID
+# USB HID 模式自动搜索 /dev/hidraw* 找到 ZED 2i MCU 设备 (VID=2b03, PID=f881)
 # 后台线程持续读取数据，自动 ping 保活
 ```
 
@@ -451,7 +453,7 @@ with ZEDIMU() as imu:
 
 ```python
 import sys
-sys.path.insert(0, '/home/openarm/svtrobo_ws')
+sys.path.insert(0, '/home/svt/svtrobo_ws')
 from camera_driver.camera_driver import ZEDIMU
 import time
 
@@ -487,6 +489,7 @@ with ZEDIMU() as imu:
 | `publish_mag` | bool | `True` | 是否发布磁力计 |
 | `publish_temp` | bool | `True` | 是否发布温度 |
 | `publish_env` | bool | `False` | 是否发布气压/湿度 |
+| `force_hid` | bool | `False` | 强制使用 USB HID 模式（跳过 SDK） |
 
 **启动：**
 
