@@ -202,7 +202,7 @@ class ZEDCamera:
         bgra = image_sl.get_data()
         if bgra is None:
             return None, None
-        left = bgra[:, :, :3]
+        left = bgra[:, :, :3]  # BGRA -> BGR (drop alpha)
 
         if self.color_only:
             return left, None
@@ -283,8 +283,8 @@ class ZEDCamera:
             self.zed.retrieve_image(right_sl, sl.VIEW.RIGHT)
             self.zed.retrieve_measure(depth_sl, sl.MEASURE.DEPTH)
 
-            left = left_sl.get_data()[:, :, :3]
-            right = right_sl.get_data()[:, :, :3]
+            left = left_sl.get_data()[:, :, :3]  # BGRA -> BGR
+            right = right_sl.get_data()[:, :, :3]  # BGRA -> BGR
             depth = depth_sl.get_data()
             return left, right, depth
         else:
@@ -297,6 +297,49 @@ class ZEDCamera:
             right = frame[:, half:, :]
             _, depth = self._capture_opencv()
             return left, right, depth
+
+    def get_imu_data(self):
+        """获取最新 IMU 数据（仅 SDK 模式可用）
+
+        Returns:
+            dict with keys: accel, gyro_dps, gyro_rad, mag, imu_temp, pressure, env_temp, timestamp_ns
+            None if not available
+        """
+        if not self.use_sdk or not self.zed or not self.is_running:
+            return None
+        try:
+            import math
+            sensors = sl.SensorsData()
+            if self.zed.get_sensors_data(sensors, sl.TIME_REFERENCE.IMAGE) != sl.ERROR_CODE.SUCCESS:
+                return None
+            imu = sensors.get_imu_data()
+            if not imu.is_available:
+                return None
+            acc = imu.get_linear_acceleration()
+            gyro = imu.get_angular_velocity()
+            mag_data = sensors.get_magnetometer_data()
+            baro = sensors.get_barometer_data()
+            temp_data = sensors.get_temperature_data()
+            mag = mag_data.get_magnetic_field_calibrated() if mag_data.is_available else (0,0,0)
+            imu_temp_raw = temp_data.get(sl.SENSOR_LOCATION.IMU)
+            imu_temp = imu_temp_raw * 0.01 if imu_temp_raw and imu_temp_raw > 0 else 0.0
+            baro_temp_raw = temp_data.get(sl.SENSOR_LOCATION.BAROMETER)
+            env_temp = baro_temp_raw * 0.01 if baro_temp_raw and baro_temp_raw > 0 else 0.0
+            ts_ns = imu.timestamp.get_nanoseconds()
+            return {
+                'accel': [acc[0], acc[1], acc[2]],
+                'gyro_dps': [gyro[0], gyro[1], gyro[2]],
+                'gyro_rad': [math.radians(gyro[0]), math.radians(gyro[1]), math.radians(gyro[2])],
+                'mag': [mag[0], mag[1], mag[2]],
+                'mag_valid': 1 if mag_data.is_available else 0,
+                'imu_temp': imu_temp,
+                'pressure': baro.pressure if baro.is_available else 0.0,
+                'env_temp': env_temp,
+                'timestamp_ns': ts_ns,
+                'timestamp_s': ts_ns / 1e9,
+            }
+        except Exception:
+            return None
 
     def get_intrinsics(self):
         """获取左眼相机内参

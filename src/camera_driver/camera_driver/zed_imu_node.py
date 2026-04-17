@@ -1,16 +1,17 @@
 """
 ZED 2i IMU ROS2 节点
 
+双模式: SDK 优先, USB HID 备用
+
 发布 Topic:
   - ~/zed/imu/data       (sensor_msgs/Imu)        - 加速度计 + 陀螺仪
   - ~/zed/imu/mag        (sensor_msgs/MagneticField) - 磁力计
   - ~/zed/imu/temperature (sensor_msgs/Temperature)  - IMU 温度
 
-无需 ZED SDK 或 CUDA，通过 USB HID 接口直接读取。
-
 用法:
   ros2 run camera_driver zed_imu_node --ros-args \
-    -p frame_id:=zed_imu_link
+    -p frame_id:=zed_imu_link \
+    -p force_hid:=false
 """
 
 import math
@@ -25,7 +26,7 @@ from .zed_imu import ZEDIMU
 
 
 class ZEDIMUNode(Node):
-    """ZED 2i IMU ROS2 发布节点"""
+    """ZED 2i IMU ROS2 发布节点 (SDK 优先, USB HID 备用)"""
 
     def __init__(self):
         super().__init__('zed_imu_node')
@@ -35,14 +36,16 @@ class ZEDIMUNode(Node):
         self.declare_parameter('publish_mag', True)
         self.declare_parameter('publish_temp', True)
         self.declare_parameter('publish_env', False)
+        self.declare_parameter('force_hid', False)
 
         self.frame_id = self.get_parameter('frame_id').value
         publish_mag = self.get_parameter('publish_mag').value
         publish_temp = self.get_parameter('publish_temp').value
         publish_env = self.get_parameter('publish_env').value
+        force_hid = self.get_parameter('force_hid').value
 
-        # IMU 驱动
-        self.imu = ZEDIMU()
+        # IMU 驱动 (自动选择 SDK/HID)
+        self.imu = ZEDIMU(force_hid=force_hid)
 
         # 发布者
         self.imu_pub = self.create_publisher(Imu, 'zed/imu/data', 200)
@@ -66,13 +69,14 @@ class ZEDIMUNode(Node):
             self.get_logger().error(str(e))
             raise
 
-        # 定时发布 (400Hz IMU，但 100Hz 发布已足够)
+        # 定时发布 (100Hz 足够覆盖 IMU 数据率)
         self.timer = self.create_timer(0.01, self._timer_callback)
 
         self._last_ts = 0
         self._seq = 0
 
-        self.get_logger().info('ZED IMU node started')
+        self.get_logger().info(
+            'ZED IMU node started (mode: {})'.format(self.imu.mode))
 
     def _timer_callback(self):
         data = self.imu.read()
@@ -157,7 +161,7 @@ class ZEDIMUNode(Node):
 
     def destroy_node(self):
         self.imu.stop()
-        self.get_logger().info('ZED IMU node destroyed')
+        self.get_logger().info('ZED IMU node destroyed (mode was: {})'.format(self.imu.mode))
         super().destroy_node()
 
 

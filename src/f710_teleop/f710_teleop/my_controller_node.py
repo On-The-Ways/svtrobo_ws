@@ -3,6 +3,8 @@ import re
 import struct
 import threading
 import time
+import urllib.request
+import urllib.error
 from typing import List
 
 import rclpy
@@ -165,6 +167,13 @@ class F710TeleopNode(Node):
         # LT / RT 用作加减速度缩放因子
         self.declare_parameter("button.lt", 8)
         self.declare_parameter("button.rt", 9)
+        # X / Y 按钮用于采集控制（X=开始, Y=结束）
+        self.declare_parameter("button.x", 0)
+        self.declare_parameter("button.y", 3)
+
+        # 采集（录制）功能：通过 HTTP 调用 web_control 的 /recording API
+        self.declare_parameter("recording.enabled", True)
+        self.declare_parameter("recording.server_url", "http://127.0.0.1:8080")
 
         device_path = self.get_parameter("device_path").get_parameter_value().string_value
         self.deadzone = float(self.get_parameter("deadzone").value)
@@ -224,6 +233,15 @@ class F710TeleopNode(Node):
         self.btn_rb = int(self.get_parameter("button.rb").value)
         self.btn_lt = int(self.get_parameter("button.lt").value)
         self.btn_rt = int(self.get_parameter("button.rt").value)
+        self.btn_x = int(self.get_parameter("button.x").value)
+        self.btn_y = int(self.get_parameter("button.y").value)
+
+        # 采集（录制）状态
+        self.recording_enabled = bool(self.get_parameter("recording.enabled").value)
+        self.recording_server_url = self.get_parameter("recording.server_url").get_parameter_value().string_value
+        self._recording_active = False  # 是否正在录制（首次X才生效）
+        self._prev_x = 0
+        self._prev_y = 0
 
         # 手柄读取线程
         self.joy = LinuxJoystickReader(device_path=device_path)
@@ -266,8 +284,56 @@ class F710TeleopNode(Node):
         self.get_logger().info(
             f"F710TeleopNode 已启动，设备: {device_path}, 频率: {publish_rate} Hz, "
             f"gate_until_first_a={self.gate_until_first_a}, require_deadman={self.require_deadman}, "
-            f"estop_latch={self.estop_latch}"
+            f"estop_latch={self.estop_latch}, recording={self.recording_enabled}"
         )
+
+    def _recording_request(self, endpoint: str) -> bool:
+        """向 web_control 发送录制请求（/recording/start 或 /recording/stop）。
+        在后台线程中执行，不阻塞定时器回调。返回 True 表示请求已发出（不保证成功）。"""
+        if not self.recording_enabled:
+            return False
+
+        def _do():
+            try:
+                url = self.recording_server_url + endpoint
+                req = urllib.request.Request(
+                    url, method='POST',
+                    headers={'Content-Type': 'application/json'},
+                    data=b'{}',
+                )
+                with urllib.request.urlopen(req, timeout=5) as resp:
+                    result = resp.read().decode()
+                    self.get_logger().info(f"录制 {endpoint}: {result.strip()}")
+            except urllib.error.URLError as e:
+                self.get_logger().warn(f"录制 {endpoint} 请求失败: {e.reason}")
+            except Exception as e:
+                self.get_logger().warn(f"录制 {endpoint} 异常: {e}")
+
+        threading.Thread(target=_do, daemon=True, name='recording-req').start()
+        return True
+
+    def _handle_recording_buttons(self, x_now: int, y_now: int) -> None:
+        """处理 X/Y 按钮的采集控制。
+        X（上升沿）：开始录制，仅首次有效（重复按忽略，防止误触）。
+        Y（上升沿）：停止录制。
+        """
+        if not self.recording_enabled:
+            return
+
+        # X 上升沿 → 开始录制（仅当未在录制时）
+        if x_now and not self._prev_x and not self._recording_active:
+            self._recording_active = True  # 立即标记，防止重复触发
+            self._recording_request('/recording/start')
+            self.get_logger().info("手柄 X 按钮：开始采集")
+
+        # Y 上升沿 → 停止录制
+        if y_now and not self._prev_y and self._recording_active:
+            self._recording_active = False
+            self._recording_request('/recording/stop')
+            self.get_logger().info("手柄 Y 按钮：停止采集")
+
+        self._prev_x = x_now
+        self._prev_y = y_now
 
     def _publish_status(self) -> None:
         msg = Bool()
@@ -450,6 +516,11 @@ class F710TeleopNode(Node):
 
         # 定期检测并发布手柄模式
         self._publish_mode()
+
+        # 采集按钮处理（独立于底盘控制，任何状态下都响应）
+        x_now = self._get_button(self.btn_x)
+        y_now = self._get_button(self.btn_y)
+        self._handle_recording_buttons(x_now, y_now)
 
         # X 模式下阻断所有控制指令
         if self._gamepad_mode == "X":

@@ -22,8 +22,8 @@
     cmd_vel.publish_always: false
 
     # 最大线速度 / 角速度（单位按你的底盘侧约定）
-    velocity.max_linear: 1.0
-    velocity.max_angular: 1.0
+    velocity.max_linear: 0.4
+    velocity.max_angular: 0.4
     # 右手柄角速度缩放，>1 时转向更大
     velocity.angular_scale: 5.0
 

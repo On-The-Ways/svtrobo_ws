@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/hardware-status.css">
     <script src="/static/js/roslib.min.js"></script>
 </head>
 <body>
@@ -25,6 +26,8 @@
         <span id="connection-status" class="connection-status status-disconnected">已断开</span>
     </div>
 </header>
+
+<div id="hardware-status-bar" class="hardware-status-bar"><span class="hw-item hw-unknown"><span class="hw-label">硬件检测中...</span></span></div>
 
 <main class="dashboard">
 
@@ -310,6 +313,7 @@
 <script src="/static/js/chassis-status.js"></script>
 <script src="/static/js/imu-status.js"></script>
 <script src="/static/js/f710-toggle.js"></script>
+<script src="/static/js/hardware-status.js"></script>
 <script src="/static/js/data-record.js"></script>
 
 </body>

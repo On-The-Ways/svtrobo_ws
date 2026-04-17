@@ -17,7 +17,12 @@ from datetime import datetime
 from pathlib import Path
 
 import cv2
-from aiohttp import web
+from aiohttp import web, WSMsgType
+
+try:
+    import aiohttp
+except ImportError:
+    aiohttp = None
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 logger = logging.getLogger(__name__)
@@ -113,6 +118,10 @@ class CameraManager:
                 pass
             info['running'] = False
             del self.cameras[name]
+            # Clear IMU cache when ZED stops
+            if name == 'zed':
+                with imu_cache['lock']:
+                    imu_cache['data'] = None
             logger.info(f"Camera {name} stopped")
             return True, f"Camera {name} stopped"
 
@@ -159,6 +168,16 @@ class CameraManager:
                     pass
                 frame_queue.put((frame_bytes, timestamp_us))
 
+                # Extract IMU data from ZED camera (if SDK mode)
+                if name == 'zed' and hasattr(cam, 'get_imu_data'):
+                    try:
+                        imu_data = cam.get_imu_data()
+                        if imu_data:
+                            with imu_cache['lock']:
+                                imu_cache['data'] = imu_data
+                    except Exception:
+                        pass
+
             except Exception as e:
                 logger.warning(f"Camera {name} capture error: {e}")
                 stop_event.wait(0.1)
@@ -174,7 +193,7 @@ class CameraManager:
 # --- Recording Manager ---
 
 
-RECORDING_DIR = Path('/home/openarm/svtrobo_ws/recordings')
+RECORDING_DIR = Path('/home/svt/svtrobo_ws/recordings')
 
 # Topics to record via ros2 bag
 RECORD_TOPICS = [
@@ -204,6 +223,8 @@ class RecordingManager:
         self.output_dir = None
         self.start_time = None
         self._lock = threading.Lock()
+        # Track cameras started by recording (so we only stop those we started)
+        self._cameras_started = set()
 
     def start(self):
         """Start data recording. Returns (ok, message, path)."""
@@ -218,8 +239,13 @@ class RecordingManager:
             # Start ros2 bag record
             bag_dir = self.output_dir / 'rosbag'
             try:
+                cmd = (
+                    'source /opt/ros/humble/setup.bash && '
+                    'source /home/svt/svtrobo_ws/install/setup.bash && '
+                    'exec ros2 bag record ' + ' '.join(RECORD_TOPICS) + f' -o {bag_dir}'
+                )
                 self.bag_process = subprocess.Popen(
-                    ['ros2', 'bag', 'record'] + RECORD_TOPICS + ['-o', str(bag_dir)],
+                    ['bash', '-c', cmd],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
@@ -228,6 +254,20 @@ class RecordingManager:
                 return False, 'ros2 command not found. Is ROS2 sourced?', None
             except Exception as e:
                 return False, str(e), None
+
+            # Auto-start all cameras (skip those already running)
+            self._cameras_started = set()
+            cam_start_errors = []
+            for cam_name in CAMERA_CONFIG:
+                status = self.camera_mgr.get_status().get(cam_name, {})
+                if not status.get('running', False):
+                    ok, msg = self.camera_mgr.start_camera(cam_name)
+                    if ok:
+                        self._cameras_started.add(cam_name)
+                        logger.info(f"Recording auto-started camera: {cam_name}")
+                    else:
+                        cam_start_errors.append(f"{cam_name}: {msg}")
+                        logger.warning(f"Recording failed to start camera {cam_name}: {msg}")
 
             # Start camera frame saver
             self.stop_event.clear()
@@ -260,6 +300,15 @@ class RecordingManager:
             self.stop_event.set()
             if self.save_thread:
                 self.save_thread.join(timeout=5)
+
+            # Stop cameras that were auto-started by recording
+            for cam_name in list(self._cameras_started):
+                try:
+                    self.camera_mgr.stop_camera(cam_name)
+                    logger.info(f"Recording auto-stopped camera: {cam_name}")
+                except Exception as e:
+                    logger.warning(f"Failed to stop camera {cam_name}: {e}")
+            self._cameras_started.clear()
 
             duration = time.time() - self.start_time if self.start_time else 0
             info = {
@@ -345,8 +394,13 @@ class F710Manager:
                 return False, 'F710 node already running'
 
             try:
+                cmd = (
+                    'source /opt/ros/humble/setup.bash && '
+                    'source /home/svt/svtrobo_ws/install/setup.bash && '
+                    'exec ros2 launch f710_teleop f710_teleop.launch.py'
+                )
                 self.process = subprocess.Popen(
-                    ['ros2', 'launch', 'f710_teleop', 'f710_teleop.launch.py'],
+                    ['bash', '-c', cmd],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                     preexec_fn=os.setpgrp,
@@ -386,6 +440,7 @@ class F710Manager:
 camera_mgr = CameraManager()
 recording_mgr = RecordingManager(camera_mgr)
 f710_mgr = F710Manager()
+imu_cache = {'data': None, 'lock': threading.Lock()}
 
 
 async def index_handler(request):
@@ -470,10 +525,78 @@ async def f710_status_handler(request):
     return web.json_response(f710_mgr.get_status())
 
 
+async def imu_data_handler(request):
+    """Return latest IMU data from ZED camera."""
+    with imu_cache['lock']:
+        data = imu_cache['data']
+    if data is None:
+        return web.json_response({'ok': False, 'message': 'IMU data not available. Start ZED camera first.'})
+    return web.json_response({'ok': True, 'data': data})
+
+
 async def on_shutdown(app):
     f710_mgr.stop()
     recording_mgr.stop()
     camera_mgr.stop_all()
+    # Close all ws proxy connections
+    for ws in app.get('ws_proxies', set()):
+        await ws.close()
+
+
+async def rosbridge_proxy_handler(request):
+    """Proxy WebSocket connections to rosbridge_server on localhost:9090."""
+    ws_client = web.WebSocketResponse()
+    await ws_client.prepare(request)
+
+    # Connect to rosbridge
+    rosbridge_url = 'http://localhost:9090'
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.ws_connect(rosbridge_url) as ws_ros:
+                # Store for cleanup on shutdown
+                ws_proxies = request.app.setdefault('ws_proxies', set())
+                ws_proxies.add(ws_client)
+
+                async def forward_to_ros():
+                    """Forward messages from browser → rosbridge."""
+                    try:
+                        async for msg in ws_client:
+                            if msg.type == WSMsgType.TEXT:
+                                await ws_ros.send_str(msg.data)
+                            elif msg.type == WSMsgType.BINARY:
+                                await ws_ros.send_bytes(msg.data)
+                            elif msg.type == WSMsgType.ERROR:
+                                break
+                    except Exception:
+                        pass
+
+                async def forward_to_client():
+                    """Forward messages from rosbridge → browser."""
+                    try:
+                        async for msg in ws_ros:
+                            if msg.type == WSMsgType.TEXT:
+                                await ws_client.send_str(msg.data)
+                            elif msg.type == WSMsgType.BINARY:
+                                await ws_client.send_bytes(msg.data)
+                            elif msg.type == WSMsgType.ERROR:
+                                break
+                    except Exception:
+                        pass
+
+                # Run both directions concurrently
+                await asyncio.gather(
+                    forward_to_ros(),
+                    forward_to_client(),
+                    return_exceptions=True,
+                )
+
+                ws_proxies.discard(ws_client)
+    except Exception as e:
+        logger.warning(f"rosbridge proxy connection failed: {e}")
+        if not ws_client.closed:
+            await ws_client.close()
+
+    return ws_client
 
 
 def create_app():
@@ -493,6 +616,8 @@ def create_app():
     app.router.add_post('/f710/start', f710_start_handler)
     app.router.add_post('/f710/stop', f710_stop_handler)
     app.router.add_get('/f710/status', f710_status_handler)
+    app.router.add_get('/api/imu', imu_data_handler)
+    app.router.add_get('/ws', rosbridge_proxy_handler)
 
     return app
 

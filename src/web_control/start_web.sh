@@ -1,6 +1,7 @@
 #!/bin/bash
 # SVTROBO Web Control Launcher
 # Starts rosbridge_server + aiohttp camera/static server
+# rosbridge uses system Python3, web server uses conda svtrobo env
 
 set +e
 
@@ -8,13 +9,13 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # Source ROS2 environment
 source /opt/ros/humble/setup.bash 2>/dev/null
-source /home/openarm/svtrobo_ws/install/setup.bash 2>/dev/null
+source /home/svt/svtrobo_ws/install/setup.bash 2>/dev/null
 
 echo "======================================"
 echo "  SVTROBO Web Control"
 echo "======================================"
 
-# Start rosbridge_server
+# Start rosbridge_server (needs system Python with tornado)
 echo "[1/2] Starting rosbridge_server on port 9090..."
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml port:=9090 &
 ROSBRIDGE_PID=$!
@@ -26,9 +27,11 @@ if ! kill -0 $ROSBRIDGE_PID 2>/dev/null; then
 fi
 echo "      rosbridge_server started (PID: $ROSBRIDGE_PID)"
 
-# Start aiohttp web server
-echo "[2/2] Starting web server on port 8080..."
+# Start aiohttp web server in conda svtrobo env (for pyrealsense2 + cv2)
+echo "[2/2] Starting web server on port 8080 (conda svtrobo)..."
 cd "$SCRIPT_DIR"
+source /home/svt/miniconda3/etc/profile.d/conda.sh
+conda activate svtrobo
 python3 server.py --host 0.0.0.0 --port 8080 &
 SERVER_PID=$!
 sleep 1

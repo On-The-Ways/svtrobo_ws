@@ -1,6 +1,7 @@
 /**
  * SVTROBO Web Control - IMU Status Module
- * Subscribes to /zed/imu/data for accelerometer, gyroscope, magnetometer.
+ * Fetches IMU data from /api/imu HTTP endpoint (primary)
+ * Falls back to rosbridge topics if HTTP not available
  */
 
 const IMUStatus = {
@@ -10,73 +11,58 @@ const IMUStatus = {
     count: 0,
     lastTime: 0,
     freqEl: null,
+    pollTimer: null,
+    useHttp: true,
 
     init(ros) {
         this.freqEl = document.getElementById('imu-freq');
-
-        this.topic = new ROSLIB.Topic({
-            ros: ros,
-            name: '/zed/imu/data',
-            messageType: 'sensor_msgs/msg/Imu',
-        });
-
-        this.topic.subscribe((msg) => {
-            this.updateDisplay(msg);
-        });
-
-        // Magnetometer (lower rate)
-        this.magTopic = new ROSLIB.Topic({
-            ros: ros,
-            name: '/zed/imu/mag',
-            messageType: 'sensor_msgs/msg/MagneticField',
-        });
-
-        this.magTopic.subscribe((msg) => {
-            const f = msg.magnetic_field;
-            this.setVal('imu-mag-x', f.x, 2);
-            this.setVal('imu-mag-y', f.y, 2);
-            this.setVal('imu-mag-z', f.z, 2);
-        });
-
-        // Temperature (low rate)
-        this.tempTopic = new ROSLIB.Topic({
-            ros: ros,
-            name: '/zed/imu/temperature',
-            messageType: 'sensor_msgs/msg/Temperature',
-        });
-
-        this.tempTopic.subscribe((msg) => {
-            const el = document.getElementById('imu-temp');
-            if (el) el.textContent = msg.temperature.toFixed(1) + ' °C';
-        });
+        // Try HTTP polling first
+        this.startHttpPoll();
     },
 
-    disable() {
-        const ids = ['imu-acc-x','imu-acc-y','imu-acc-z',
-                      'imu-gyro-x','imu-gyro-y','imu-gyro-z',
-                      'imu-mag-x','imu-mag-y','imu-mag-z'];
-        for (const id of ids) {
-            const el = document.getElementById(id);
-            if (el) el.textContent = '--';
+    startHttpPoll() {
+        this.useHttp = true;
+        this._poll();
+        this.pollTimer = setInterval(() => this._poll(), 100);  // 10Hz
+    },
+
+    stopHttpPoll() {
+        if (this.pollTimer) {
+            clearInterval(this.pollTimer);
+            this.pollTimer = null;
         }
-        const temp = document.getElementById('imu-temp');
-        if (temp) temp.textContent = '-- °C';
-        const freq = document.getElementById('imu-freq');
-        if (freq) freq.textContent = '-- Hz';
     },
 
-    updateDisplay(msg) {
-        const a = msg.linear_acceleration;
-        this.setVal('imu-acc-x', a.x, 3);
-        this.setVal('imu-acc-y', a.y, 3);
-        this.setVal('imu-acc-z', a.z, 3);
+    async _poll() {
+        try {
+            const resp = await fetch('/api/imu');
+            const json = await resp.json();
+            if (json.ok && json.data) {
+                this.updateFromHttp(json.data);
+            }
+        } catch (e) {
+            // Silently ignore
+        }
+    },
 
-        const g = msg.angular_velocity;
-        // Convert rad/s → deg/s for display
-        const r2d = 180.0 / Math.PI;
-        this.setVal('imu-gyro-x', g.x * r2d, 2);
-        this.setVal('imu-gyro-y', g.y * r2d, 2);
-        this.setVal('imu-gyro-z', g.z * r2d, 2);
+    updateFromHttp(data) {
+        const a = data.accel;
+        this.setVal('imu-acc-x', a[0], 3);
+        this.setVal('imu-acc-y', a[1], 3);
+        this.setVal('imu-acc-z', a[2], 3);
+
+        const g = data.gyro_dps;
+        this.setVal('imu-gyro-x', g[0], 2);
+        this.setVal('imu-gyro-y', g[1], 2);
+        this.setVal('imu-gyro-z', g[2], 2);
+
+        const m = data.mag;
+        this.setVal('imu-mag-x', m[0], 2);
+        this.setVal('imu-mag-y', m[1], 2);
+        this.setVal('imu-mag-z', m[2], 2);
+
+        const temp = document.getElementById('imu-temp');
+        if (temp) temp.textContent = data.imu_temp.toFixed(1) + ' °C';
 
         // Frequency estimation
         this.count++;
@@ -89,6 +75,21 @@ const IMUStatus = {
         } else if (this.lastTime === 0) {
             this.lastTime = now;
         }
+    },
+
+    disable() {
+        this.stopHttpPoll();
+        const ids = ['imu-acc-x','imu-acc-y','imu-acc-z',
+                      'imu-gyro-x','imu-gyro-y','imu-gyro-z',
+                      'imu-mag-x','imu-mag-y','imu-mag-z'];
+        for (const id of ids) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = '--';
+        }
+        const temp = document.getElementById('imu-temp');
+        if (temp) temp.textContent = '-- °C';
+        const freq = document.getElementById('imu-freq');
+        if (freq) freq.textContent = '-- Hz';
     },
 
     setVal(id, value, decimals) {
