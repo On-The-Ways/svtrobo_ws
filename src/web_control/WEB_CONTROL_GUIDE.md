@@ -161,7 +161,7 @@ http://<机器人IP>:8080
 | Lift | `lift.js` | 升降机构速度滑条 + 方向按钮 |
 | StatusMonitor | `status.js` | ROS Topic 列表显示 |
 | ControlMode | `f710-toggle.js` | 手柄/Web 模式互斥切换、X/D 模式检测与警告 |
-| DataRecord | `data-record.js` | 数据录制悬浮按钮，一键采集 bag + 摄像头帧 |
+| DataRecord | `data-record.js` | 数据录制悬浮按钮，一键采集 bag + 摄像头帧；手柄 X/Y 按钮也可触发采集 |
 
 ---
 
@@ -219,6 +219,19 @@ Web 控制台通过 rosbridge WebSocket 订阅和发布以下 ROS2 Topic：
 | `/recording/start` | POST | 开始录制（bag + 摄像头帧） |
 | `/recording/stop` | POST | 停止录制并自动转换 JSONL |
 | `/recording/status` | GET | 获取录制状态（running, elapsed, path） |
+
+> **自动相机管理**：调用 `/recording/start` 开始录制时，系统会自动启动所有未运行的相机（d405_1/d405_2/zed）；调用 `/recording/stop` 停止录制时，系统会自动关闭由录制启动的相机（此前已运行的相机不会被关闭）。
+
+#### F710 手柄采集控制
+
+除了通过 Web 控制台按钮触发录制外，还可以使用 F710 手柄控制采集：
+
+| 按钮 | 动作 | 实现方式 |
+|------|------|----------|
+| **X** 按钮 | 开始采集 | 通过 HTTP 调用 `/recording/start` |
+| **Y** 按钮 | 停止采集 | 通过 HTTP 调用 `/recording/stop` |
+
+手柄按钮由 `f710_teleop` 节点处理，当检测到 X/Y 按钮按下时，自动通过 HTTP 请求调用 Web 服务器的录制 API，实现与 Web 控制台按钮完全一致的采集流程（包括自动相机启停管理）。
 
 ### F710 手柄控制
 
@@ -441,3 +454,4 @@ CAMERA_CONFIG = {
 ```
 
 修改后重启 Web 服务器生效。
+

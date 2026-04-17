@@ -4,6 +4,24 @@
 
 ---
 
+## 采集触发方式
+
+数据采集可通过以下方式触发：
+
+1. **Web 控制台**：点击右下角录制按钮
+2. **F710 手柄**：X 按钮（index 0）开始采集，Y 按钮（index 3）停止采集
+   - X 按钮仅首次按有效（防止误触重复触发）
+   - 通过 HTTP 调用 web_control 的 /recording/start 和 /recording/stop 接口
+
+### 自动相机管理
+
+- 开始采集时，自动启动所有未运行的相机（d405_1、d405_2、zed）
+- 停止采集时，仅关闭由采集启动的相机（手动启动的相机不受影响）
+- 相机启动失败（如未连接）会跳过并记录警告，不影响其他数据采集
+
+
+---
+
 ## 目录结构
 
 每次录制会在 `recordings/` 下生成一个以时间戳命名的会话目录：
@@ -46,6 +64,10 @@ recordings/
 | 命名规则 | `{timestamp_us}.jpg`（Unix 微秒时间戳，如 `1713163200123456.jpg`） |
 | 对齐方式 | 文件名即精确采集时间戳（微秒级），可直接与 JSONL 中的 `_timestamp_ns`（纳秒级）对齐 |
 
+> **采集触发方式**：可通过 Web 控制台的录制按钮或 F710 手柄按钮触发采集——手柄 **X 按钮** 开始采集，**Y 按钮** 停止采集。
+>
+> **自动相机管理**：开始采集时自动启动所有未运行的相机（d405_1/d405_2/zed），停止采集时自动关闭由采集启动的相机（此前已运行的相机不会被关闭）。
+
 ### 1.2 各相机参数
 
 | 相机 | 类型 | 分辨率 | 用途 |
@@ -55,6 +77,7 @@ recordings/
 | `zed` | ZED 2i | 672x376 | 全局视角立体视觉 |
 
 ---
+
 
 ## 2. ROS2 Bag 原始数据 (`rosbag/`)
 
@@ -92,6 +115,7 @@ rosbag2_bagfile_information:
 
 ---
 
+
 ## 3. JSONL 传感器数据
 
 JSONL (JSON Lines) 格式：每行一条独立的 JSON 对象，便于逐行读取和流式处理。
@@ -99,6 +123,7 @@ JSONL (JSON Lines) 格式：每行一条独立的 JSON 对象，便于逐行读�
 所有记录都包含一个 `_timestamp_ns` 字段，表示 ROS2 消息的纳秒级时间戳，可用于跨 topic 时间对齐。
 
 ---
+
 
 ### 3.1 `chassis_joint_states.jsonl` — 关节/电机状态
 
@@ -135,6 +160,7 @@ JSONL (JSON Lines) 格式：每行一条独立的 JSON 对象，便于逐行读�
 
 ---
 
+
 ### 3.2 `chassis_diagnostics.jsonl` — 底盘诊断
 
 - **ROS2 Topic**：`/chassis/diagnostics`
@@ -167,6 +193,7 @@ JSONL (JSON Lines) 格式：每行一条独立的 JSON 对象，便于逐行读�
 
 ---
 
+
 ### 3.3 `svtrobot_cmd.jsonl` — 底盘运动指令
 
 - **ROS2 Topic**：`/svtrobot_cmd`
@@ -194,6 +221,7 @@ JSONL (JSON Lines) 格式：每行一条独立的 JSON 对象，便于逐行读�
 | `angular.z` | 偏航角速度（左转/右转） | rad/s |
 
 ---
+
 
 ### 3.4 `f710_joy.jsonl` — 手柄输入
 
@@ -225,6 +253,7 @@ JSONL (JSON Lines) 格式：每行一条独立的 JSON 对象，便于逐行读�
 
 ---
 
+
 ### 3.5 `lift_control_cmd.jsonl` — 升降控制指令
 
 - **ROS2 Topic**：`/lift_control_cmd`
@@ -252,6 +281,7 @@ JSONL (JSON Lines) 格式：每行一条独立的 JSON 对象，便于逐行读�
 
 ---
 
+
 ## 4. 数据频率汇总
 
 | Topic | 文件 | 频率 | 驱动来源 |
@@ -267,6 +297,7 @@ JSONL (JSON Lines) 格式：每行一条独立的 JSON 对象，便于逐行读�
 
 ---
 
+
 ## 5. 时间对齐
 
 所有数据源通过 `_timestamp_ns`（纳秒级 Unix 时间戳）进行时间对齐：
@@ -277,6 +308,7 @@ JSONL (JSON Lines) 格式：每行一条独立的 JSON 对象，便于逐行读�
 对齐方式：图像文件名中的微秒时间戳 `T_us`，对应纳秒时间戳 `T_ns = T_us * 1000`，在 JSONL 中查找 `_timestamp_ns` 最接近的传感器记录。
 
 ---
+
 
 ## 6. 数据读取示例
 
@@ -304,3 +336,4 @@ python3 src/web_control/bag_converter.py recordings/YYYYMMDD_HHMMSS/rosbag recor
 ```bash
 python3 src/web_control/bag_converter.py recordings/YYYYMMDD_HHMMSS/rosbag recordings/YYYYMMDD_HHMMSS --delete-db
 ```
+

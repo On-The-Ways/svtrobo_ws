@@ -632,6 +632,43 @@ ros2 param get /chassis_control robot.rr_motor_start_angle  # → 3.5
 
 ## 9. 启动与运行
 
+### 9.0a Systemd 开机自启
+
+svt(Jetson Orin)使用7个systemd服务开机自启，按顺序依赖启动：
+
+| 序号 | 服务 | 说明 | 依赖 |
+|------|------|------|------|
+| 1 | f710-fix.service | 设置 ignore_special_drivers=1 修复Jetson F710驱动 | sysinit.target |
+| 2 | svtrobo-can.service | 等待PCAN USB注册(~25s)，配置CAN接口，清理FastRTPS shm | f710-fix |
+| 3 | svtrobo-rosbridge.service | rosbridge WebSocket(9090) | svtrobo-can |
+| 4 | svtrobo-chassis.service | chassis_control + lift_control | svtrobo-can |
+| 5 | svtrobo-web.service | Web控制面板(8080) | svtrobo-can |
+| 6 | svtrobo-f710.service | F710手柄遥控(含X/Y采集) | svtrobo-chassis |
+| 7 | svtrobo-nodeapi.service | Node.js API(28181) | svtrobo-web |
+
+管理命令：
+
+```bash
+# 查看所有服务状态
+for svc in f710-fix svtrobo-can svtrobo-rosbridge svtrobo-chassis svtrobo-web svtrobo-f710 svtrobo-nodeapi; do
+  systemctl is-active $svc
+done
+
+# 重启单个服务
+sudo systemctl restart svtrobo-chassis
+
+# 查看日志
+journalctl -u svtrobo-chassis --since '5 min ago'
+```
+
+**PCAN USB 稳定性注意事项：**
+
+- 3个PCAN-USB Pro FD在Jetson USB 2.0 Hub上可能出现 err -71 (EPROTO)
+- CAN接口掉线后 chassis_control_node 会 crash (CAN read failed: Network is down)
+- 由于 ros2 launch 父进程仍active，systemd不会触发 Restart=on-failure
+- 恢复流程：`modprobe -r pcan` → `sleep 2` → `modprobe pcan` → `sleep 5` → 配置CAN → `systemctl restart svtrobo-chassis svtrobo-f710`
+- FastRTPS共享内存残留会导致DDS discovery完全失败，恢复前需 `rm -rf /dev/shm/fastrtps_*`
+
 ### 9.0 一键启动/停止
 
 ```bash
@@ -712,7 +749,14 @@ Web 控制台右下角录制按钮可一键采集所有数据：
 | 类型 | 数据源 | 格式 | 频率 |
 |------|--------|------|------|
 | ROS2 bag | `/svtrobot_cmd` `/lift_control_cmd` `/f710/joy` `/chassis/joint_states` `/chassis/diagnostics` | .db3 | 原始频率 |
-| 摄像头帧 | D405 #1, D405 #2, ZED 2i | JPEG | 1 FPS |
+| 摄像头帧 | D405 #1, D405 #2 | JPEG | 1 FPS |
+| 摄像头帧 | ZED 2i | JPEG | 10 FPS |
+
+**手柄采集控制：**
+
+- 手柄 **X 按钮**可直接开始采集，**Y 按钮**可直接结束采集
+- 开始采集时自动启动所有未运行的相机
+- 停止采集时自动关闭由采集启动的相机
 
 **录制目录结构：**
 
