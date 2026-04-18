@@ -96,13 +96,6 @@ const Camera = {
             if (data.ok) {
                 if (img) img.src = `${this.serverUrl}/camera/${name}`;
                 if (fallback) fallback.style.display = 'none';
-                // ZED depth stream
-                if (name === 'zed') {
-                    const depthImg = document.getElementById('cam-zed-depth-feed');
-                    const depthContainer = document.getElementById('cam-zed-depth-container');
-                    if (depthImg) depthImg.src = `${this.serverUrl}/camera/zed/depth`;
-                    if (depthContainer) depthContainer.style.display = 'block';
-                }
             } else {
                 if (img) img.src = '';
                 if (fallback) {
@@ -134,13 +127,6 @@ const Camera = {
             if (fallback) {
                 fallback.textContent = '相机已关闭';
                 fallback.style.display = 'block';
-            }
-            // ZED depth cleanup
-            if (name === 'zed') {
-                const depthImg = document.getElementById('cam-zed-depth-feed');
-                const depthContainer = document.getElementById('cam-zed-depth-container');
-                if (depthImg) depthImg.src = '';
-                if (depthContainer) depthContainer.style.display = 'none';
             }
 
             await fetch(`${this.serverUrl}/camera/stop`, {

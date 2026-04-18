@@ -175,10 +175,6 @@ class CameraManager:
         If depth_queue is provided, depth frames are also encoded as colored JPEG
         and placed in depth_queue alongside the color frame.
         """
-        # Depth range for visualization (mm)
-        DEPTH_MAX_ZED = 20000.0     # ZED: 20m
-        DEPTH_MAX_D405 = 1000.0     # D405: 1m (short range depth sensor)
-
         while not stop_event.is_set():
             try:
                 result = cam.capture()
@@ -201,28 +197,16 @@ class CameraManager:
                     pass
                 frame_queue.put((frame_bytes, timestamp_us))
 
-                # Encode depth frame as colored JPEG
+                # Save raw depth for recording
                 if depth_queue is not None and depth_raw is not None:
                     try:
-                        depth_max = DEPTH_MAX_ZED if name == 'zed' else DEPTH_MAX_D405
-                        if depth_raw.dtype == np.float32:
-                            # ZED SDK returns float32 in mm
-                            depth_vis = np.clip(depth_raw / depth_max, 0, 1)
-                            depth_u8 = (depth_vis * 255).astype(np.uint8)
-                        else:
-                            # RealSense returns uint16, scale depends on device
-                            depth_vis = np.clip(depth_raw.astype(np.float32) / depth_max, 0, 1)
-                            depth_u8 = (depth_vis * 255).astype(np.uint8)
-                        depth_colored = cv2.applyColorMap(depth_u8, cv2.COLORMAP_JET)
-                        _, depth_jpeg = cv2.imencode('.jpg', depth_colored, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
-                        depth_bytes = depth_jpeg.tobytes()
                         try:
                             depth_queue.get_nowait()
                         except queue.Empty:
                             pass
-                        depth_queue.put((depth_bytes, timestamp_us))
+                        depth_queue.put((depth_raw, timestamp_us))
                     except Exception as e:
-                        logger.debug(f"Camera {name} depth encode error: {e}")
+                        logger.debug(f"Camera {name} depth queue error: {e}")
 
                 # Extract IMU data from ZED camera (if SDK mode)
                 if name == 'zed' and hasattr(cam, 'get_imu_data'):
@@ -428,15 +412,23 @@ class RecordingManager:
                     except Exception as e:
                         logger.warning(f"Failed to save {name} frame: {e}")
 
-                # Save depth frame if available
+                # Save depth frame if available (encode raw to colored JPEG)
                 depth_result = self.camera_mgr.get_depth_frame(name)
                 if depth_result:
-                    depth_frame, d_timestamp_us = depth_result
-                    depth_dir = self.output_dir / 'depth' / name
-                    depth_dir.mkdir(parents=True, exist_ok=True)
-                    depth_path = depth_dir / f'{d_timestamp_us}.jpg'
+                    depth_raw, d_timestamp_us = depth_result
                     try:
-                        depth_path.write_bytes(depth_frame)
+                        depth_max = 20000.0 if name == 'zed' else 1000.0
+                        if depth_raw.dtype == np.float32:
+                            depth_vis = np.clip(depth_raw / depth_max, 0, 1)
+                        else:
+                            depth_vis = np.clip(depth_raw.astype(np.float32) / depth_max, 0, 1)
+                        depth_u8 = (depth_vis * 255).astype(np.uint8)
+                        depth_colored = cv2.applyColorMap(depth_u8, cv2.COLORMAP_JET)
+                        _, depth_jpeg = cv2.imencode('.jpg', depth_colored, [cv2.IMWRITE_JPEG_QUALITY, 70])
+                        depth_dir = self.output_dir / 'depth' / name
+                        depth_dir.mkdir(parents=True, exist_ok=True)
+                        depth_path = depth_dir / f'{d_timestamp_us}.jpg'
+                        depth_path.write_bytes(depth_jpeg.tobytes())
                     except Exception as e:
                         logger.warning(f"Failed to save {name} depth: {e}")
 
@@ -535,37 +527,6 @@ async def camera_stream_handler(request):
     try:
         while True:
             result = camera_mgr.get_frame(name)
-            if result is not None:
-                frame, _ = result
-                msg = boundary + header + frame + b'\r\n'
-                await response.write(msg)
-            await asyncio.sleep(1.0 / STREAM_FPS)
-    except (ConnectionResetError, ConnectionError):
-        pass
-    return response
-
-
-async def camera_depth_stream_handler(request):
-    """Stream depth frames as MJPEG for a camera."""
-    name = request.match_info['name']
-    if name not in CAMERA_CONFIG:
-        return web.Response(status=404, text="Unknown camera")
-
-    status = camera_mgr.get_status()
-    if not status.get(name, {}).get('running'):
-        return web.Response(status=404, text="Camera not active")
-
-    response = web.StreamResponse()
-    response.content_type = 'multipart/x-mixed-replace; boundary=frame'
-    response.headers['Cache-Control'] = 'no-cache'
-    await response.prepare(request)
-
-    boundary = b'--frame\r\n'
-    header = b'Content-Type: image/jpeg\r\n\r\n'
-
-    try:
-        while True:
-            result = camera_mgr.get_depth_frame(name)
             if result is not None:
                 frame, _ = result
                 msg = boundary + header + frame + b'\r\n'
@@ -706,7 +667,6 @@ def create_app():
     app.router.add_get('/', index_handler)
     app.router.add_static('/static', STATIC_DIR, name='static')
     app.router.add_get('/camera/{name}', camera_stream_handler)
-    app.router.add_get('/camera/{name}/depth', camera_depth_stream_handler)
     app.router.add_post('/camera/start', camera_start_handler)
     app.router.add_post('/camera/stop', camera_stop_handler)
     app.router.add_get('/camera/status', camera_status_handler)
