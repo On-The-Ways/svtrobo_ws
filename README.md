@@ -23,14 +23,21 @@ svtrobo_ws/
 │   ├── web_control/                                  # Web 控制台 (aiohttp)
 │   │   ├── server.py                                 #   Web 服务器 (8080)
 │   │   ├── bag_converter.py                          #   bag (.db3) → JSONL 自动转换
-│   │   └── static/                                   #   前端（HTML/CSS/JS 模块）
+│   │   ├── static/                                   #   前端（HTML/CSS/JS 模块）
+│   │   └── WEB_CONTROL_GUIDE.md                      #   Web 控制台使用说明
 │   └── camera_driver/                                # 摄像头驱动 (Python)
 │       └── camera_driver/
 │           ├── realsense_camera.py                    #   RealSense D405 驱动
 │           ├── realsense_node.py                      #   RealSense ROS2 节点
-│           ├── zed_camera.py                          #   ZED 2i 驱动
-│           └── zed_node.py                            #   ZED ROS2 节点
+│           ├── zed_camera.py                          #   ZED 2i 驱动 (SDK + sl.Mat复用)
+│           ├── zed_node.py                            #   ZED ROS2 节点
+│           └── CAMERA_DRIVER_GUIDE.md                 #   摄像头驱动 API 文档
+├── scripts/                                          # 运维脚本
+│   ├── chassis_watchdog.sh                           #   底盘节点存活监控
+│   └── pcan_monitor.sh                               #   PCAN/CAN 状态监控
+├── systemd/                                          # systemd service 文件备份
 ├── recordings/                                       # 录制数据存储（含 README 格式说明）
+├── SYSTEM_CONFIG.md                                  # 系统配置文档 (9个systemd服务)
 ├── ROBOT_SYSTEM_GUIDE.md                             # 系统完整技术文档
 └── README.md                                         # 本文件
 ```
@@ -101,8 +108,9 @@ ros2 launch f710_teleop f710_teleop.launch.py
 - 升降控制、电机状态、电池/温度诊断
 - 手柄/Web 模式一键切换（默认手柄模式）
 - X 模式手柄自动检测与前端警告横幅
-- 数据采集：ros2 bag + 摄像头帧同步录制
+- 数据采集：彩色图(13.5fps) + 深度图 + 点云(~1.3Hz) + IMU(~70Hz) + ROS2 bag
 - **录制结束后自动转换**：bag (.db3) → JSONL 格式，方便深度学习训练
+- IMU 实时 WebSocket 推送 (/ws/imu) + HTTP 回退 (/api/imu)
 - ROS 连接断开时统一清理所有模块状态（摄像头、底盘、诊断面板归位）
 
 ```
@@ -114,9 +122,11 @@ ros2 launch rosbridge_server rosbridge_websocket_launch.py  # rosbridge (9090)
 
 支持 RealSense D405 和 ZED 2i 的 Python 采集模块。
 
-- 彩色图 + 深度图采集，深度对齐到彩色
-- 相机内参获取、点云生成（RealSense）
-- 上下文管理器自动释放资源
+- **ZED SDK 模式**：HD720 彩色图 + NEURAL 深度 + XYZRGBA 点云 + IMU (~70Hz)
+- **RealSense D405**：彩色图 + 深度图，快速设备检测避免阻塞
+- sl.Mat 对象复用，减少每帧 C++ 堆分配开销
+- 相机内参获取、点云降采样 (2x)
+- IMU 独立线程读取，前端 WebSocket 实时推送
 
 ## 快速启动
 
@@ -175,23 +185,29 @@ source install/setup.bash
 
 ## 数据录制
 
-Web 控制台右下角录制按钮，采集内容：
+Web 控制台右下角录制按钮或 F710 手柄 X/Y 按钮，自动采集：
 
-- ROS2 bag：`/svtrobot_cmd` `/lift_control_cmd` `/f710/joy` `/chassis/joint_states` `/chassis/diagnostics`
-- 摄像头帧：D405 ×2 + ZED，1fps 保存为 JPEG
-- **录制结束后自动转换**：bag (.db3) → JSONL 格式（每个话题一个 .jsonl 文件）
+| 数据 | 格式 | 频率 | 说明 |
+|------|------|------|------|
+| ZED 彩色图 | JPEG | 13.5 fps | 1280x720, ~49KB/帧 |
+| ZED 深度图 | JPEG (JET colormap) | 13.5 fps | 归一化着色后保存 |
+| ZED 点云 | npz | ~1.3 fps | 2x降采样 (360x640), ~3.5MB/帧 |
+| IMU | imu.jsonl | ~70 Hz | accel/gyro/mag/pressure/temp |
+| ROS2 bag | db3 | 原始频率 | 5个话题，录制结束自动转JSONL |
+| 录制摘要 | summary.json | - | 时长/帧数/大小 |
+
+> **前端只显示彩色流**，深度/点云数据仅在后台录制保存。每小时约 20GB。
 
 保存路径：`~/svtrobo_ws/recordings/<时间戳>/`
 
 ```
 recordings/YYYYMMDD_HHMMSS/
-├── images/
-│   ├── d405_1/frame_000000.jpg
-│   ├── d405_2/frame_000000.jpg
-│   └── zed/frame_000000.jpg
-├── rosbag/
-│   ├── rosbag_0.db3
-│   └── metadata.yaml
+├── images/zed/                  # 彩色图 JPEG (13.5fps)
+├── depth/zed/                   # 深度图 JET colormap JPEG (13.5fps)
+├── pointcloud/zed/              # 点云 npz (2x降采样, ~1.3Hz)
+├── rosbag/                      # ROS2 bag (5个话题)
+├── imu.jsonl                    # IMU数据 (~70Hz)
+├── summary.json                 # 录制摘要
 ├── chassis_joint_states.jsonl   # 8 关节状态 (~10Hz)
 ├── chassis_diagnostics.jsonl    # 电压/温度/错误码/轮速 (~10Hz)
 ├── svtrobot_cmd.jsonl           # 底盘速度指令 (~50Hz)
