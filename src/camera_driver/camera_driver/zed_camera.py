@@ -59,6 +59,10 @@ class ZEDCamera:
         # SDK 模式对象
         self.zed = None
         self.runtime_params = None
+        # Reusable sl.Mat objects (avoid per-frame allocation)
+        self._img_mat = None
+        self._depth_mat = None
+        self._pc_mat = None
         # OpenCV 模式对象
         self.cap = None
         self.stereo_matcher = None
@@ -113,12 +117,17 @@ class ZEDCamera:
 
             self.runtime_params = sl.RuntimeParameters()
 
+            # 预分配 sl.Mat (复用，避免每帧分配)
+            self._img_mat = sl.Mat()
+            if not self.color_only:
+                self._depth_mat = sl.Mat()
+                self._pc_mat = sl.Mat()
+
             # 预热
             warmup_frames = 5 if self.color_only else 15
-            img = sl.Mat()
             for _ in range(warmup_frames):
                 if self.zed.grab(self.runtime_params) == sl.ERROR_CODE.SUCCESS:
-                    self.zed.retrieve_image(img, sl.VIEW.LEFT)
+                    self.zed.retrieve_image(self._img_mat, sl.VIEW.LEFT)
 
             mode = 'color-only' if self.color_only else self.depth_mode
             cam_info = self.zed.get_camera_information()
@@ -196,10 +205,8 @@ class ZEDCamera:
         if err != sl.ERROR_CODE.SUCCESS:
             return None, None
 
-        image_sl = sl.Mat()
-        self.zed.retrieve_image(image_sl, sl.VIEW.LEFT)
-
-        bgra = image_sl.get_data()
+        self.zed.retrieve_image(self._img_mat, sl.VIEW.LEFT)
+        bgra = self._img_mat.get_data()
         if bgra is None:
             return None, None
         left = bgra[:, :, :3]  # BGRA -> BGR (drop alpha)
@@ -207,9 +214,8 @@ class ZEDCamera:
         if self.color_only:
             return left, None
 
-        depth_sl = sl.Mat()
-        self.zed.retrieve_measure(depth_sl, sl.MEASURE.DEPTH)
-        depth = depth_sl.get_data()
+        self.zed.retrieve_measure(self._depth_mat, sl.MEASURE.DEPTH)
+        depth = self._depth_mat.get_data()
         return left, depth
 
     def _capture_opencv(self):
@@ -371,9 +377,8 @@ class ZEDCamera:
         if not self.use_sdk or not self.zed or not self.is_running or self.color_only:
             return None
         try:
-            pc = sl.Mat()
-            self.zed.retrieve_measure(pc, sl.MEASURE.XYZRGBA)
-            data = pc.get_data()
+            self.zed.retrieve_measure(self._pc_mat, sl.MEASURE.XYZRGBA)
+            data = self._pc_mat.get_data()
             if data is None:
                 return None
             return data

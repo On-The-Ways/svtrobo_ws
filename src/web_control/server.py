@@ -505,16 +505,23 @@ class RecordingManager:
         }
 
     def _save_camera_frames_loop(self):
-        """Periodically save camera frames (color + depth + pointcloud) from CameraManager queues."""
+        """Continuously save camera frames (color + depth + pointcloud) from CameraManager queues."""
         import numpy as _np
         cam_names = ['d405_1', 'd405_2', 'zed']
 
         while not self.stop_event.is_set():
+            any_saved = False
             for name in cam_names:
-                # Save color frame
-                result = self.camera_mgr.get_frame(name)
-                if result:
-                    frame, timestamp_us = result
+                # Drain all queued color frames, save latest only
+                latest_color = None
+                while True:
+                    result = self.camera_mgr.get_frame(name)
+                    if result is None:
+                        break
+                    latest_color = result
+                if latest_color:
+                    any_saved = True
+                    frame, timestamp_us = latest_color
                     img_dir = self.output_dir / 'images' / name
                     img_dir.mkdir(parents=True, exist_ok=True)
                     path = img_dir / f'{timestamp_us}.jpg'
@@ -523,10 +530,16 @@ class RecordingManager:
                     except Exception as e:
                         logger.warning(f"Failed to save {name} frame: {e}")
 
-                # Save depth frame if available (encode raw to colored JPEG)
-                depth_result = self.camera_mgr.get_depth_frame(name)
-                if depth_result:
-                    depth_raw, d_timestamp_us = depth_result
+                # Drain all queued depth frames, save latest only
+                latest_depth = None
+                while True:
+                    depth_result = self.camera_mgr.get_depth_frame(name)
+                    if depth_result is None:
+                        break
+                    latest_depth = depth_result
+                if latest_depth:
+                    any_saved = True
+                    depth_raw, d_timestamp_us = latest_depth
                     try:
                         depth_max = 20000.0 if name == 'zed' else 1000.0
                         if depth_raw.dtype == _np.float32:
@@ -543,20 +556,29 @@ class RecordingManager:
                     except Exception as e:
                         logger.warning(f"Failed to save {name} depth: {e}")
 
-                # Save ZED point cloud if available
+                # Save ZED point cloud if available (drain, keep latest)
                 if name == 'zed':
-                    pc_result = self.camera_mgr.get_pc_frame(name)
-                    if pc_result:
-                        pc_data, pc_ts = pc_result
+                    latest_pc = None
+                    while True:
+                        pc_result = self.camera_mgr.get_pc_frame(name)
+                        if pc_result is None:
+                            break
+                        latest_pc = pc_result
+                    if latest_pc:
+                        any_saved = True
+                        pc_data, pc_ts = latest_pc
                         try:
                             pc_dir = self.output_dir / 'pointcloud' / name
                             pc_dir.mkdir(parents=True, exist_ok=True)
                             pc_path = pc_dir / f'{pc_ts}.npz'
-                            _np.savez(pc_path, xyzrgba=pc_data)  # 不压缩，避免1000ms+GIL阻塞采集线程
+                            _np.savez(pc_path, xyzrgba=pc_data)
                         except Exception as e:
                             logger.warning(f"Failed to save {name} pointcloud: {e}")
 
-            self.stop_event.wait(0.1)  # 10 Hz
+            # Fast poll: 10ms sleep when idle, no sleep when actively saving
+            if not any_saved:
+                if self.stop_event.wait(0.01):
+                    break
 
         logger.info("Camera frame saver exiting")
 
