@@ -504,3 +504,32 @@ IMU 数据通过独立后台线程读取，无需启动 ZED 相机的视频/深�
 - 相机卡片仅显示彩色图流（MJPEG），**不显示深度图**
 - 深度数据仅在录制时后台保存到磁盘
 - IMU 数据通过 WebSocket `/ws/imu` 实时推送，HTTP `/api/imu` 作为回退
+- IMU 数据显示跟随连接状态：未连接时显示 `--` 占位，连接后实时更新，断开后恢复占位
+
+### 9.6 前端连接行为
+
+- **自动连接**: 页面打开/刷新时自动根据当前 URL 拼接 `ws://<host>/ws` 连接 rosbridge，URL 输入框设为只读
+- **手动断开**: 点击"断开连接"后不会自动重连，需手动点击"连接"或刷新页面
+- **硬件状态栏**: 页面加载时即检测硬件在线状态（不依赖 ROS 连接）：
+  - ZED 2i: 通过 `lsusb` 检测 USB 设备 (2b03:f880)
+  - D405: 通过 `pyrealsense2` 检测序列号匹配，回退 `lsusb`
+  - IMU: 通过 `/api/imu` 检测数据是否可用
+  - 底盘/升降/手柄: 连接 ROS 后通过 rosapi 检测节点
+- **后端 `/camera/status`**: 新增 `device` 字段，返回硬件是否物理连接（区别于 `running` 是否正在采集）
+
+### 9.7 ZED 相机与 IMU 协调
+
+ZED SDK 同一时刻只允许一个进程打开相机，需要协调 IMU 线程和相机采集：
+
+- **正常待机**: IMU 独立线程以 VGA+DEPTH_MODE.NONE 模式打开 ZED，~70Hz 读取传感器数据
+- **手动启动 ZED 相机**: `CameraManager.start_camera("zed")` 先调用 `stop_imu_reader()` 释放 ZED，再启动相机（HD720+NEURAL）。启动失败时自动恢复 IMU 线程
+- **手动停止 ZED 相机**: `CameraManager.stop_camera("zed")` 关闭相机后调用 `start_imu_reader()` 恢复 IMU
+- **录制流程**: `RecordingManager` 同样在录制开始时 `stop_imu_reader()`，录制结束后 `start_imu_reader()`，IMU 数据从运行中的 ZED 相机获取
+
+### 9.8 相机全屏
+
+每个相机画面右上角有全屏按钮（expand 图标），仅在该相机启动后显示：
+- 鼠标悬停时半透明浮现，平时不可见
+- 点击使用浏览器原生 Fullscreen API 全屏显示画面
+- 全屏状态下按钮放大，按 Esc 退出
+- 停止相机后按钮自动隐藏

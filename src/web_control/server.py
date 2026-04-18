@@ -73,6 +73,8 @@ class CameraManager:
                         warmup_frames=cfg.get('warmup_frames'),
                     )
                 else:
+                    # Stop IMU-only reader to avoid ZED device conflict
+                    stop_imu_reader()
                     cam = ZEDCamera(
                         fps=cfg['fps'],
                         color_only=not cfg.get('depth', False),
@@ -107,6 +109,9 @@ class CameraManager:
             except Exception as e:
                 logger.error(f"Failed to start camera {name}: {e}")
                 traceback.print_exc()
+                # If ZED failed to start, restart IMU-only reader
+                if name == 'zed':
+                    start_imu_reader()
                 return False, str(e)
 
     def stop_camera(self, name):
@@ -127,19 +132,42 @@ class CameraManager:
                 pass
             info['running'] = False
             del self.cameras[name]
-            # Clear IMU cache when ZED stops
+            # Restart IMU-only reader and clear cache when ZED stops
             if name == 'zed':
+                start_imu_reader()
                 with imu_cache['lock']:
                     imu_cache['data'] = None
             logger.info(f"Camera {name} stopped")
             return True, f"Camera {name} stopped"
 
     def get_status(self):
-        """Return status of all cameras."""
-        return {
-            name: {'running': name in self.cameras and self.cameras[name]['running']}
-            for name in CAMERA_CONFIG
-        }
+        """Return status of all cameras including hardware presence."""
+        import subprocess
+        lsusb_out = ""
+        try:
+            lsusb_out = subprocess.check_output(["lsusb"], text=True).lower()
+        except Exception:
+            pass
+
+        result = {}
+        for name, cfg in CAMERA_CONFIG.items():
+            running = name in self.cameras and self.cameras[name]["running"]
+            device = False
+            if cfg["type"] == "realsense":
+                try:
+                    import pyrealsense2 as rs
+                    for d in rs.context().query_devices():
+                        if d.get_info(rs.camera_info.serial_number) == cfg["serial"]:
+                            device = True
+                            break
+                except Exception:
+                    pass
+                if not device and "intel" in lsusb_out and "realsense" in lsusb_out:
+                    device = True
+            elif cfg["type"] == "zed":
+                device = "2b03:f880" in lsusb_out or "stereolabs" in lsusb_out
+            result[name] = {"running": running, "device": device}
+        return result
 
     def get_frame(self, name):
         """Get the latest JPEG frame and timestamp for a camera (non-blocking).

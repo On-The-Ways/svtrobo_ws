@@ -15,6 +15,19 @@ const Camera = {
         // Auto-refresh status every 5s
         setInterval(() => this.refreshStatus(), 5000);
 
+        // Fullscreen buttons
+        document.querySelectorAll('.cam-fullscreen-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const camName = btn.dataset.cam;
+                const container = document.getElementById('cam-' + camName + '-feed').parentElement;
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    container.requestFullscreen().catch(() => {});
+                }
+            });
+        });
+
         // Stop all cameras when page is refreshed or closed
         window.addEventListener('beforeunload', () => {
             for (const name of this.cameras) {
@@ -47,11 +60,13 @@ const Camera = {
             const safeId = name.replace('_', '-');
             const img = document.getElementById(`cam-${safeId}-feed`);
             const fallback = document.getElementById(`cam-${safeId}-fallback`);
+            const fsBtn = document.querySelector(`.cam-fullscreen-btn[data-cam="${safeId}"]`);
             if (img) img.src = '';
             if (fallback) {
                 fallback.textContent = '相机未启动';
                 fallback.style.display = 'block';
             }
+            if (fsBtn) fsBtn.style.display = 'none';
             try {
                 await fetch(`${this.serverUrl}/camera/stop`, {
                     method: 'POST',
@@ -92,12 +107,15 @@ const Camera = {
             });
             const data = await resp.json();
             const img = document.getElementById(`cam-${safeId}-feed`);
+            const fsBtn = document.querySelector(`.cam-fullscreen-btn[data-cam="${safeId}"]`);
 
             if (data.ok) {
                 if (img) img.src = `${this.serverUrl}/camera/${name}`;
                 if (fallback) fallback.style.display = 'none';
+                if (fsBtn) fsBtn.style.display = 'block';
             } else {
                 if (img) img.src = '';
+                if (fsBtn) fsBtn.style.display = 'none';
                 if (fallback) {
                     const msg = data.message || '';
                     if (msg.includes('未找到') || msg.includes('not found') || msg.includes('No such')) {
@@ -123,11 +141,13 @@ const Camera = {
             const safeId = name.replace('_', '-');
             const img = document.getElementById(`cam-${safeId}-feed`);
             const fallback = document.getElementById(`cam-${safeId}-fallback`);
+            const fsBtn = document.querySelector(`.cam-fullscreen-btn[data-cam="${safeId}"]`);
             if (img) img.src = '';
             if (fallback) {
                 fallback.textContent = '相机已关闭';
                 fallback.style.display = 'block';
             }
+            if (fsBtn) fsBtn.style.display = 'none';
 
             await fetch(`${this.serverUrl}/camera/stop`, {
                 method: 'POST',
@@ -149,6 +169,7 @@ const Camera = {
                 const indicator = document.getElementById(`cam-${safeId}-status`);
                 const fallback = document.getElementById(`cam-${safeId}-fallback`);
                 const img = document.getElementById(`cam-${safeId}-feed`);
+                const fsBtn = document.querySelector(`.cam-fullscreen-btn[data-cam="${safeId}"]`);
 
                 if (indicator) {
                     const running = status[name]?.running;
@@ -157,6 +178,7 @@ const Camera = {
 
                     if (!running && fallback && img) {
                         img.src = '';
+                        if (fsBtn) fsBtn.style.display = 'none';
                         // Preserve error messages from startCamera, only reset default text
                         const isDefault = !fallback.textContent ||
                             fallback.textContent === '相机未启动' ||
@@ -167,6 +189,7 @@ const Camera = {
                         fallback.style.display = 'block';
                     } else if (running && fallback) {
                         fallback.style.display = 'none';
+                        if (fsBtn) fsBtn.style.display = 'block';
                     }
                 }
             }

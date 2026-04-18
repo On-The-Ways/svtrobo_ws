@@ -1,33 +1,21 @@
 /**
  * SVTROBO Web Control - Main Application
  * Manages rosbridge connection and initializes modules.
+ * Auto-connects on page load; manual disconnect only.
  */
 
 const App = {
     ros: null,
     connected: false,
     serverUrl: '',
+    _manualDisconnect: false,
 
     init() {
-        // Default rosbridge URL goes through the web server's /ws proxy
-        const defaultUrl = `ws://${window.location.host}/ws`;
-        const savedUrl = localStorage.getItem('rosbridge_url');
-        let url = defaultUrl;
-        if (savedUrl) {
-            try {
-                const u = new URL(savedUrl);
-                // Keep saved URL only if it's already the /ws proxy on the same host
-                if (u.hostname === window.location.hostname && u.pathname === '/ws') {
-                    url = savedUrl;
-                }
-            } catch { url = defaultUrl; }
-        }
+        // Derive rosbridge URL from current page host
+        const url = `ws://${window.location.host}/ws`;
         document.getElementById('rosbridge-url').value = url;
 
         document.getElementById('connect-btn').addEventListener('click', () => this.toggleConnection());
-        document.getElementById('rosbridge-url').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') this.toggleConnection();
-        });
 
         // Derive server URL for camera streams
         const loc = window.location;
@@ -37,14 +25,17 @@ const App = {
         Camera.init(this.serverUrl);
         // Hardware status: show all devices immediately (HTTP-only polling)
         HardwareStatus.initStandalone();
-        // IMU uses HTTP polling, defer init to ensure imu-status.js is loaded
-        setTimeout(() => IMUStatus.init(null), 100);
+        // IMU: initialized on connect, disabled on disconnect
+
+        // Auto-connect on page load
+        this.connect();
     },
 
     toggleConnection() {
         if (this.connected) {
             this.disconnect();
         } else {
+            this._manualDisconnect = false;
             this.connect();
         }
     },
@@ -53,7 +44,6 @@ const App = {
         const url = document.getElementById('rosbridge-url').value.trim();
         if (!url) return;
 
-        localStorage.setItem('rosbridge_url', url);
         this._connStartTime = Date.now();
         this._connError = null;
         this.setStatus('connecting', `正在连接 ${url} ...`);
@@ -81,6 +71,7 @@ const App = {
             Diagnostics.init(this.ros);
             ChassisStatus.init(this.ros);
             HardwareStatus.init(this.ros);
+            IMUStatus.init(this.ros);
             ControlMode.init(this.ros);
             Camera.setEnabled(true);
             DataRecord.enable();

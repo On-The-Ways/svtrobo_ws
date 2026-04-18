@@ -395,6 +395,53 @@ body {
     justify-content: center;
 }
 
+
+/* Camera fullscreen button */
+.cam-fullscreen-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.55);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s;
+}
+.camera-feed-container:hover .cam-fullscreen-btn[style*="display: block"],
+.camera-feed-container:hover .cam-fullscreen-btn[style*="display:block"],
+.camera-feed-container:hover .cam-fullscreen-btn:not([style*="none"]) {
+    opacity: 0.7;
+}
+.cam-fullscreen-btn:hover {
+    opacity: 1 !important;
+    background: rgba(0, 0, 0, 0.8);
+}
+/* Fullscreen state */
+.camera-feed-container:fullscreen {
+    background: #000;
+}
+.camera-feed-container:fullscreen .cam-fullscreen-btn {
+    opacity: 0.7;
+    top: 16px;
+    right: 16px;
+    padding: 10px;
+}
+.camera-feed-container:fullscreen .cam-fullscreen-btn svg {
+    width: 24px;
+    height: 24px;
+}
+.camera-feed-container:fullscreen .camera-feed {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+}
 /* === Chassis Panel === */
 .panel-chassis .panel-body {
     display: grid;

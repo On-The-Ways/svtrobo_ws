@@ -118,6 +118,7 @@ const HardwareStatus = {
 
     initStandalone() {
         this._startCameraPoll();
+        this._startImuPoll();
         this.render();
     },
 
