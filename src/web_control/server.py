@@ -575,10 +575,12 @@ class RecordingManager:
                             any_saved = True
                             pc_data, pc_ts = latest_pc
                             try:
+                                # 2x降采样: (720,1280,4) -> (360,640,4), 14MB->3.5MB
+                                pc_small = pc_data[::2, ::2, :]
                                 pc_dir = self.output_dir / 'pointcloud' / name
                                 pc_dir.mkdir(parents=True, exist_ok=True)
                                 pc_path = pc_dir / f'{pc_ts}.npz'
-                                _np.savez(pc_path, xyzrgba=pc_data)
+                                _np.savez(pc_path, xyzrgba=pc_small)
                             except Exception as e:
                                 logger.warning(f"Failed to save {name} pointcloud: {e}")
 

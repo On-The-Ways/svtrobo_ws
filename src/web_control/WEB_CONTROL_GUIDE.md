@@ -409,7 +409,7 @@ Web 控制台提供 IMU 数据的实时查看接口（ZED 2i 内置 IMU）：
 |------|------|------|------|
 | ZED 彩色图 | JPEG (images/zed/) | 13.5 fps | ~83KB/帧 |
 | ZED 深度图 | JPEG JET colormap (depth/zed/) | 13.5 fps | ~36KB/帧，0-20m归一化 |
-| ZED 点云 | npz (pointcloud/zed/) | ~1.4 fps | XYZRGBA float32, ~14MB/帧 |
+| ZED 点云 | npz (pointcloud/zed/) | ~1.4 fps | XYZRGBA float32, ~3.5MB/帧 (2x降采样) |
 | IMU | imu.jsonl | ~70 Hz | accel/gyro/mag/pressure/temp |
 | ROS2 bag | rosbag/*.db3 | 原始频率 | 5个话题 |
 | 录制摘要 | summary.json | - | 时长/帧数/大小 |
