@@ -85,27 +85,12 @@ class CameraManager:
                 depth_queue = queue.Queue(maxsize=2) if cfg.get('depth') else None
                 pc_queue = queue.Queue(maxsize=1) if (name == 'zed' and cfg.get('depth')) else None
 
-                # Point cloud trigger event + ZED SDK mutex (ZED only)
-                pc_trigger = threading.Event() if pc_queue is not None else None
-                cam_lock = threading.Lock() if pc_queue is not None else None
-
                 t = threading.Thread(
                     target=self._capture_loop,
-                    args=(name, cam, frame_queue, stop_event, depth_queue, pc_queue, pc_trigger, cam_lock),
+                    args=(name, cam, frame_queue, stop_event, depth_queue, pc_queue),
                     daemon=True,
                 )
                 t.start()
-
-                # Start independent pointcloud thread if needed
-                pc_thread = None
-                if pc_queue is not None:
-                    pc_thread = threading.Thread(
-                        target=self._pointcloud_loop,
-                        args=(cam, pc_queue, pc_trigger, stop_event, cam_lock),
-                        daemon=True,
-                        name=f'pc-{name}',
-                    )
-                    pc_thread.start()
 
                 self.cameras[name] = {
                     'instance': cam,
@@ -114,9 +99,6 @@ class CameraManager:
                     'frame_queue': frame_queue,
                     'depth_queue': depth_queue,
                     'pc_queue': pc_queue,
-                    'pc_thread': pc_thread,
-                    'pc_trigger': pc_trigger,
-                    'cam_lock': cam_lock,
                     'running': True,
                 }
                 logger.info(f"Camera {name} started")
@@ -205,31 +187,22 @@ class CameraManager:
             return None
 
     @staticmethod
-    def _capture_loop(name, cam, frame_queue, stop_event, depth_queue=None, pc_queue=None, pc_trigger=None, cam_lock=None):
+    def _capture_loop(name, cam, frame_queue, stop_event, depth_queue=None, pc_queue=None, pc_trigger=None):
         """Background thread: continuously capture frames and encode as JPEG.
         
         depth_queue: if provided, raw depth frames are queued for recording.
-        pc_queue: if provided (ZED only), XYZRGBA point cloud frames are queued (filled by _pointcloud_loop).
-        pc_trigger: threading.Event to signal _pointcloud_loop when a frame is ready.
+        pc_queue: if provided (ZED only), XYZRGBA point cloud frames are queued.
         """
         # Point cloud capture throttle (every N frames to signal pointcloud thread)
-        PC_SKIP = 3  # signal every 3rd frame (~5Hz at 15fps) — pointcloud thread decouples from main loop
+        PC_SKIP = 10  # every 10th frame (~1.5Hz at 15fps) — reduces impact on main capture fps
         frame_count = 0
 
         while not stop_event.is_set():
             try:
-                if cam_lock:
-                    cam_lock.acquire()
-                try:
-                    result = cam.capture()
-                    if result is None:
-                        if cam_lock:
-                            cam_lock.release()
-                        continue
-                    color = result[0]  # (color, depth) or (left, depth)
-                finally:
-                    if cam_lock:
-                        cam_lock.release()
+                result = cam.capture()
+                if result is None:
+                    continue
+                color = result[0]  # (color, depth) or (left, depth)
                 if color is None:
                     continue
 
@@ -257,9 +230,19 @@ class CameraManager:
                     except Exception as e:
                         logger.debug(f"Camera {name} depth queue error: {e}")
 
-                # Notify pointcloud thread that a new frame is available
+                # ZED point cloud capture (throttled, in-line)
                 if pc_queue is not None and frame_count % PC_SKIP == 0:
-                    pc_trigger.set()
+                    try:
+                        pc_data = cam.capture_pointcloud()
+                        if pc_data is not None:
+                            try:
+                                pc_queue.get_nowait()
+                            except queue.Empty:
+                                pass
+                            pc_queue.put((pc_data, timestamp_us))
+                    except Exception as e:
+                        logger.debug(f"Camera {name} pointcloud error: {e}")
+
                 frame_count += 1
 
                 # Extract IMU data from ZED camera (if SDK mode)
@@ -277,41 +260,6 @@ class CameraManager:
                 stop_event.wait(0.1)
 
         logger.info(f"Camera {name} capture thread exiting")
-
-    @staticmethod
-    def _pointcloud_loop(cam, pc_queue, pc_trigger, stop_event, cam_lock=None):
-        """Background thread: independently captures ZED point clouds when signaled.
-        
-        Decoupled from _capture_loop so that grab() latency doesn't block JPEG encoding.
-        This thread calls cam.capture_pointcloud() which uses retrieve_measure(XYZRGBA)
-        on the last grabbed frame.
-        """
-        logger.info("Pointcloud thread started")
-        while not stop_event.is_set():
-            # Wait for signal from capture loop (max 1 sec to check stop_event)
-            pc_trigger.wait(timeout=1.0)
-            if stop_event.is_set():
-                break
-            if not pc_trigger.is_set():
-                continue
-            pc_trigger.clear()
-            try:
-                if cam_lock:
-                    cam_lock.acquire()
-                try:
-                    pc_data = cam.capture_pointcloud()
-                finally:
-                    if cam_lock:
-                        cam_lock.release()
-                if pc_data is not None:
-                    try:
-                        pc_queue.get_nowait()
-                    except queue.Empty:
-                        pass
-                    pc_queue.put((pc_data, int(time.time() * 1_000_000)))
-            except Exception as e:
-                logger.debug(f"Pointcloud capture error: {e}")
-        logger.info("Pointcloud thread exiting")
 
     def stop_all(self):
         """Stop all running cameras."""
