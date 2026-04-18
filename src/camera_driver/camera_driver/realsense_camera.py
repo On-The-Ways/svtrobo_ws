@@ -54,10 +54,29 @@ class RealSenseCamera:
         self.depth_scale = 0.001
         self.is_running = False
 
+    def _check_device_connected(self):
+        """快速检查指定序列号的设备是否存在（<0.1秒）"""
+        ctx = rs.context()
+        devices = ctx.query_devices()
+        if not self.serial:
+            return len(devices) > 0
+        for d in devices:
+            try:
+                sn = d.get_info(rs.camera_info.serial_number)
+                if sn == self.serial:
+                    return True
+            except Exception:
+                continue
+        return False
+
     def start(self):
         """启动相机并预热"""
         if self.is_running:
             return
+
+        # 快速检查设备是否存在，避免 pipeline.start 长时间阻塞
+        if self.serial and not self._check_device_connected():
+            raise RuntimeError(f'Device {self.serial} not found (quick check)')
 
         self.pipeline = rs.pipeline()
         config = rs.config()
