@@ -634,7 +634,7 @@ ros2 param get /chassis_control robot.rr_motor_start_angle  # → 3.5
 
 ### 9.0a Systemd 开机自启
 
-svt(Jetson Orin)使用7个systemd服务开机自启，按顺序依赖启动：
+svt(Jetson Orin)使用9个systemd服务开机自启，按顺序依赖启动：
 
 | 序号 | 服务 | 说明 | 依赖 |
 |------|------|------|------|
@@ -645,12 +645,14 @@ svt(Jetson Orin)使用7个systemd服务开机自启，按顺序依赖启动：
 | 5 | svtrobo-web.service | Web控制面板(8080) | svtrobo-can |
 | 6 | svtrobo-f710.service | F710手柄遥控(含X/Y采集) | svtrobo-chassis |
 | 7 | svtrobo-nodeapi.service | Node.js API(28181) | svtrobo-web |
+| 8 | svtrobo-chassis-watchdog.service | chassis存活检测 | svtrobo-chassis |
+| 9 | pcan-monitor.service | CAN状态监控 | svtrobo-can |
 
 管理命令：
 
 ```bash
 # 查看所有服务状态
-for svc in f710-fix svtrobo-can svtrobo-rosbridge svtrobo-chassis svtrobo-web svtrobo-f710 svtrobo-nodeapi; do
+for svc in f710-fix svtrobo-can svtrobo-rosbridge svtrobo-chassis svtrobo-web svtrobo-f710 svtrobo-nodeapi svtrobo-chassis-watchdog pcan-monitor; do
   systemctl is-active $svc
 done
 
@@ -750,7 +752,10 @@ Web 控制台右下角录制按钮可一键采集所有数据：
 |------|--------|------|------|
 | ROS2 bag | `/svtrobot_cmd` `/lift_control_cmd` `/f710/joy` `/chassis/joint_states` `/chassis/diagnostics` | .db3 | 原始频率 |
 | 摄像头帧 | D405 #1, D405 #2 | JPEG | 1 FPS |
-| 摄像头帧 | ZED 2i | JPEG | 10 FPS |
+| 摄像头帧 | ZED 2i | JPEG | 13.5 FPS |
+| ZED 深度 | ZED 2i | JET colormap JPEG | 13.5 FPS |
+| ZED 点云 | ZED 2i | XYZRGBA npz | ~1.4 Hz |
+| IMU | ZED 2i 内置 | imu.jsonl | ~70 Hz (accel/gyro/mag/pressure/temp) |
 
 **手柄采集控制：**
 
@@ -762,18 +767,17 @@ Web 控制台右下角录制按钮可一键采集所有数据：
 
 ```
 recordings/YYYYMMDD_HHMMSS/
-├── images/
-│   ├── d405_1/frame_000000.jpg
-│   ├── d405_2/frame_000000.jpg
-│   └── zed/frame_000000.jpg
-├── rosbag/
-│   ├── rosbag_0.db3
-│   └── metadata.yaml
-├── chassis_joint_states.jsonl   # 8 关节状态 (~10Hz)
-├── chassis_diagnostics.jsonl    # 电压/温度/错误码/轮速 (~10Hz)
-├── svtrobot_cmd.jsonl           # 底盘速度指令 (~50Hz)
-├── f710_joy.jsonl               # 手柄原始数据 (~50Hz)
-└── lift_control_cmd.jsonl       # 升降控制指令 (~25Hz)
+├── images/zed/           # 彩色图 JPEG (13.5fps)
+├── depth/zed/            # 深度图 JET colormap JPEG (13.5fps)
+├── pointcloud/zed/       # ZED点云 npz (~1.4Hz)
+├── rosbag/               # ROS2 bag
+├── imu.jsonl             # IMU数据 (~70Hz)
+├── summary.json          # 录制摘要
+├── chassis_joint_states.jsonl
+├── chassis_diagnostics.jsonl
+├── svtrobot_cmd.jsonl
+├── f710_joy.jsonl
+└── lift_control_cmd.jsonl
 ```
 
 **自动 JSONL 转换：** 录制结束后，`bag_converter.py` 自动在后台将 .db3 转换为 JSONL 格式。每个话题生成一个 .jsonl 文件，所有记录包含 `_timestamp_ns` 字段用于多话题时间对齐。

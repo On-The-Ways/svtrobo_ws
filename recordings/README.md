@@ -2,6 +2,8 @@
 
 本文档描述 `recordings/` 目录下采集数据的组织结构、文件格式及内容含义。
 
+> 最后更新: 2026-04-18
+
 ---
 
 ## 采集触发方式
@@ -19,7 +21,6 @@
 - 停止采集时，仅关闭由采集启动的相机（手动启动的相机不受影响）
 - 相机启动失败（如未连接）会跳过并记录警告，不影响其他数据采集
 
-
 ---
 
 ## 目录结构
@@ -28,26 +29,31 @@
 
 ```
 recordings/
-└── YYYYMMDD_HHMMSS/                  # 录制会话（如 20260414_165813）
-    ├── images/                        # 相机图像
-    │   ├── d405_1/                    # D405 #1 相机（前方）
-    │   │   ├── 1713163200123456.jpg   # 文件名 = Unix 微秒时间戳
-    │   │   ├── 1713163201123456.jpg
+└── YYYYMMDD_HHMMSS/                  # 录制会话（如 20260417_212712）
+    ├── images/                        # 彩色图
+    │   ├── zed/                       # ZED 2i (HD720, 13.5fps, ~83KB/帧)
+    │   │   ├── 1744900000123456.jpg   # 文件名 = Unix 微秒时间戳
     │   │   └── ...
-    │   ├── d405_2/                    # D405 #2 相机（侧方）
-    │   │   ├── 1713163200234567.jpg
-    │   │   └── ...
-    │   └── zed/                       # ZED 2i 相机（全局视角）
-    │       ├── 1713163200345678.jpg
+    │   ├── d405_1/                    # D405 #1 (如在线)
+    │   └── d405_2/                    # D405 #2 (如在线)
+    ├── depth/                         # 深度图 (JET colormap JPEG)
+    │   ├── zed/                       # ZED 深度 (13.5fps, ~36KB/帧, 0-20m归一化)
+    │   ├── d405_1/                    # D405 #1 深度 (如在线, 0-1m归一化)
+    │   └── d405_2/                    # D405 #2 深度 (如在线)
+    ├── pointcloud/                    # 3D点云
+    │   └── zed/                       # ZED XYZRGBA float32 (~14MB/帧, ~1.4Hz)
+    │       ├── 1744900000123456.npz   # npz非压缩格式
     │       └── ...
     ├── rosbag/                        # ROS2 原始录制数据
-    │   ├── rosbag_0.db3               # SQLite3 数据库（二进制，ROS2 bag 格式）
+    │   ├── rosbag_0.db3               # SQLite3 数据库
     │   └── metadata.yaml              # 录制元信息
-    ├── chassis_diagnostics.jsonl      # 底盘诊断数据（JSONL）
-    ├── chassis_joint_states.jsonl     # 关节/电机状态数据（JSONL）
-    ├── f710_joy.jsonl                 # 手柄输入数据（JSONL）
-    ├── lift_control_cmd.jsonl         # 升降控制指令（JSONL）
-    └── svtrobot_cmd.jsonl             # 底盘运动指令（JSONL）
+    ├── imu.jsonl                      # IMU数据 (~70Hz)
+    ├── summary.json                   # 录制摘要
+    ├── chassis_joint_states.jsonl     # 关节/电机状态 (~10Hz)
+    ├── chassis_diagnostics.jsonl      # 底盘诊断 (~10Hz)
+    ├── svtrobot_cmd.jsonl             # 底盘运动指令
+    ├── f710_joy.jsonl                 # 手柄输入
+    └── lift_control_cmd.jsonl         # 升降控制指令
 ```
 
 ---
@@ -59,126 +65,74 @@ recordings/
 | 项目 | 说明 |
 |------|------|
 | 来源 | 3 个相机：D405 #1、D405 #2、ZED 2i |
-| 格式 | JPEG（质量参数 70） |
-| 采集频率 | 10 Hz（每秒 10 帧） |
-| 命名规则 | `{timestamp_us}.jpg`（Unix 微秒时间戳，如 `1713163200123456.jpg`） |
+| 格式 | JPEG |
+| ZED 采集频率 | 13.5 Hz |
+| D405 采集频率 | 如在线，同 ZED |
+| 命名规则 | `{timestamp_us}.jpg`（Unix 微秒时间戳） |
 | 对齐方式 | 文件名即精确采集时间戳（微秒级），可直接与 JSONL 中的 `_timestamp_ns`（纳秒级）对齐 |
 
 > **采集触发方式**：可通过 Web 控制台的录制按钮或 F710 手柄按钮触发采集——手柄 **X 按钮** 开始采集，**Y 按钮** 停止采集。
 >
-> **自动相机管理**：开始采集时自动启动所有未运行的相机（d405_1/d405_2/zed），停止采集时自动关闭由采集启动的相机（此前已运行的相机不会被关闭）。
+> **自动相机管理**：开始采集时自动启动所有未运行的相机（d405_1/d405_2/zed），停止采集时自动关闭由采集启动的相机。
 
 ### 1.2 各相机参数
 
-| 相机 | 类型 | 分辨率 | 用途 |
-|------|------|--------|------|
-| `d405_1` | RealSense D405 | 640x480 | 前方近距离深度/彩色 |
-| `d405_2` | RealSense D405 | 640x480 | 侧方近距离深度/彩色 |
-| `zed` | ZED 2i | 672x376 | 全局视角立体视觉 |
+| 相机 | 类型 | 分辨率 | 深度模式 | 用途 |
+|------|------|--------|----------|------|
+| `d405_1` | RealSense D405 | 640x480 | z16 | 前方近距离深度/彩色 |
+| `d405_2` | RealSense D405 | 640x480 | z16 | 侧方近距离深度/彩色 |
+| `zed` | ZED 2i (SDK) | 1280x720 (HD720) | NEURAL | 全局视角立体视觉 |
 
 ---
 
+## 2. 深度图数据 (`depth/`)
 
-## 2. ROS2 Bag 原始数据 (`rosbag/`)
-
-### 2.1 `rosbag_0.db3`
-
-ROS2 bag 的原始录制文件，SQLite3 数据库格式，内部存储各 topic 的 CDR 序列化消息。
-
-- **格式**：SQLite3 数据库 + CDR (Common Data Representation) 二进制序列化
-- **是否可删除**：JSONL 文件已包含所有解析后的数据，db3 可安全删除以节省空间
-- **查看方式**：`ros2 bag play <目录>` 回放，或 `sqlite3 rosbag_0.db3` 直接查询
-
-### 2.2 `metadata.yaml`
-
-ROS2 bag 的元数据文件，记录了：
-
-```yaml
-rosbag2_bagfile_information:
-  version: 5
-  storage_identifier: sqlite3
-  duration:
-    nanoseconds: 4084864962          # 录制总时长（纳秒）
-  starting_time:
-    nanoseconds_since_epoch: ...     # 起始时间戳
-  message_count: 114                 # 消息总数
-  topics_with_message_count:         # 各 topic 信息
-    - topic_metadata:
-        name: /chassis/diagnostics
-        type: chassis_control/msg/ChassisDiagnostics
-        serialization_format: cdr
-      message_count: 57
-    - ...
-  relative_file_paths:
-    - rosbag_0.db3
-```
-
----
-
-
-## 3. JSONL 传感器数据
-
-JSONL (JSON Lines) 格式：每行一条独立的 JSON 对象，便于逐行读取和流式处理。
-
-所有记录都包含一个 `_timestamp_ns` 字段，表示 ROS2 消息的纳秒级时间戳，可用于跨 topic 时间对齐。
-
----
-
-
-### 3.1 `chassis_joint_states.jsonl` — 关节/电机状态
-
-- **ROS2 Topic**：`/chassis/joint_states`
-- **消息类型**：`sensor_msgs/msg/JointState`
-- **发布频率**：~10 Hz
-- **内容示例**：
-
-```json
-{
-  "header": {
-    "stamp": { "sec": 1776157093, "nanosec": 482907979 },
-    "frame_id": ""
-  },
-  "name": ["fl_steer", "fr_steer", "rl_steer", "rr_steer",
-           "fl_wheel", "fr_wheel", "rl_wheel", "rr_wheel"],
-  "position": [3.34, 4.90, 2.70, 3.50, 0.0, 0.0, 0.0, 0.0],
-  "velocity": [0.005, -0.049, 0.096, 0.041, 0.0, 0.0, 0.0, 0.0],
-  "effort":   [0.063, -0.089, -0.210, 0.209, 0.0, 0.0, 0.0, 0.0],
-  "_timestamp_ns": 1776157093483028005
-}
-```
-
-**字段说明**：
-
-| 字段 | 含义 |
+| 项目 | 说明 |
 |------|------|
-| `name` | 8 个关节名称，前 4 个为转向电机（steer），后 4 个为驱动轮（wheel） |
-| `position` | 位置/角度（弧度）。steer 为转向角，wheel 通常为 0（无编码器位置反馈） |
-| `velocity` | 速度（rad/s）。steer 为转向角速度，wheel 为轮子角速度 |
-| `effort` | 力矩/电流（N·m 或归一化值） |
+| 格式 | JPEG (JET colormap 着色后编码) |
+| ZED 深度范围 | 0-20m 归一化 |
+| D405 深度范围 | 0-1m 归一化 |
+| 采集频率 | 与彩色图同步 (ZED: 13.5fps) |
+| JPEG质量 | 70 |
 
-**关节顺序**：`FL`（前左）→ `FR`（前右）→ `RL`（后左）→ `RR`（后右），先 steer 后 wheel。
+> **注意**：深度图是归一化+colormap着色后的可视化JPEG，非原始深度数据。原始深度值为 float32 (mm)，归一化到 [0,1] 后用 `cv2.COLORMAP_JET` 着色。
 
 ---
 
+## 3. 点云数据 (`pointcloud/`)
 
-### 3.2 `chassis_diagnostics.jsonl` — 底盘诊断
+| 项目 | 说明 |
+|------|------|
+| 格式 | npz (numpy 非压缩)，key 为 `xyzrgba` |
+| 数据类型 | float32, shape (H, W, 4) — X, Y, Z (mm) + RGBA 打包 |
+| 采样频率 | ~1.4 Hz (每10帧采1帧, PC_SKIP=10) |
+| 单帧大小 | ~14MB |
+| 仅 ZED | 仅 ZED 2i 支持点云采集 |
 
-- **ROS2 Topic**：`/chassis/diagnostics`
-- **消息类型**：`chassis_control/msg/ChassisDiagnostics`（自定义消息）
-- **发布频率**：~10 Hz
+> 使用 `np.load("xxx.npz")["xyzrgba"]` 读取。
+
+---
+
+## 4. IMU 数据 (`imu.jsonl`)
+
+IMU 数据直接从 ZED SDK 读取，写入 JSONL 文件（不经过 ROS2 话题）。
+
+- **频率**：~70 Hz
+- **来源**：ZED 2i 内置 IMU（独立线程读取）
 - **内容示例**：
 
 ```json
 {
-  "header": {
-    "stamp": { "sec": 1776157093, "nanosec": 482982352 },
-    "frame_id": ""
-  },
-  "vbus": 24.60,
-  "motor_temperatures": [26.0, 26.0, 26.0, 26.0],
-  "motor_error_codes": [0, 0, 0, 0],
-  "wheel_speeds_actual": [0.0, 0.0, 0.0, 0.0],
-  "_timestamp_ns": 1776157093483042294
+  "accel": {"x": 0.12, "y": -0.03, "z": -9.81},
+  "gyro_dps": {"x": 0.01, "y": -0.02, "z": 0.00},
+  "gyro_rad": {"x": 0.0001, "y": -0.0003, "z": 0.0},
+  "mag": {"x": 0.21, "y": -0.05, "z": -0.43},
+  "mag_valid": true,
+  "imu_temp": 32.5,
+  "pressure": 1013.25,
+  "env_temp": 25.0,
+  "timestamp_ns": 1744900000123456000,
+  "timestamp_s": 1744900000.123
 }
 ```
 
@@ -186,131 +140,125 @@ JSONL (JSON Lines) 格式：每行一条独立的 JSON 对象，便于逐行读�
 
 | 字段 | 含义 | 单位 |
 |------|------|------|
-| `vbus` | 电机驱动器总线电压 | V |
-| `motor_temperatures` | 4 个转向电机温度 [FL, FR, RL, RR] | °C |
-| `motor_error_codes` | 4 个转向电机错误码 [FL, FR, RL, RR]，0 表示正常 | - |
-| `wheel_speeds_actual` | 4 个轮子实际转速（来自 ZLAC8015D 驱动器）[FL, FR, RL, RR] | RPM |
+| `accel` | 加速度 (x, y, z) | m/s² |
+| `gyro_dps` | 角速度 (x, y, z) | deg/s |
+| `gyro_rad` | 角速度 (x, y, z) | rad/s |
+| `mag` | 磁力计 (x, y, z) | 无量纲 |
+| `mag_valid` | 磁力计数据是否有效 | bool |
+| `imu_temp` | IMU 温度 | °C |
+| `pressure` | 气压 | hPa |
+| `env_temp` | 环境温度 | °C |
+| `timestamp_ns` | 纳秒级时间戳 | ns |
+| `timestamp_s` | 秒级时间戳 | s |
 
 ---
 
+## 5. ROS2 Bag 原始数据 (`rosbag/`)
 
-### 3.3 `svtrobot_cmd.jsonl` — 底盘运动指令
+### 5.1 录制的 ROS2 话题
 
-- **ROS2 Topic**：`/svtrobot_cmd`
-- **消息类型**：`geometry_msgs/msg/Twist`
-- **发布频率**：~50 Hz
-- **内容示例**：
+| Topic | 消息类型 | 说明 |
+|-------|---------|------|
+| `/svtrobot_cmd` | `geometry_msgs/msg/Twist` | 底盘速度指令 |
+| `/lift_control_cmd` | `std_msgs/msg/Int32MultiArray` | 升降控制指令 |
+| `/chassis/joint_states` | `sensor_msgs/msg/JointState` | 底盘关节状态 |
+| `/chassis/diagnostics` | `chassis_control/msg/ChassisDiagnostics` | 底盘诊断 |
+| `/f710/joy` | `sensor_msgs/msg/Joy` | 手柄输入 |
 
-```json
-{
-  "linear":  { "x": 0.5, "y": 0.0, "z": 0.0 },
-  "angular": { "x": 0.0, "y": 0.0, "z": 0.3 },
-  "_timestamp_ns": 1776157093448645403
-}
+### 5.2 `metadata.yaml`
+
+ROS2 bag 的元数据文件，记录了录制时长、话题信息、消息计数等。
+
+### 5.3 自动 JSONL 转换
+
+录制结束后，`bag_converter.py` 自动将 .db3 转换为 JSONL 格式。每个话题生成一个 .jsonl 文件，所有记录包含 `_timestamp_ns` 字段用于多话题时间对齐。
+
+手动转换：
+
+```bash
+python3 src/web_control/bag_converter.py recordings/YYYYMMDD_HHMMSS/rosbag recordings/YYYYMMDD_HHMMSS
+python3 src/web_control/bag_converter.py recordings/YYYYMMDD_HHMMSS/rosbag recordings/YYYYMMDD_HHMMSS --delete-db
 ```
 
-**字段说明**：
-
-| 字段 | 含义 | 单位 |
-|------|------|------|
-| `linear.x` | 前进/后退速度 | m/s |
-| `linear.y` | 左右平移速度（全向底盘有效） | m/s |
-| `linear.z` | 垂直方向（通常为 0） | m/s |
-| `angular.x` | 绕 X 轴旋转（通常为 0） | rad/s |
-| `angular.y` | 绕 Y 轴旋转（通常为 0） | rad/s |
-| `angular.z` | 偏航角速度（左转/右转） | rad/s |
-
 ---
 
+## 6. 录制摘要 (`summary.json`)
 
-### 3.4 `f710_joy.jsonl` — 手柄输入
-
-- **ROS2 Topic**：`/f710/joy`
-- **消息类型**：`sensor_msgs/msg/Joy`
-- **发布频率**：~50 Hz
-- **内容示例**：
+录制结束时自动生成，包含：
 
 ```json
 {
-  "header": {
-    "stamp": { "sec": 1776157093, "nanosec": 453216949 },
-    "frame_id": ""
+  "duration_seconds": 27.0,
+  "total_size_mb": 549.79,
+  "cameras": {
+    "zed": {"images": 358, "depth": 358}
   },
-  "axes": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-  "buttons": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  "_timestamp_ns": 1776157093453430727
+  "pointcloud": {"zed": 36}
 }
 ```
 
-**字段说明**：
+---
 
-| 字段 | 含义 |
-|------|------|
-| `axes` | 8 个摇杆/扳机轴值，范围 [-1.0, 1.0] |
-| `buttons` | 12 个按键状态，0 = 未按下，1 = 按下 |
+## 7. JSONL 传感器数据
 
-> 轴和按键的具体映射取决于 `f710_teleop` 节点的配置。
+所有 JSONL 记录都包含 `_timestamp_ns` 字段（纳秒级），用于跨话题时间对齐。
+
+### 7.1 `chassis_joint_states.jsonl` — 关节/电机状态
+
+- **ROS2 Topic**：`/chassis/joint_states`，~10 Hz
+- **字段**：8 个关节 (FL/FR/RL/RR steer + wheel) 的 position/velocity/effort
+
+### 7.2 `chassis_diagnostics.jsonl` — 底盘诊断
+
+- **ROS2 Topic**：`/chassis/diagnostics`，~10 Hz
+- **字段**：vbus (V), motor_temperatures[4] (°C), motor_error_codes[4], wheel_speeds_actual[4] (RPM)
+
+### 7.3 `svtrobot_cmd.jsonl` — 底盘运动指令
+
+- **ROS2 Topic**：`/svtrobot_cmd`，~50 Hz
+- **字段**：linear.x/y/z (m/s), angular.x/y/z (rad/s)
+
+### 7.4 `f710_joy.jsonl` — 手柄输入
+
+- **ROS2 Topic**：`/f710/joy`，~50 Hz
+- **字段**：axes[8] (-1~1), buttons[12] (0/1)
+
+### 7.5 `lift_control_cmd.jsonl` — 升降控制指令
+
+- **ROS2 Topic**：`/lift_control_cmd`，~25 Hz
+- **字段**：data[0] (方向), data[1] (速度 RPM)
 
 ---
 
+## 8. 数据频率汇总
 
-### 3.5 `lift_control_cmd.jsonl` — 升降控制指令
-
-- **ROS2 Topic**：`/lift_control_cmd`
-- **消息类型**：`std_msgs/msg/Int32MultiArray`
-- **发布频率**：~25 Hz
-- **内容示例**：
-
-```json
-{
-  "layout": {
-    "dim": [],
-    "data_offset": 0
-  },
-  "data": [0, 0],
-  "_timestamp_ns": 1776157093448658004
-}
-```
-
-**字段说明**：
-
-| 字段 | 含义 |
-|------|------|
-| `data[0]` | 左升降机构目标位置 |
-| `data[1]` | 右升降机构目标位置 |
+| 数据 | 文件 | 频率 | 来源 |
+|------|------|------|------|
+| ZED 彩色图 | `images/zed/*.jpg` | 13.5 Hz | ZED SDK capture |
+| ZED 深度图 | `depth/zed/*.jpg` | 13.5 Hz | ZED SDK retrieve_measure |
+| ZED 点云 | `pointcloud/zed/*.npz` | ~1.4 Hz | ZED SDK retrieve_measure (PC_SKIP=10) |
+| IMU | `imu.jsonl` | ~70 Hz | ZED SDK get_imu_data |
+| 底盘关节状态 | `chassis_joint_states.jsonl` | ~10 Hz | ROS2 /chassis/joint_states |
+| 底盘诊断 | `chassis_diagnostics.jsonl` | ~10 Hz | ROS2 /chassis/diagnostics |
+| 底盘指令 | `svtrobot_cmd.jsonl` | ~50 Hz | ROS2 /svtrobot_cmd |
+| 手柄数据 | `f710_joy.jsonl` | ~50 Hz | ROS2 /f710/joy |
+| 升降指令 | `lift_control_cmd.jsonl` | ~25 Hz | ROS2 /lift_control_cmd |
 
 ---
 
+## 9. 时间对齐
 
-## 4. 数据频率汇总
+所有数据源通过时间戳对齐：
 
-| Topic | 文件 | 频率 | 驱动来源 |
-|-------|------|------|----------|
-| `/chassis/joint_states` | `chassis_joint_states.jsonl` | ~10 Hz | chassis_control 节点 |
-| `/chassis/diagnostics` | `chassis_diagnostics.jsonl` | ~10 Hz | chassis_control 节点 |
-| `/svtrobot_cmd` | `svtrobot_cmd.jsonl` | ~50 Hz | Web 控制或手柄节点 |
-| `/f710/joy` | `f710_joy.jsonl` | ~50 Hz | f710_teleop 节点 |
-| `/lift_control_cmd` | `lift_control_cmd.jsonl` | ~25 Hz | f710_teleop 节点 |
-| 相机帧 | `images/*/{timestamp_us}.jpg` | 10 Hz | CameraManager |
+- **图像/深度/点云**：文件名 = Unix 微秒时间戳
+- **IMU**：`timestamp_ns` 字段（纳秒级）
+- **JSONL 传感器**：`_timestamp_ns` 字段（纳秒级）
 
-频率由各 ROS2 节点的发布设置决定，`ros2 bag record` 忠实记录原始频率。
+对齐方式：图像文件名 `T_us` → `T_ns = T_us * 1000`，在 JSONL 中找最近的记录。
 
 ---
 
-
-## 5. 时间对齐
-
-所有数据源通过 `_timestamp_ns`（纳秒级 Unix 时间戳）进行时间对齐：
-
-- JSONL 中的 `_timestamp_ns` 字段
-- 图像帧的文件名即精确的采集时间戳（微秒级），直接转为纳秒即可与传感器数据对齐
-
-对齐方式：图像文件名中的微秒时间戳 `T_us`，对应纳秒时间戳 `T_ns = T_us * 1000`，在 JSONL 中查找 `_timestamp_ns` 最接近的传感器记录。
-
----
-
-
-## 6. 数据读取示例
+## 10. 数据读取示例
 
 ### Python 读取 JSONL
 
@@ -323,17 +271,23 @@ with open('chassis_joint_states.jsonl') as f:
         print(record['_timestamp_ns'], record['position'])
 ```
 
-### 将 db3 转换为 JSONL（手动）
+### Python 读取 IMU
 
-如果某个录制会话缺少 JSONL 文件（旧数据），可手动运行转换：
+```python
+import json
 
-```bash
-python3 src/web_control/bag_converter.py recordings/YYYYMMDD_HHMMSS/rosbag recordings/YYYYMMDD_HHMMSS
+with open('imu.jsonl') as f:
+    for line in f:
+        imu = json.loads(line)
+        print(imu['timestamp_s'], imu['accel']['z'])  # 重力Z轴
 ```
 
-如需转换后删除 db3 文件以节省空间：
+### Python 读取点云
 
-```bash
-python3 src/web_control/bag_converter.py recordings/YYYYMMDD_HHMMSS/rosbag recordings/YYYYMMDD_HHMMSS --delete-db
+```python
+import numpy as np
+
+data = np.load("pointcloud/zed/1744900000123456.npz")["xyzrgba"]
+# data.shape = (720, 1280, 4), dtype=float32
+# X, Y, Z 单位 mm, 第4列 RGBA 打包
 ```
-

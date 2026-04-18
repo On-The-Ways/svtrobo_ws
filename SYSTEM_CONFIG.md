@@ -17,7 +17,7 @@
 | Node.js | v22.22.2 |
 | pnpm | /usr/bin/pnpm |
 
-## 2. systemd 自启服务 (共7个, 全部 enabled)
+## 2. systemd 自启服务 (共9个, 全部 enabled)
 
 ### 启动顺序与依赖链
 
@@ -27,9 +27,11 @@ sysinit.target
        └─ svtrobo-can.service (oneshot, 等 PCAN USB 就绪 ~30s)
             ├─ svtrobo-rosbridge.service (rosbridge WebSocket :9090)
             │    └─ svtrobo-chassis.service (chassis_control + lift_control)
+            │         ├─ svtrobo-chassis-watchdog.service (每5秒检查 chassis_control_node 存活)
             │         ├─ svtrobo-f710.service (F710 手柄, 等 js0 最多 30s)
             │         ├─ svtrobo-web.service (web_control :8080)
             │         └─ svtrobo-nodeapi.service (Node.js API :28181)
+            └─ pcan-monitor.service (每10秒检查 CAN 状态 + err-71 检测)
             └─ (以上均 Wants=svtrobo-can.service)
 ```
 
@@ -165,9 +167,58 @@ WantedBy=multi-user.target
 
 **启动节点**: chassis_control_node, lift_control
 
-**已知问题**: chassis_control_node crash 时 ros2 launch 父进程不退出，systemd 不会触发 Restart。需手动 `systemctl restart svtrobo-chassis`。检测方法: `ros2 node list` 不含 `/chassis_control`。
+**已知问题**: chassis_control_node crash 时 ros2 launch 父进程不退出，systemd 不会触发 Restart。现已通过 chassis-watchdog 自动恢复（见 2.5）。
 
-### 2.5 svtrobo-f710.service
+### 2.5 svtrobo-chassis-watchdog.service
+
+**用途**: 每5秒检查 chassis_control_node 是否存活，连续2次检测失败则自动 restart svtrobo-chassis 服务。
+**原理**: 通过 `ros2 node list` 检查 `/chassis_control` 是否存在，解决 ros2 launch 父进程不退出导致 systemd 无法自动恢复的问题。
+
+```ini
+[Unit]
+Description=svtrobo Chassis Watchdog
+After=svtrobo-chassis.service
+Wants=svtrobo-chassis.service
+
+[Service]
+Type=simple
+User=svt
+Environment=ROS_DOMAIN_ID=0
+ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/svt/svtrobo_ws/install/setup.bash && exec python3 /home/svt/svtrobo_ws/src/chassis_control/scripts/chassis_watchdog.py"
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**检测逻辑**: 每5秒轮询一次，连续2次未发现 `/chassis_control` 节点 → 执行 `systemctl restart svtrobo-chassis`。
+
+### 2.6 pcan-monitor.service
+
+**用途**: 每10秒检查 CAN 接口状态 + PCAN err-71 检测，自动尝试恢复。
+**原理**: 监控 `ip link show canX` 状态和 dmesg 中的 PCAN 错误，检测到异常时执行 modprobe 重载和服务重启。
+
+```ini
+[Unit]
+Description=PCAN CAN Monitor
+After=svtrobo-can.service
+Wants=svtrobo-can.service
+
+[Service]
+Type=simple
+User=svt
+ExecStart=/bin/bash -c "exec python3 /home/svt/svtrobo_ws/scripts/pcan_monitor.py"
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**检测逻辑**: 每10秒检查一次 CAN 接口状态和 dmesg 中 pcan err-71 错误计数。
+
+### 2.7 svtrobo-f710.service
 
 ```ini
 [Unit]
@@ -192,7 +243,7 @@ WantedBy=multi-user.target
 
 **ExecStartPre**: 等待 /dev/input/js0 出现（最多30秒）
 
-### 2.6 svtrobo-web.service
+### 2.8 svtrobo-web.service
 
 ```ini
 [Unit]
@@ -214,7 +265,7 @@ WantedBy=multi-user.target
 
 **端口**: 8080 (HTTP)
 
-### 2.7 svtrobo-nodeapi.service
+### 2.9 svtrobo-nodeapi.service
 
 ```ini
 [Unit]
@@ -226,7 +277,7 @@ Type=simple
 User=svt
 WorkingDirectory=/home/svt/ros_process_api
 Environment=ROS2_WORKSPACE_DIR=/home/svt/svtrobo_ws
-Environment=SUDO_PASSWORD=<REDACTED>
+Environment=SUDO_PASSWORD=***
 Environment=PATH=/usr/bin:/bin:/usr/local/bin
 ExecStart=/usr/bin/node /home/svt/ros_process_api/app.bundle.js
 Restart=on-failure
@@ -369,6 +420,7 @@ ssh svt@10.0.0.56 "echo '123456' | sudo -S modprobe -r pcan && sleep 2 && echo '
 
 ### chassis_control_node 崩溃 (SDO write timeout)
 ```bash
+# watchdog 会自动恢复，也可手动重启
 ssh svt@10.0.0.56 "echo '123456' | sudo -S systemctl restart svtrobo-chassis svtrobo-f710"
 ```
 
@@ -388,8 +440,8 @@ ssh svt@10.0.0.56 "echo '123456' | sudo -S sh -c 'echo 1 > /sys/module/hid/param
 
 ## 8. 已知限制 (待改进)
 
-1. **chassis_control_node 崩溃不触发 systemd 重启** — ros2 launch 父进程不退出，systemd 不会自动恢复
-2. **PCAN err-71 运行时不稳定** — USB 2.0 Hub + 3个PCAN 过载，可能随时掉线
+1. **chassis_control_node 崩溃自动恢复** — 已通过 chassis-watchdog 服务实现，每5秒检测，连续2次失败自动 restart svtrobo-chassis
+2. **PCAN err-71 运行时不稳定** — USB 2.0 Hub + 3个PCAN 过载，可能随时掉线。已通过 pcan-monitor 服务实现每10秒自动检测和恢复
 3. **FastRTPS shm 残留** — 频繁重启后 DDS 发现完全失败
 4. **F710 低电量** — 摇杆轴先失效，无低电量告警
 5. **D405 相机** — 当前未连接服务器，录制时会快速跳过（~0.1s 检测）
@@ -414,26 +466,34 @@ ssh svt@10.0.0.56 "echo '123456' | sudo -S sh -c 'echo 1 > /sys/module/hid/param
 recordings/<session>/
 ├── rosbag/              # ROS2 bag (所有话题)
 ├── images/<cam>/        # 彩色图 JPEG (采集频率)
-├── depth/<cam>/         # 深度图 JET colormap JPEG (采集频率)
-├── pointcloud/zed/      # ZED 点云 npz_compressed, (720,1280,4) float32 (~8.9MB/帧, ~3Hz)
+├── depth/<cam>/         # 深度图 .jpg (JET colormap, 采集频率)
+├── pointcloud/zed/      # ZED 点云 npz (非压缩), (720,1280,4) float32 (~8.9MB/帧, ~1.4Hz)
+├── imu.jsonl            # IMU 数据 (~70Hz), 每行一个 JSON: accel, gyro_dps, gyro_rad, mag, imu_temp, pressure, env_temp
 ├── chassis_diagnostics.jsonl
 ├── chassis_joint_states.jsonl
 ├── f710_joy.jsonl
 ├── lift_control_cmd.jsonl
-└── svtrobot_cmd.jsonl
+├── svtrobot_cmd.jsonl
+└── summary.json         # 录制摘要 (时长、帧数、各话题统计等)
 ```
 
-**点云采样**: 每5帧采1帧（15fps÷5 ≈ 3Hz），以 `np.savez_compressed` 保存 XYZRGBA 数据。
-**深度图保存**: 原始深度数据归一化后用 JET colormap 编码为 JPEG（ZED: 0-20m, D405: 0-1m）。
+**录制帧率**: ~13.5fps (优化后，原 ~7.7fps)
+
+**录制优化措施**:
+- 保存线程使用 fast poll + drain 队列策略，最大化磁盘写入吞吐
+- ZED 点云使用 sl.Mat 复用，避免重复分配内存
+- 点云采样: 每10帧采1帧（PC_SKIP=10），15fps÷10 ≈ 1.4Hz，以 `np.savez` (非压缩) 保存 XYZRGBA 数据
+- 深度图保存为 .jpg (JET colormap JPEG)，不再使用 .npy 格式
 
 ### 9.3 IMU 独立读取
 
 IMU 数据通过独立后台线程读取，无需启动 ZED 相机的视频/深度流：
 
 - **模式**: ZED SDK, VGA@15fps, DEPTH_MODE.NONE（最轻量）
-- **频率**: ~20Hz 更新 `imu_cache`
-- **前端 API**: `GET /api/imu` → JSON（accel, gyro_dps, gyro_rad, mag, imu_temp, pressure, env_temp）
-- **录制时**: ZED 相机以 HD720+NEURAL 启动后，IMU 由 `_capture_loop` 接管，IMU-only 线程自动退出
+- **频率**: ~70Hz 写入 `imu_cache`
+- **前端 API**: WebSocket `/ws/imu` 实时推送，HTTP `GET /api/imu` 回退（返回最新 accel, gyro_dps, gyro_rad, mag, imu_temp, pressure, env_temp）
+- **录制时**: 直接从 `imu_cache` 读取并写入 `imu.jsonl`，不通过 ROS2 话题（无 IMU 发布者）
+- **录制结束**: ZED 相机关闭后，IMU-only 线程自动恢复独立运行
 
 ### 9.4 RealSense 快速设备检测
 
@@ -443,4 +503,4 @@ IMU 数据通过独立后台线程读取，无需启动 ZED 相机的视频/深�
 
 - 相机卡片仅显示彩色图流（MJPEG），**不显示深度图**
 - 深度数据仅在录制时后台保存到磁盘
-- IMU 数据通过 `/api/imu` 以 ~10Hz HTTP polling 更新前端
+- IMU 数据通过 WebSocket `/ws/imu` 实时推送，HTTP `/api/imu` 作为回退

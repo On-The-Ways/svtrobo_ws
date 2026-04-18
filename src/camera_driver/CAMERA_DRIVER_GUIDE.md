@@ -297,17 +297,18 @@ cam2.stop()
 
 > 源文件：`camera_driver/camera_driver/zed_camera.py`
 
-### 6.1 当前限制
+### 6.1 SDK 模式 (Jetson Orin)
 
-本机无 NVIDIA GPU，无法安装 ZED SDK，运行在 **OpenCV V4L2 降级模式**：
+ZED SDK 已安装在 Jetson Orin 上，运行在 **SDK 模式**：
 
 | 功能 | 状态 |
 |------|------|
-| 左眼彩色图 | 672x376 |
-| 右眼彩色图 | 672x376（通过 `capture_stereo()`） |
-| 深度图 | SGBM 估算，精度较低 |
-| 高分辨率 | 不支持（需要 SDK） |
-| IMU | 支持（通过 USB HID 接口，无需 SDK） |
+| 彩色图 | 1280x720 (HD720) @ 15fps |
+| 深度图 | NEURAL 深度模式，float32 (mm) |
+| 点云 | XYZRGBA float32 (~1.4Hz) |
+| IMU | SDK + 独立线程 (~70Hz) |
+
+> 当 SDK 不可用时自动降级到 OpenCV V4L2 模式 (672x376)。
 
 ### 6.2 构造函数
 
@@ -325,10 +326,12 @@ ZEDCamera(
 
 ```python
 left, depth = zed.capture()
-# left: numpy (376, 672, 3) BGR uint8
-# depth: numpy (376, 672) uint16, 单位 mm（SGBM 估算）
+# SDK模式: left: numpy (720, 1280, 3) BGR uint8, depth: numpy (720, 1280) float32 (mm)
+# OpenCV模式: left: numpy (376, 672, 3) BGR uint8, depth: numpy (376, 672) uint16 mm
 # 失败返回 (None, None)
 ```
+
+> SDK 模式下内部复用 `sl.Mat` 对象 (`_img_mat`, `_depth_mat`)，避免每帧 C++ 堆分配开销。
 
 ### 6.4 `capture_stereo()` — 采集左右眼 + 深度
 
@@ -349,14 +352,33 @@ left_path, depth_path = zed.capture_and_save(
 # 输出: zed_2i_{timestamp}_left.png, zed_2i_{timestamp}_depth.png
 ```
 
-### 6.6 `get_intrinsics()` — 获取内参
+### 6.6 `capture_pointcloud()` — 采集点云（仅 SDK 模式）
+
+```python
+points = zed.capture_pointcloud()
+# numpy (720, 1280, 4) float32: X, Y, Z (mm) + RGBA 打包
+# 返回 None 如果非 SDK 模式或 color_only 模式
+```
+
+> 内部复用 `_pc_mat` (sl.Mat)，避免每帧分配。
+
+### 6.7 `get_imu_data()` — 获取 IMU 数据（SDK 模式）
+
+```python
+imu = zed.get_imu_data()
+# dict: accel, gyro_dps, gyro_rad, mag, mag_valid, imu_temp, pressure, env_temp,
+#        timestamp_ns, timestamp_s
+# 返回 None 如果不可用
+```
+
+### 6.8 `get_intrinsics()` — 获取内参
 
 ```python
 intrinsics = zed.get_intrinsics()
 # 仅 SDK 模式可用，OpenCV 模式返回 None
 ```
 
-### 6.7 上下文管理器
+### 6.9 上下文管理器
 
 ```python
 with ZEDCamera() as zed:

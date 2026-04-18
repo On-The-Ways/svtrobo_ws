@@ -192,7 +192,7 @@ Web 控制台通过 rosbridge WebSocket 订阅和发布以下 ROS2 Topic：
 |------|------|--------|-----|
 | D405 #1 | RealSense | 640x480 | 15 |
 | D405 #2 | RealSense | 640x480 | 15 |
-| ZED 2i | OpenCV V4L2 | 672x376 | 15 |
+| ZED 2i | ZED SDK | 1280x720 (HD720) | 15 |
 
 ### 操作方式
 
@@ -383,6 +383,7 @@ web_control/
         ├── diagnostics.js     # VBUS/温度/错误码诊断面板
         ├── f710-toggle.js     # 手柄/Web 模式互斥切换 + X/D 模式警告
         ├── data-record.js     # 数据录制悬浮按钮（bag + 摄像头帧）
+        ├── imu-status.js      # IMU 实时状态显示（WebSocket + HTTP 回退）
         ├── lift.js            # 升降机构控制
         └── status.js          # ROS Topic 列表显示
 ```
@@ -390,6 +391,31 @@ web_control/
 ---
 
 ## 13. 常见问题与排错
+
+### IMU 数据接口
+
+Web 控制台提供 IMU 数据的实时查看接口（ZED 2i 内置 IMU）：
+
+| 端点 | 方法 | 说明 |
+|------|------|------|
+| `/api/imu` | GET | IMU 当前数据 JSON（accel, gyro_dps, gyro_rad, mag, imu_temp, pressure, env_temp） |
+| `/ws/imu` | WebSocket | IMU 实时推送 ~20Hz（前端优先使用 WebSocket，自动回退 HTTP polling） |
+
+### 录制数据内容
+
+录制时自动采集以下数据：
+
+| 数据 | 格式 | 频率 | 说明 |
+|------|------|------|------|
+| ZED 彩色图 | JPEG (images/zed/) | 13.5 fps | ~83KB/帧 |
+| ZED 深度图 | JPEG JET colormap (depth/zed/) | 13.5 fps | ~36KB/帧，0-20m归一化 |
+| ZED 点云 | npz (pointcloud/zed/) | ~1.4 fps | XYZRGBA float32, ~14MB/帧 |
+| IMU | imu.jsonl | ~70 Hz | accel/gyro/mag/pressure/temp |
+| ROS2 bag | rosbag/*.db3 | 原始频率 | 5个话题 |
+| 录制摘要 | summary.json | - | 时长/帧数/大小 |
+| JSONL传感器 | *.jsonl | 10-50 Hz | bag自动转换 |
+
+> 详细数据格式见 `recordings/README.md`。
 
 ### Q1: 连接 rosbridge 失败
 
@@ -447,11 +473,13 @@ python3 server.py --host 0.0.0.0 --port 8080
 
 ```python
 CAMERA_CONFIG = {
-    'd405_1': {'type': 'realsense', 'serial': '409122272399', 'size': (640, 480), 'fps': 15},
-    'd405_2': {'type': 'realsense', 'serial': '409122273344', 'size': (640, 480), 'fps': 15},
-    'zed':    {'type': 'zed',       'serial': None,           'size': None,       'fps': 15},
+    'd405_1': {'type': 'realsense', 'serial': '409122272399', 'size': (640, 480), 'fps': 15, 'depth': True},
+    'd405_2': {'type': 'realsense', 'serial': '409122273344', 'size': (640, 480), 'fps': 15, 'depth': True},
+    'zed':    {'type': 'zed',       'serial': None,           'size': None,       'fps': 15, 'depth': True, 'depth_mode': 'NEURAL'},
 }
 ```
+
+> **前端只显示彩色流**，深度数据仅在录制时后台保存。
 
 修改后重启 Web 服务器生效。
 
