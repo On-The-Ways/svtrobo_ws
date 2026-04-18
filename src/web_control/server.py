@@ -552,7 +552,7 @@ class RecordingManager:
                             pc_dir = self.output_dir / 'pointcloud' / name
                             pc_dir.mkdir(parents=True, exist_ok=True)
                             pc_path = pc_dir / f'{pc_ts}.npz'
-                            _np.savez_compressed(pc_path, xyzrgba=pc_data)
+                            _np.savez(pc_path, xyzrgba=pc_data)  # 不压缩，避免1000ms+GIL阻塞采集线程
                         except Exception as e:
                             logger.warning(f"Failed to save {name} pointcloud: {e}")
 
