@@ -391,5 +391,56 @@ ssh svt@10.0.0.56 "echo '123456' | sudo -S sh -c 'echo 1 > /sys/module/hid/param
 1. **chassis_control_node 崩溃不触发 systemd 重启** — ros2 launch 父进程不退出，systemd 不会自动恢复
 2. **PCAN err-71 运行时不稳定** — USB 2.0 Hub + 3个PCAN 过载，可能随时掉线
 3. **FastRTPS shm 残留** — 频繁重启后 DDS 发现完全失败
-4. **ZED 2i IMU** — HID 绑定不稳定，需手动 unbind/bind
-5. **F710 低电量** — 摇杆轴先失效，无低电量告警
+4. **F710 低电量** — 摇杆轴先失效，无低电量告警
+5. **D405 相机** — 当前未连接服务器，录制时会快速跳过（~0.1s 检测）
+
+## 9. 相机与录制系统
+
+### 9.1 相机配置
+
+| 相机 | 类型 | 序列号 | 分辨率 | 深度模式 | 状态 |
+|------|------|--------|--------|----------|------|
+| d405_1 | RealSense D405 | 409122272399 | 640x480 | z16 | 未连接 |
+| d405_2 | RealSense D405 | 409122273344 | 640x480 | z16 | 未连接 |
+| zed | ZED 2i (SDK) | S/N 33786357 | HD720@15fps | NEURAL | 正常 |
+
+**配置文件**: `src/web_control/server.py` 中的 `CAMERA_CONFIG`
+
+### 9.2 录制数据结构
+
+录制会话保存在 `recordings/<YYYYMMDD_HHMMSS>/`：
+
+```
+recordings/<session>/
+├── rosbag/              # ROS2 bag (所有话题)
+├── images/<cam>/        # 彩色图 JPEG (采集频率)
+├── depth/<cam>/         # 深度图 JET colormap JPEG (采集频率)
+├── pointcloud/zed/      # ZED 点云 npz_compressed, (720,1280,4) float32 (~8.9MB/帧, ~3Hz)
+├── chassis_diagnostics.jsonl
+├── chassis_joint_states.jsonl
+├── f710_joy.jsonl
+├── lift_control_cmd.jsonl
+└── svtrobot_cmd.jsonl
+```
+
+**点云采样**: 每5帧采1帧（15fps÷5 ≈ 3Hz），以 `np.savez_compressed` 保存 XYZRGBA 数据。
+**深度图保存**: 原始深度数据归一化后用 JET colormap 编码为 JPEG（ZED: 0-20m, D405: 0-1m）。
+
+### 9.3 IMU 独立读取
+
+IMU 数据通过独立后台线程读取，无需启动 ZED 相机的视频/深度流：
+
+- **模式**: ZED SDK, VGA@15fps, DEPTH_MODE.NONE（最轻量）
+- **频率**: ~20Hz 更新 `imu_cache`
+- **前端 API**: `GET /api/imu` → JSON（accel, gyro_dps, gyro_rad, mag, imu_temp, pressure, env_temp）
+- **录制时**: ZED 相机以 HD720+NEURAL 启动后，IMU 由 `_capture_loop` 接管，IMU-only 线程自动退出
+
+### 9.4 RealSense 快速设备检测
+
+`realsense_camera.py` 的 `start()` 方法在调用 `pipeline.start()` 前，先用 `rs.context().query_devices()` 检查目标序列号是否存在（<0.1秒）。设备不存在时直接抛出 RuntimeError，避免 pipeline.start() 阻塞 ~15秒。
+
+### 9.5 前端显示
+
+- 相机卡片仅显示彩色图流（MJPEG），**不显示深度图**
+- 深度数据仅在录制时后台保存到磁盘
+- IMU 数据通过 `/api/imu` 以 ~10Hz HTTP polling 更新前端
