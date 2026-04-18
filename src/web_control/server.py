@@ -70,6 +70,7 @@ class CameraManager:
                         depth_size=cfg['size'],
                         fps=cfg['fps'],
                         color_only=not cfg.get('depth', False),
+                        warmup_frames=cfg.get('warmup_frames'),
                     )
                 else:
                     cam = ZEDCamera(
@@ -84,12 +85,27 @@ class CameraManager:
                 depth_queue = queue.Queue(maxsize=2) if cfg.get('depth') else None
                 pc_queue = queue.Queue(maxsize=1) if (name == 'zed' and cfg.get('depth')) else None
 
+                # Point cloud trigger event + ZED SDK mutex (ZED only)
+                pc_trigger = threading.Event() if pc_queue is not None else None
+                cam_lock = threading.Lock() if pc_queue is not None else None
+
                 t = threading.Thread(
                     target=self._capture_loop,
-                    args=(name, cam, frame_queue, stop_event, depth_queue, pc_queue),
+                    args=(name, cam, frame_queue, stop_event, depth_queue, pc_queue, pc_trigger, cam_lock),
                     daemon=True,
                 )
                 t.start()
+
+                # Start independent pointcloud thread if needed
+                pc_thread = None
+                if pc_queue is not None:
+                    pc_thread = threading.Thread(
+                        target=self._pointcloud_loop,
+                        args=(cam, pc_queue, pc_trigger, stop_event, cam_lock),
+                        daemon=True,
+                        name=f'pc-{name}',
+                    )
+                    pc_thread.start()
 
                 self.cameras[name] = {
                     'instance': cam,
@@ -98,6 +114,9 @@ class CameraManager:
                     'frame_queue': frame_queue,
                     'depth_queue': depth_queue,
                     'pc_queue': pc_queue,
+                    'pc_thread': pc_thread,
+                    'pc_trigger': pc_trigger,
+                    'cam_lock': cam_lock,
                     'running': True,
                 }
                 logger.info(f"Camera {name} started")
@@ -186,22 +205,31 @@ class CameraManager:
             return None
 
     @staticmethod
-    def _capture_loop(name, cam, frame_queue, stop_event, depth_queue=None, pc_queue=None):
+    def _capture_loop(name, cam, frame_queue, stop_event, depth_queue=None, pc_queue=None, pc_trigger=None, cam_lock=None):
         """Background thread: continuously capture frames and encode as JPEG.
         
         depth_queue: if provided, raw depth frames are queued for recording.
-        pc_queue: if provided (ZED only), XYZRGBA point cloud frames are queued.
+        pc_queue: if provided (ZED only), XYZRGBA point cloud frames are queued (filled by _pointcloud_loop).
+        pc_trigger: threading.Event to signal _pointcloud_loop when a frame is ready.
         """
-        # Point cloud capture throttle (every N frames to reduce CPU/disk load)
-        PC_SKIP = 5  # save every 5th frame (~3Hz at 15fps)
+        # Point cloud capture throttle (every N frames to signal pointcloud thread)
+        PC_SKIP = 3  # signal every 3rd frame (~5Hz at 15fps) — pointcloud thread decouples from main loop
         frame_count = 0
 
         while not stop_event.is_set():
             try:
-                result = cam.capture()
-                if result is None:
-                    continue
-                color = result[0]  # (color, depth) or (left, depth)
+                if cam_lock:
+                    cam_lock.acquire()
+                try:
+                    result = cam.capture()
+                    if result is None:
+                        if cam_lock:
+                            cam_lock.release()
+                        continue
+                    color = result[0]  # (color, depth) or (left, depth)
+                finally:
+                    if cam_lock:
+                        cam_lock.release()
                 if color is None:
                     continue
 
@@ -229,19 +257,9 @@ class CameraManager:
                     except Exception as e:
                         logger.debug(f"Camera {name} depth queue error: {e}")
 
-                # ZED point cloud capture (throttled)
+                # Notify pointcloud thread that a new frame is available
                 if pc_queue is not None and frame_count % PC_SKIP == 0:
-                    try:
-                        pc_data = cam.capture_pointcloud()
-                        if pc_data is not None:
-                            try:
-                                pc_queue.get_nowait()
-                            except queue.Empty:
-                                pass
-                            pc_queue.put((pc_data, timestamp_us))
-                    except Exception as e:
-                        logger.debug(f"Camera {name} pointcloud error: {e}")
-
+                    pc_trigger.set()
                 frame_count += 1
 
                 # Extract IMU data from ZED camera (if SDK mode)
@@ -259,6 +277,41 @@ class CameraManager:
                 stop_event.wait(0.1)
 
         logger.info(f"Camera {name} capture thread exiting")
+
+    @staticmethod
+    def _pointcloud_loop(cam, pc_queue, pc_trigger, stop_event, cam_lock=None):
+        """Background thread: independently captures ZED point clouds when signaled.
+        
+        Decoupled from _capture_loop so that grab() latency doesn't block JPEG encoding.
+        This thread calls cam.capture_pointcloud() which uses retrieve_measure(XYZRGBA)
+        on the last grabbed frame.
+        """
+        logger.info("Pointcloud thread started")
+        while not stop_event.is_set():
+            # Wait for signal from capture loop (max 1 sec to check stop_event)
+            pc_trigger.wait(timeout=1.0)
+            if stop_event.is_set():
+                break
+            if not pc_trigger.is_set():
+                continue
+            pc_trigger.clear()
+            try:
+                if cam_lock:
+                    cam_lock.acquire()
+                try:
+                    pc_data = cam.capture_pointcloud()
+                finally:
+                    if cam_lock:
+                        cam_lock.release()
+                if pc_data is not None:
+                    try:
+                        pc_queue.get_nowait()
+                    except queue.Empty:
+                        pass
+                    pc_queue.put((pc_data, int(time.time() * 1_000_000)))
+            except Exception as e:
+                logger.debug(f"Pointcloud capture error: {e}")
+        logger.info("Pointcloud thread exiting")
 
     def stop_all(self):
         """Stop all running cameras."""
@@ -331,6 +384,10 @@ class RecordingManager:
             except Exception as e:
                 return False, str(e), None
 
+            # Stop IMU reader to avoid ZED device conflict before starting cameras
+            if 'zed' in CAMERA_CONFIG:
+                stop_imu_reader()
+
             # Auto-start all cameras (skip those already running)
             self._cameras_started = set()
             cam_start_errors = []
@@ -386,11 +443,19 @@ class RecordingManager:
                     logger.warning(f"Failed to stop camera {cam_name}: {e}")
             self._cameras_started.clear()
 
+            # Restart IMU reader now that ZED camera is released
+            if 'zed' in CAMERA_CONFIG:
+                start_imu_reader()
+
             duration = time.time() - self.start_time if self.start_time else 0
             info = {
                 'path': str(self.output_dir),
                 'duration': round(duration, 1),
             }
+
+            # Write summary.json
+            self._write_summary(self.output_dir, duration)
+
             self.running = False
             self.start_time = None
 
@@ -401,6 +466,66 @@ class RecordingManager:
                     self._convert_bag(bag_dir, self.output_dir)
 
             return True, 'Recording stopped', info
+
+    def _write_summary(self, output_dir, duration):
+        """Write summary.json to the recording output directory."""
+        try:
+            from datetime import timezone
+
+            output_path = Path(output_dir)
+            # Extract timestamp from directory name (e.g. 20250101_120000)
+            timestamp = output_path.name
+
+            cameras = {}
+            # Stat cameras: images (jpg) and depth (npy)
+            for cam_dir in sorted((output_path / 'images').glob('*')):
+                if cam_dir.is_dir():
+                    cam_name = cam_dir.name
+                    img_count = sum(1 for f in cam_dir.iterdir() if f.suffix == '.jpg')
+                    depth_count = 0
+                    depth_dir = output_path / 'depth' / cam_name
+                    if depth_dir.is_dir():
+                        depth_count = sum(1 for f in depth_dir.iterdir() if f.suffix == '.npy')
+                    cameras[cam_name] = {"images": img_count, "depth": depth_count}
+
+            # Pointcloud
+            pointcloud = {}
+            pc_dir = output_path / 'pointcloud' / 'zed'
+            if pc_dir.is_dir():
+                pointcloud["zed"] = sum(1 for f in pc_dir.iterdir() if f.suffix == '.npz')
+
+            # Rosbag size
+            rosbag_size_mb = 0.0
+            bag_dir = output_path / 'rosbag'
+            if bag_dir.is_dir():
+                for f in bag_dir.rglob('*'):
+                    if f.is_file():
+                        rosbag_size_mb += f.stat().st_size
+                rosbag_size_mb = round(rosbag_size_mb / (1024 * 1024), 2)
+
+            # Total directory size
+            total_bytes = 0
+            for f in output_path.rglob('*'):
+                if f.is_file():
+                    total_bytes += f.stat().st_size
+            total_size_mb = round(total_bytes / (1024 * 1024), 2)
+
+            summary = {
+                "timestamp": timestamp,
+                "duration_seconds": round(duration, 2),
+                "cameras": cameras,
+                "pointcloud": pointcloud,
+                "rosbag_size_mb": rosbag_size_mb,
+                "total_size_mb": total_size_mb,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            }
+
+            summary_path = output_path / 'summary.json'
+            with open(summary_path, 'w') as sf:
+                json.dump(summary, sf, indent=2, ensure_ascii=False)
+            logger.info(f"summary.json written to {summary_path}")
+        except Exception as e:
+            logger.warning(f"Failed to write summary.json: {e}")
 
     def _convert_bag(self, bag_dir, output_dir):
         """Run bag-to-JSONL conversion in a background thread."""
@@ -728,6 +853,33 @@ async def imu_data_handler(request):
     return web.json_response({'ok': True, 'data': data})
 
 
+
+
+async def imu_ws_handler(request):
+    """WebSocket endpoint to push IMU data at ~20Hz."""
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
+
+    logger.info("IMU WebSocket client connected")
+
+    try:
+        while not ws.closed:
+            with imu_cache['lock']:
+                data = imu_cache['data']
+            if data is not None:
+                payload = json.dumps({'ok': True, 'data': data})
+                try:
+                    await ws.send_str(payload)
+                except Exception:
+                    break
+            await asyncio.sleep(0.05)  # 20Hz push rate
+    except Exception as e:
+        logger.debug(f"IMU WebSocket error: {e}")
+    finally:
+        logger.info("IMU WebSocket client disconnected")
+
+    return ws
+
 async def on_shutdown(app):
     f710_mgr.stop()
     recording_mgr.stop()
@@ -814,6 +966,7 @@ def create_app():
     # Start standalone IMU reader (lightweight, no video/depth)
     start_imu_reader()
     app.router.add_get('/ws', rosbridge_proxy_handler)
+    app.router.add_get('/ws/imu', imu_ws_handler)
 
     return app
 

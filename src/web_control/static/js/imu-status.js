@@ -1,7 +1,7 @@
 /**
  * SVTROBO Web Control - IMU Status Module
- * Fetches IMU data from /api/imu HTTP endpoint (primary)
- * Falls back to rosbridge topics if HTTP not available
+ * Primary: WebSocket connection to /ws/imu (20Hz push)
+ * Fallback: HTTP polling to /api/imu (10Hz)
  */
 
 const IMUStatus = {
@@ -12,21 +12,87 @@ const IMUStatus = {
     lastTime: 0,
     freqEl: null,
     pollTimer: null,
-    useHttp: true,
+    useHttp: false,
+    ws: null,
+    wsReconnectTimer: null,
+    wsConnected: false,
 
     init(ros) {
         this.freqEl = document.getElementById('imu-freq');
-        // Try HTTP polling first
-        this.startHttpPoll();
+        // Try WebSocket first, fall back to HTTP
+        this.connectWebSocket();
     },
 
+    // --- WebSocket (primary) ---
+
+    connectWebSocket() {
+        if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) {
+            return;
+        }
+
+        const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = protocol + '//' + location.host + '/ws/imu';
+
+        try {
+            this.ws = new WebSocket(wsUrl);
+
+            this.ws.onopen = () => {
+                this.wsConnected = true;
+                this.stopHttpPoll();
+                if (this.wsReconnectTimer) {
+                    clearTimeout(this.wsReconnectTimer);
+                    this.wsReconnectTimer = null;
+                }
+            };
+
+            this.ws.onmessage = (event) => {
+                try {
+                    const json = JSON.parse(event.data);
+                    if (json.ok && json.data) {
+                        this.updateFromHttp(json.data);
+                    }
+                } catch (e) {
+                    // Ignore parse errors
+                }
+            };
+
+            this.ws.onclose = () => {
+                this.wsConnected = false;
+                this.ws = null;
+                // Fall back to HTTP polling
+                this.startHttpPoll();
+                // Auto-reconnect WebSocket after 3 seconds
+                this.scheduleWsReconnect();
+            };
+
+            this.ws.onerror = () => {
+                // onclose will fire after this, which handles fallback
+            };
+        } catch (e) {
+            // WebSocket not supported, use HTTP
+            this.startHttpPoll();
+        }
+    },
+
+    scheduleWsReconnect() {
+        if (this.wsReconnectTimer) return;
+        this.wsReconnectTimer = setTimeout(() => {
+            this.wsReconnectTimer = null;
+            this.connectWebSocket();
+        }, 3000);
+    },
+
+    // --- HTTP polling (fallback) ---
+
     startHttpPoll() {
+        if (this.pollTimer) return;  // Already polling
         this.useHttp = true;
         this._poll();
         this.pollTimer = setInterval(() => this._poll(), 100);  // 10Hz
     },
 
     stopHttpPoll() {
+        this.useHttp = false;
         if (this.pollTimer) {
             clearInterval(this.pollTimer);
             this.pollTimer = null;
@@ -79,6 +145,15 @@ const IMUStatus = {
 
     disable() {
         this.stopHttpPoll();
+        if (this.ws) {
+            this.ws.onclose = null;  // Prevent reconnect on intentional close
+            this.ws.close();
+            this.ws = null;
+        }
+        if (this.wsReconnectTimer) {
+            clearTimeout(this.wsReconnectTimer);
+            this.wsReconnectTimer = null;
+        }
         const ids = ['imu-acc-x','imu-acc-y','imu-acc-z',
                       'imu-gyro-x','imu-gyro-y','imu-gyro-z',
                       'imu-mag-x','imu-mag-y','imu-mag-z'];

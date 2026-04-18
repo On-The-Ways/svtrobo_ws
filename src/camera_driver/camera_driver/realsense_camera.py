@@ -30,7 +30,7 @@ class RealSenseCamera:
     """RealSense D405 相机管理类"""
 
     def __init__(self, serial='', color_size=(1280, 720), depth_size=(1280, 720), fps=5,
-                 color_only=True):
+                 color_only=True, warmup_frames=None):
         """
         Args:
             serial: 设备序列号，空字符串则自动选择第一个设备
@@ -38,6 +38,7 @@ class RealSenseCamera:
             depth_size: (width, height) 深度图分辨率 (仅 color_only=False 时生效)
             fps: 帧率
             color_only: 只采集彩色图，不计算深度（默认 True）
+            warmup_frames: 预热帧数（None=自动: depth模式15, color_only模式5）
         """
         if rs is None:
             raise ImportError('pyrealsense2 未安装: pip install pyrealsense2')
@@ -47,6 +48,8 @@ class RealSenseCamera:
         self.depth_w, self.depth_h = depth_size
         self.fps = fps
         self.color_only = color_only
+        # 预热帧数: 显式传入用传入值，否则 depth 模式 15, color_only 模式 5
+        self.warmup_frames = warmup_frames if warmup_frames is not None else (5 if color_only else 15)
 
         self.pipeline = None
         self.align = None
@@ -96,8 +99,7 @@ class RealSenseCamera:
             self.align = rs.align(rs.stream.color)
 
         # 预热
-        warmup_frames = 5 if self.color_only else 15
-        for _ in range(warmup_frames):
+        for _ in range(self.warmup_frames):
             self.pipeline.wait_for_frames()
 
         mode = 'color-only' if self.color_only else 'color+depth'
