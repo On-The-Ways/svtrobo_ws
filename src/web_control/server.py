@@ -221,8 +221,9 @@ class CameraManager:
         depth_queue: if provided, raw depth frames are queued for recording.
         pc_queue: if provided (ZED only), XYZRGBA point cloud frames are queued.
         """
-        # Point cloud capture throttle (every N frames to signal pointcloud thread)
-        PC_SKIP = 10  # every 10th frame (~1.5Hz at 15fps) — reduces impact on main capture fps
+        # Point cloud capture throttle (time-based, 2Hz interval)
+        PC_INTERVAL = 0.5  # seconds between point cloud captures (2Hz)
+        _last_pc_time = 0.0
         frame_count = 0
 
         while not stop_event.is_set():
@@ -258,8 +259,9 @@ class CameraManager:
                     except Exception as e:
                         logger.debug(f"Camera {name} depth queue error: {e}")
 
-                # ZED point cloud capture (throttled, in-line)
-                if pc_queue is not None and frame_count % PC_SKIP == 0:
+                # ZED point cloud capture (throttled by time, 2Hz)
+                _now = time.time()
+                if pc_queue is not None and (_now - _last_pc_time) >= PC_INTERVAL:
                     try:
                         pc_data = cam.capture_pointcloud()
                         if pc_data is not None:
@@ -268,6 +270,7 @@ class CameraManager:
                             except queue.Empty:
                                 pass
                             pc_queue.put((pc_data, timestamp_us))
+                            _last_pc_time = _now
                     except Exception as e:
                         logger.debug(f"Camera {name} pointcloud error: {e}")
 
