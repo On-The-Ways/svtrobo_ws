@@ -81,6 +81,8 @@ class CameraManager:
 
                 stop_event = threading.Event()
                 frame_queue = queue.Queue(maxsize=2)
+                depth_queue = queue.Queue(maxsize=2) if cfg.get('depth') else None
+                pc_queue = queue.Queue(maxsize=1) if (name == 'zed' and cfg.get('depth')) else None
 
                 t = threading.Thread(
                     target=self._capture_loop,
@@ -88,9 +90,6 @@ class CameraManager:
                     daemon=True,
                 )
                 t.start()
-
-                depth_queue = queue.Queue(maxsize=2) if cfg.get('depth') else None
-                pc_queue = queue.Queue(maxsize=1) if (name == 'zed' and cfg.get('depth')) else None
 
                 self.cameras[name] = {
                     'instance': cam,
