@@ -361,6 +361,25 @@ class ZEDCamera:
         except Exception:
             return None
 
+    def capture_pointcloud(self):
+        """采集一帧 XYZRGBA 点云 (仅 SDK 模式 + depth 开启时可用)
+
+        Returns:
+            numpy (H, W, 4) float32 — X,Y,Z (mm) + RGBA 打包
+            None if not available (color_only mode or no SDK)
+        """
+        if not self.use_sdk or not self.zed or not self.is_running or self.color_only:
+            return None
+        try:
+            pc = sl.Mat()
+            self.zed.retrieve_measure(pc, sl.MEASURE.XYZRGBA)
+            data = pc.get_data()
+            if data is None:
+                return None
+            return data
+        except Exception:
+            return None
+
     # ---- 工具 ----
 
     def _res_map(self, name):

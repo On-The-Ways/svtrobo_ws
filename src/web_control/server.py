@@ -84,12 +84,13 @@ class CameraManager:
 
                 t = threading.Thread(
                     target=self._capture_loop,
-                    args=(name, cam, frame_queue, stop_event, depth_queue),
+                    args=(name, cam, frame_queue, stop_event, depth_queue, pc_queue),
                     daemon=True,
                 )
                 t.start()
 
                 depth_queue = queue.Queue(maxsize=2) if cfg.get('depth') else None
+                pc_queue = queue.Queue(maxsize=1) if (name == 'zed' and cfg.get('depth')) else None
 
                 self.cameras[name] = {
                     'instance': cam,
@@ -97,6 +98,7 @@ class CameraManager:
                     'stop_event': stop_event,
                     'frame_queue': frame_queue,
                     'depth_queue': depth_queue,
+                    'pc_queue': pc_queue,
                     'running': True,
                 }
                 logger.info(f"Camera {name} started")
@@ -168,13 +170,33 @@ class CameraManager:
         except queue.Empty:
             return None
 
+    def get_pc_frame(self, name):
+        """Get the latest point cloud frame and timestamp for a camera (non-blocking).
+
+        Returns:
+            (numpy_xyzrgba, timestamp_us) or None
+        """
+        if name not in self.cameras or not self.cameras[name]['running']:
+            return None
+        pq = self.cameras[name].get('pc_queue')
+        if pq is None:
+            return None
+        try:
+            return pq.get_nowait()
+        except queue.Empty:
+            return None
+
     @staticmethod
-    def _capture_loop(name, cam, frame_queue, stop_event, depth_queue=None):
+    def _capture_loop(name, cam, frame_queue, stop_event, depth_queue=None, pc_queue=None):
         """Background thread: continuously capture frames and encode as JPEG.
         
-        If depth_queue is provided, depth frames are also encoded as colored JPEG
-        and placed in depth_queue alongside the color frame.
+        depth_queue: if provided, raw depth frames are queued for recording.
+        pc_queue: if provided (ZED only), XYZRGBA point cloud frames are queued.
         """
+        # Point cloud capture throttle (every N frames to reduce CPU/disk load)
+        PC_SKIP = 5  # save every 5th frame (~3Hz at 15fps)
+        frame_count = 0
+
         while not stop_event.is_set():
             try:
                 result = cam.capture()
@@ -207,6 +229,21 @@ class CameraManager:
                         depth_queue.put((depth_raw, timestamp_us))
                     except Exception as e:
                         logger.debug(f"Camera {name} depth queue error: {e}")
+
+                # ZED point cloud capture (throttled)
+                if pc_queue is not None and frame_count % PC_SKIP == 0:
+                    try:
+                        pc_data = cam.capture_pointcloud()
+                        if pc_data is not None:
+                            try:
+                                pc_queue.get_nowait()
+                            except queue.Empty:
+                                pass
+                            pc_queue.put((pc_data, timestamp_us))
+                    except Exception as e:
+                        logger.debug(f"Camera {name} pointcloud error: {e}")
+
+                frame_count += 1
 
                 # Extract IMU data from ZED camera (if SDK mode)
                 if name == 'zed' and hasattr(cam, 'get_imu_data'):
@@ -396,11 +433,13 @@ class RecordingManager:
         }
 
     def _save_camera_frames_loop(self):
-        """Periodically save camera frames (color + depth) from CameraManager queues."""
+        """Periodically save camera frames (color + depth + pointcloud) from CameraManager queues."""
+        import numpy as _np
         cam_names = ['d405_1', 'd405_2', 'zed']
 
         while not self.stop_event.is_set():
             for name in cam_names:
+                # Save color frame
                 result = self.camera_mgr.get_frame(name)
                 if result:
                     frame, timestamp_us = result
@@ -431,6 +470,19 @@ class RecordingManager:
                         depth_path.write_bytes(depth_jpeg.tobytes())
                     except Exception as e:
                         logger.warning(f"Failed to save {name} depth: {e}")
+
+                # Save ZED point cloud if available
+                if name == 'zed':
+                    pc_result = self.camera_mgr.get_pc_frame(name)
+                    if pc_result:
+                        pc_data, pc_ts = pc_result
+                        try:
+                            pc_dir = self.output_dir / 'pointcloud' / name
+                            pc_dir.mkdir(parents=True, exist_ok=True)
+                            pc_path = pc_dir / f'{pc_ts}.npz'
+                            _np.savez_compressed(pc_path, xyzrgba=pc_data)
+                        except Exception as e:
+                            logger.warning(f"Failed to save {name} pointcloud: {e}")
 
             self.stop_event.wait(0.1)  # 10 Hz
 
