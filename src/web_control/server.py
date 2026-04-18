@@ -279,9 +279,10 @@ RECORD_TOPICS = [
     '/chassis/joint_states',
     '/chassis/diagnostics',
     '/f710/joy',
-    '/zed/imu/data',
-    '/zed/imu/mag',
-    '/zed/imu/temperature',
+    # IMU data saved directly to imu.jsonl (no ROS2 publisher for these topics)
+    # '/zed/imu/data',
+    # '/zed/imu/mag',
+    # '/zed/imu/temperature',
 ]
 
 # After recording stops, convert .db3 to JSONL and delete the original db file
@@ -433,7 +434,7 @@ class RecordingManager:
                     depth_count = 0
                     depth_dir = output_path / 'depth' / cam_name
                     if depth_dir.is_dir():
-                        depth_count = sum(1 for f in depth_dir.iterdir() if f.suffix == '.npy')
+                        depth_count = sum(1 for f in depth_dir.iterdir() if f.suffix == '.jpg')
                     cameras[cam_name] = {"images": img_count, "depth": depth_count}
 
             # Pointcloud
@@ -505,85 +506,97 @@ class RecordingManager:
         }
 
     def _save_camera_frames_loop(self):
-        """Continuously save camera frames (color + depth + pointcloud) from CameraManager queues."""
+        """Continuously save camera frames (color + depth + pointcloud) + IMU from queues."""
         import numpy as _np
         cam_names = ['d405_1', 'd405_2', 'zed']
 
-        while not self.stop_event.is_set():
-            any_saved = False
-            for name in cam_names:
-                # Drain all queued color frames, save latest only
-                latest_color = None
-                while True:
-                    result = self.camera_mgr.get_frame(name)
-                    if result is None:
-                        break
-                    latest_color = result
-                if latest_color:
-                    any_saved = True
-                    frame, timestamp_us = latest_color
-                    img_dir = self.output_dir / 'images' / name
-                    img_dir.mkdir(parents=True, exist_ok=True)
-                    path = img_dir / f'{timestamp_us}.jpg'
-                    try:
-                        path.write_bytes(frame)
-                    except Exception as e:
-                        logger.warning(f"Failed to save {name} frame: {e}")
+        # IMU JSONL output
+        imu_path = self.output_dir / 'imu.jsonl'
+        imu_file = open(imu_path, 'a')
+        imu_count = 0
 
-                # Drain all queued depth frames, save latest only
-                latest_depth = None
-                while True:
-                    depth_result = self.camera_mgr.get_depth_frame(name)
-                    if depth_result is None:
-                        break
-                    latest_depth = depth_result
-                if latest_depth:
-                    any_saved = True
-                    depth_raw, d_timestamp_us = latest_depth
-                    try:
-                        depth_max = 20000.0 if name == 'zed' else 1000.0
-                        if depth_raw.dtype == _np.float32:
-                            depth_vis = _np.clip(depth_raw / depth_max, 0, 1)
-                        else:
-                            depth_vis = _np.clip(depth_raw.astype(_np.float32) / depth_max, 0, 1)
-                        depth_u8 = (depth_vis * 255).astype(_np.uint8)
-                        depth_colored = cv2.applyColorMap(depth_u8, cv2.COLORMAP_JET)
-                        _, depth_jpeg = cv2.imencode('.jpg', depth_colored, [cv2.IMWRITE_JPEG_QUALITY, 70])
-                        depth_dir = self.output_dir / 'depth' / name
-                        depth_dir.mkdir(parents=True, exist_ok=True)
-                        depth_path = depth_dir / f'{d_timestamp_us}.jpg'
-                        depth_path.write_bytes(depth_jpeg.tobytes())
-                    except Exception as e:
-                        logger.warning(f"Failed to save {name} depth: {e}")
-
-                # Save ZED point cloud if available (drain, keep latest)
-                if name == 'zed':
-                    latest_pc = None
+        try:
+            while not self.stop_event.is_set():
+                any_saved = False
+                for name in cam_names:
+                    # Drain all queued color frames, save latest only
+                    latest_color = None
                     while True:
-                        pc_result = self.camera_mgr.get_pc_frame(name)
-                        if pc_result is None:
+                        result = self.camera_mgr.get_frame(name)
+                        if result is None:
                             break
-                        latest_pc = pc_result
-                    if latest_pc:
+                        latest_color = result
+                    if latest_color:
                         any_saved = True
-                        pc_data, pc_ts = latest_pc
+                        frame, timestamp_us = latest_color
+                        img_dir = self.output_dir / 'images' / name
+                        img_dir.mkdir(parents=True, exist_ok=True)
+                        path = img_dir / f'{timestamp_us}.jpg'
                         try:
-                            pc_dir = self.output_dir / 'pointcloud' / name
-                            pc_dir.mkdir(parents=True, exist_ok=True)
-                            pc_path = pc_dir / f'{pc_ts}.npz'
-                            _np.savez(pc_path, xyzrgba=pc_data)
+                            path.write_bytes(frame)
                         except Exception as e:
-                            logger.warning(f"Failed to save {name} pointcloud: {e}")
+                            logger.warning(f"Failed to save {name} frame: {e}")
 
-            # Fast poll: 10ms sleep when idle, no sleep when actively saving
-            if not any_saved:
-                if self.stop_event.wait(0.01):
-                    break
+                    # Drain all queued depth frames, save latest only
+                    latest_depth = None
+                    while True:
+                        depth_result = self.camera_mgr.get_depth_frame(name)
+                        if depth_result is None:
+                            break
+                        latest_depth = depth_result
+                    if latest_depth:
+                        any_saved = True
+                        depth_raw, d_timestamp_us = latest_depth
+                        try:
+                            depth_max = 20000.0 if name == 'zed' else 1000.0
+                            if depth_raw.dtype == _np.float32:
+                                depth_vis = _np.clip(depth_raw / depth_max, 0, 1)
+                            else:
+                                depth_vis = _np.clip(depth_raw.astype(_np.float32) / depth_max, 0, 1)
+                            depth_u8 = (depth_vis * 255).astype(_np.uint8)
+                            depth_colored = cv2.applyColorMap(depth_u8, cv2.COLORMAP_JET)
+                            _, depth_jpeg = cv2.imencode('.jpg', depth_colored, [cv2.IMWRITE_JPEG_QUALITY, 70])
+                            depth_dir = self.output_dir / 'depth' / name
+                            depth_dir.mkdir(parents=True, exist_ok=True)
+                            depth_path = depth_dir / f'{d_timestamp_us}.jpg'
+                            depth_path.write_bytes(depth_jpeg.tobytes())
+                        except Exception as e:
+                            logger.warning(f"Failed to save {name} depth: {e}")
 
-        logger.info("Camera frame saver exiting")
+                    # Save ZED point cloud if available (drain, keep latest)
+                    if name == 'zed':
+                        latest_pc = None
+                        while True:
+                            pc_result = self.camera_mgr.get_pc_frame(name)
+                            if pc_result is None:
+                                break
+                            latest_pc = pc_result
+                        if latest_pc:
+                            any_saved = True
+                            pc_data, pc_ts = latest_pc
+                            try:
+                                pc_dir = self.output_dir / 'pointcloud' / name
+                                pc_dir.mkdir(parents=True, exist_ok=True)
+                                pc_path = pc_dir / f'{pc_ts}.npz'
+                                _np.savez(pc_path, xyzrgba=pc_data)
+                            except Exception as e:
+                                logger.warning(f"Failed to save {name} pointcloud: {e}")
 
+                # Save IMU data from cache to JSONL
+                with imu_cache["lock"]:
+                    imu_data = imu_cache["data"]
+                if imu_data is not None:
+                    imu_line = json.dumps(imu_data)
+                    imu_file.write(imu_line + "\n")
+                    imu_count += 1
 
-# --- F710 Manager ---
+                # Fast poll: 10ms sleep when idle, no sleep when actively saving
+                if not any_saved:
+                    if self.stop_event.wait(0.01):
+                        break
+        finally:
+            imu_file.close()
+            logger.info(f"Camera frame saver exiting, saved {imu_count} IMU samples")
 
 
 class F710Manager:
