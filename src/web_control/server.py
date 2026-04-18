@@ -552,6 +552,8 @@ camera_mgr = CameraManager()
 recording_mgr = RecordingManager(camera_mgr)
 f710_mgr = F710Manager()
 imu_cache = {'data': None, 'lock': threading.Lock()}
+_imu_thread = None
+_imu_stop = threading.Event()
 
 
 async def index_handler(request):
@@ -634,6 +636,87 @@ async def f710_stop_handler(request):
 
 async def f710_status_handler(request):
     return web.json_response(f710_mgr.get_status())
+
+
+def _imu_reader_loop():
+    """独立线程：以最小开销读取 ZED IMU（VGA+无深度，~20Hz）"""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent / 'camera_driver'))
+    try:
+        import pyzed.sl as sl
+    except ImportError:
+        logger.warning('ZED SDK not available, standalone IMU disabled')
+        return
+    zed = sl.Camera()
+    params = sl.InitParameters()
+    params.camera_resolution = sl.RESOLUTION.VGA
+    params.camera_fps = 15
+    params.depth_mode = sl.DEPTH_MODE.NONE
+    params.sensors_required = True
+    err = zed.open(params)
+    if err != sl.ERROR_CODE.SUCCESS:
+        logger.warning(f'ZED open for IMU-only failed: {err}')
+        return
+    logger.info('ZED IMU-only reader started')
+    sensors = sl.SensorsData()
+    runtime = sl.RuntimeParameters()
+    while not _imu_stop.is_set():
+        try:
+            if zed.grab(runtime) == sl.ERROR_CODE.SUCCESS:
+                if zed.get_sensors_data(sensors, sl.TIME_REFERENCE.IMAGE) == sl.ERROR_CODE.SUCCESS:
+                    imu_sensor = sensors.get_imu_data()
+                    if imu_sensor.is_available:
+                        import math
+                        acc = imu_sensor.get_linear_acceleration()
+                        gyro = imu_sensor.get_angular_velocity()
+                        mag_data = sensors.get_magnetometer_data()
+                        baro = sensors.get_barometer_data()
+                        temp_data = sensors.get_temperature_data()
+                        mag = mag_data.get_magnetic_field_calibrated() if mag_data.is_available else (0,0,0)
+                        imu_temp_raw = temp_data.get(sl.SENSOR_LOCATION.IMU)
+                        imu_temp = imu_temp_raw * 0.01 if imu_temp_raw and imu_temp_raw > 0 else 0.0
+                        baro_temp_raw = temp_data.get(sl.SENSOR_LOCATION.BAROMETER)
+                        env_temp = baro_temp_raw * 0.01 if baro_temp_raw and baro_temp_raw > 0 else 0.0
+                        ts_ns = imu_sensor.timestamp.get_nanoseconds()
+                        with imu_cache['lock']:
+                            imu_cache['data'] = {
+                                'accel': [acc[0], acc[1], acc[2]],
+                                'gyro_dps': [gyro[0], gyro[1], gyro[2]],
+                                'gyro_rad': [math.radians(gyro[0]), math.radians(gyro[1]), math.radians(gyro[2])],
+                                'mag': [mag[0], mag[1], mag[2]],
+                                'mag_valid': 1 if mag_data.is_available else 0,
+                                'imu_temp': imu_temp,
+                                'pressure': baro.pressure if baro.is_available else 0.0,
+                                'env_temp': env_temp,
+                                'timestamp_ns': ts_ns,
+                                'timestamp_s': ts_ns / 1e9,
+                            }
+            _imu_stop.wait(0.05)
+        except Exception as e:
+            logger.debug(f'IMU reader error: {e}')
+            _imu_stop.wait(0.5)
+    zed.close()
+    logger.info('ZED IMU-only reader stopped')
+
+
+def start_imu_reader():
+    """启动独立 IMU 读取线程（ZED 未被相机管理器启动时调用）"""
+    global _imu_thread
+    if _imu_thread and _imu_thread.is_alive():
+        return
+    _imu_stop.clear()
+    _imu_thread = threading.Thread(target=_imu_reader_loop, daemon=True)
+    _imu_thread.start()
+
+
+def stop_imu_reader():
+    """停止独立 IMU 读取线程"""
+    global _imu_thread
+    _imu_stop.set()
+    if _imu_thread:
+        _imu_thread.join(timeout=3)
+        _imu_thread = None
 
 
 async def imu_data_handler(request):
@@ -728,6 +811,8 @@ def create_app():
     app.router.add_post('/f710/stop', f710_stop_handler)
     app.router.add_get('/f710/status', f710_status_handler)
     app.router.add_get('/api/imu', imu_data_handler)
+    # Start standalone IMU reader (lightweight, no video/depth)
+    start_imu_reader()
     app.router.add_get('/ws', rosbridge_proxy_handler)
 
     return app
