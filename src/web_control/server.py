@@ -456,11 +456,11 @@ class RecordingManager:
                     depth_raw, d_timestamp_us = depth_result
                     try:
                         depth_max = 20000.0 if name == 'zed' else 1000.0
-                        if depth_raw.dtype == np.float32:
-                            depth_vis = np.clip(depth_raw / depth_max, 0, 1)
+                        if depth_raw.dtype == _np.float32:
+                            depth_vis = _np.clip(depth_raw / depth_max, 0, 1)
                         else:
-                            depth_vis = np.clip(depth_raw.astype(np.float32) / depth_max, 0, 1)
-                        depth_u8 = (depth_vis * 255).astype(np.uint8)
+                            depth_vis = _np.clip(depth_raw.astype(_np.float32) / depth_max, 0, 1)
+                        depth_u8 = (depth_vis * 255).astype(_np.uint8)
                         depth_colored = cv2.applyColorMap(depth_u8, cv2.COLORMAP_JET)
                         _, depth_jpeg = cv2.imencode('.jpg', depth_colored, [cv2.IMWRITE_JPEG_QUALITY, 70])
                         depth_dir = self.output_dir / 'depth' / name
