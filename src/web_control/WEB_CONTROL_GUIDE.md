@@ -190,8 +190,8 @@ Web 控制台通过 rosbridge WebSocket 订阅和发布以下 ROS2 Topic：
 
 | 名称 | 类型 | 分辨率 | FPS |
 |------|------|--------|-----|
-| D405 #1 | RealSense | 640x480 | 15 |
-| D405 #2 | RealSense | 640x480 | 15 |
+| D405 #1 | RealSense | 1280x720 | 6 |
+| D405 #2 | RealSense | 1280x720 | 6 |
 | ZED 2i | ZED SDK | 1280x720 (HD720) | 15 |
 
 ### 操作方式

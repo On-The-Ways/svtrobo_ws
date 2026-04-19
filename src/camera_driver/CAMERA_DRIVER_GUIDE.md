@@ -47,16 +47,16 @@
 
 **D405 支持分辨率（彩色 / 深度）：**
 
-| 分辨率 | 彩色 fps | 深度 fps | 当前默认 |
-|--------|----------|----------|----------|
-| 1280x720 | 5/10/15 | 5 | **默认** |
+| 分辨率 | 彩色 fps | 深度 fps | 备注 |
+|--------|----------|----------|------|
+| 1280x720 | 5/6/15 | 5/6/15 | **当前使用** @6fps |
 | 848x480 | 5/10 | 5/10 | |
 | 640x480 | 5/15/30 | 5/15/30 | |
 | 640x360 | - | 30 | |
 | 480x270 | 5/15/30/60 | 5/15/30/60 | |
 | 424x240 | 5/15/30/60 | - | |
 
-> 注意：彩色和深度流需要相同 fps 才能同时运行。1280x720 最高 5fps。
+> 注意：彩色和深度流需要相同 fps 才能同时运行。两台D405在1280x720@6fps下可同时工作。
 
 **ZED 2i（OpenCV V4L2 模式）：**
 
@@ -236,7 +236,7 @@ intrinsics = cam.get_intrinsics()
 # {
 #   'fx': 393.5, 'fy': 392.6,
 #   'ppx': 318.2, 'ppy': 239.2,
-#   'width': 640, 'height': 480,
+#   'width': 1280, 'height': 720,
 #   'coeffs': [0.0, 0.0, 0.0, 0.0, 0.0]
 # }
 ```
@@ -289,7 +289,7 @@ cam1.stop()
 cam2.stop()
 ```
 
-> 注意：不要同时启动超过 USB 带宽限制的组合。两台 D405 在 640x480@30fps 下可同时工作，1280x720@5fps 也可。
+> 注意：不要同时启动超过 USB 带宽限制的组合。两台 D405 在 1280x720@6fps 下可同时工作。
 
 ---
 
@@ -547,9 +547,9 @@ python3 src/camera_driver/camera_driver/zed_imu_node.py
 |------|------|--------|------|
 | `serial_number` | str | `''` | 设备序列号，空则选第一个 |
 | `namespace` | str | `'d405_1'` | 话题命名空间 |
-| `color_width` | int | `640` | 彩色图宽度 |
+| `color_width` | int | `1280` | 彩色图宽度 |
 | `color_height` | int | `480` | 彩色图高度 |
-| `depth_width` | int | `640` | 深度图宽度 |
+| `depth_width` | int | `1280` | 深度图宽度 |
 | `depth_height` | int | `480` | 深度图高度 |
 | `fps` | int | `30` | 帧率 |
 | `frame_id` | str | `'camera_link'` | TF frame ID |
@@ -632,7 +632,7 @@ svtrobo_ws/
 USB 带宽限制。降低分辨率或帧率：
 
 ```python
-cam = RealSenseCamera(serial='...', color_size=(640, 480), depth_size=(640, 480), fps=15)
+cam = RealSenseCamera(serial='...', color_size=(1280, 720), depth_size=(1280, 720), fps=6)
 ```
 
 ### Q3: ZED 启动报错 `未找到 ZED 相机设备`
