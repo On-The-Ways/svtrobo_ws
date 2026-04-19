@@ -31,13 +31,13 @@
 recordings/
 └── YYYYMMDD_HHMMSS/                  # 录制会话（如 20260417_212712）
     ├── images/                        # 彩色图
-    │   ├── zed/                       # ZED 2i (HD720, 13.5fps, ~83KB/帧)
+    │   ├── zed/                       # ZED 2i (HD720, 2Hz, JPEG q95, ~161KB/帧)
     │   │   ├── 1744900000123456.jpg   # 文件名 = Unix 微秒时间戳
     │   │   └── ...
     │   ├── d405_1/                    # D405 #1 (如在线)
     │   └── d405_2/                    # D405 #2 (如在线)
     ├── depth/                         # 深度图 (JET colormap JPEG)
-    │   ├── zed/                       # ZED 深度 (13.5fps, ~36KB/帧, 0-20m归一化)
+    │   ├── zed/                       # ZED 深度 (2Hz, JPEG q95, ~52KB/帧, 0-20m归一化)
     │   ├── d405_1/                    # D405 #1 深度 (如在线, 0-1m归一化)
     │   └── d405_2/                    # D405 #2 深度 (如在线)
     ├── pointcloud/                    # 3D点云 (float16, 全分辨率)
@@ -65,9 +65,9 @@ recordings/
 | 项目 | 说明 |
 |------|------|
 | 来源 | 3 个相机：D405 #1、D405 #2、ZED 2i |
-| 格式 | JPEG |
-| ZED 采集频率 | 13.5 Hz |
-| D405 采集频率 | 如在线，同 ZED |
+| 格式 | JPEG (quality 95) |
+| ZED 采集频率 | 15 Hz (相机内部), 2 Hz (录制保存, deadline-based) |
+| D405 采集频率 | 6 Hz (相机内部), 2 Hz (录制保存, deadline-based) |
 | 命名规则 | `{timestamp_us}.jpg`（Unix 微秒时间戳） |
 | 对齐方式 | 文件名即精确采集时间戳（微秒级），可直接与 JSONL 中的 `_timestamp_ns`（纳秒级）对齐 |
 
@@ -89,11 +89,11 @@ recordings/
 
 | 项目 | 说明 |
 |------|------|
-| 格式 | JPEG (JET colormap 着色后编码) |
+| 格式 | JPEG q95 (JET colormap 着色后编码) |
 | ZED 深度范围 | 0-20m 归一化 |
 | D405 深度范围 | 0-1m 归一化 |
-| 采集频率 | 与彩色图同步 (ZED: 13.5fps) |
-| JPEG质量 | 70 |
+| 采集频率 | 与彩色图同步 2Hz (deadline-based) |
+| JPEG质量 | 95 |
 
 > **注意**：深度图是归一化+colormap着色后的可视化JPEG，非原始深度数据。原始深度值为 float32 (mm)，归一化到 [0,1] 后用 `cv2.COLORMAP_JET` 着色。
 
@@ -105,8 +105,8 @@ recordings/
 |------|------|
 | 格式 | npz (numpy 非压缩)，key 为 `xyzrgba` |
 | 数据类型 | float16, shape (H, W, 4) — X, Y, Z (mm) + RGBA 打包 (可配置PC_DTYPE) |
-| 采样频率 | ~1.4 Hz (每10帧采1帧, PC_SKIP=10) |
-| 单帧大小 | ~14MB |
+| 采样频率 | 2 Hz (deadline-based) |
+| 单帧大小 | ~7MB (float16, 全分辨率 720x1280; float32 时 ~14MB) |
 | 仅 ZED | 仅 ZED 2i 支持点云采集
 
 > 采集时使用 float16 精度保存（全分辨率 720x1280），每帧从 14MB(float32) 降至 ~7MB，2Hz录制。可通过 server.py 中 `PC_DOWNSAMPLE`（降采样，默认1=全分辨率）和 `PC_DTYPE`（默认float16）参数随时调整。 |
@@ -236,8 +236,9 @@ python3 src/web_control/bag_converter.py recordings/YYYYMMDD_HHMMSS/rosbag recor
 
 | 数据 | 文件 | 频率 | 来源 |
 |------|------|------|------|
-| ZED 彩色图 | `images/zed/*.jpg` | 13.5 Hz | ZED SDK capture |
-| ZED 深度图 | `depth/zed/*.jpg` | 13.5 Hz | ZED SDK retrieve_measure |
+| ZED 左眼彩色 | `images/zed/*.jpg` | 2 Hz | ZED SDK capture, deadline-based |
+| ZED 右眼彩色 | `images/zed_right/*.jpg` | 2 Hz | ZED SDK capture, 与左眼同步 |
+| ZED 深度图 | `depth/zed/*.jpg` | 2 Hz | ZED SDK retrieve_measure |
 | ZED 点云 | `pointcloud/zed/*.npz` | 2 Hz | ZED SDK, float16 (720x1280, ~7MB/帧) |
 | IMU | `imu.jsonl` | ~70 Hz | ZED SDK get_imu_data |
 | 底盘关节状态 | `chassis_joint_states.jsonl` | ~10 Hz | ROS2 /chassis/joint_states |

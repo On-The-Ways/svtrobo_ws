@@ -210,7 +210,7 @@ Web 控制台通过 rosbridge WebSocket 订阅和发布以下 ROS2 Topic：
 | `/camera/stop` | POST | 停止相机（body: `{"camera": "d405_1"}`） |
 | `/camera/status` | GET | 获取所有相机状态 |
 
-> 相机采集线程以后台守护线程运行，帧通过有界队列传递，MJPEG 编码质量为 70。
+> 相机采集线程以后台守护线程运行，帧通过有界队列传递，MJPEG 编码质量为 95。
 
 ### 数据录制
 

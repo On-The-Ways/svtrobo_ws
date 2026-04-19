@@ -165,7 +165,7 @@ RealSenseCamera(
     serial='',              # 设备序列号，空字符串自动选第一个
     color_size=(1280, 720), # (width, height) 彩色图分辨率
     depth_size=(1280, 720), # (width, height) 深度图分辨率
-    fps=5,                  # 帧率（1280x720 最高 5fps）
+    fps=6,                  # 帧率
 )
 ```
 
@@ -176,7 +176,7 @@ RealSenseCamera(
 | `serial` | str | `''` | 设备序列号，空则选第一个设备 |
 | `color_size` | tuple | `(1280, 720)` | 彩色图 (宽, 高) |
 | `depth_size` | tuple | `(1280, 720)` | 深度图 (宽, 高) |
-| `fps` | int | `5` | 帧率，高分辨率下受硬件限制 |
+| `fps` | int | `6` | 帧率 |
 
 ### 5.2 `start()` — 启动相机
 
@@ -305,7 +305,7 @@ ZED SDK 已安装在 Jetson Orin 上，运行在 **SDK 模式**：
 |------|------|
 | 彩色图 | 1280x720 (HD720) @ 15fps (录制保存2Hz) |
 | 深度图 | NEURAL 深度模式，float32 (mm) |
-| 点云 | XYZRGBA float32 (~3.5MB/帧, 2Hz录制, 可配降采样+float16) |
+| 点云 | XYZRGBA float16 (~7MB/帧, 2Hz录制, 全分辨率, 可配降采样+dtype) |
 | 右眼 | 1280x720 (HD720), 与左眼同步采集 |
 | IMU | SDK + 独立线程 (~70Hz) |
 
@@ -315,7 +315,7 @@ ZED SDK 已安装在 Jetson Orin 上，运行在 **SDK 模式**：
 
 ```python
 ZEDCamera(
-    resolution='HD720',    # 仅 VGA 实际生效
+    resolution='HD720',    # 分辨率: HD2K/HD1080/HD720/VGA
     fps=30,                # 帧率
     depth_mode='NEURAL',   # 仅 SDK 模式生效
     min_depth=100.0,       # 最小深度 mm，仅 SDK 模式生效
@@ -357,7 +357,7 @@ left_path, depth_path = zed.capture_and_save(
 
 ```python
 points = zed.capture_pointcloud()
-# numpy (720, 1280, 4) float32: X, Y, Z (mm) + RGBA 打包
+# numpy (720, 1280, 4) float16 (录制保存, 可配置PC_DTYPE): X, Y, Z (mm) + RGBA 打包
 # 返回 None 如果非 SDK 模式或 color_only 模式
 ```
 
@@ -548,10 +548,10 @@ python3 src/camera_driver/camera_driver/zed_imu_node.py
 | `serial_number` | str | `''` | 设备序列号，空则选第一个 |
 | `namespace` | str | `'d405_1'` | 话题命名空间 |
 | `color_width` | int | `1280` | 彩色图宽度 |
-| `color_height` | int | `480` | 彩色图高度 |
+| `color_height` | int | `720` | 彩色图高度 |
 | `depth_width` | int | `1280` | 深度图宽度 |
-| `depth_height` | int | `480` | 深度图高度 |
-| `fps` | int | `30` | 帧率 |
+| `depth_height` | int | `720` | 深度图高度 |
+| `fps` | int | `6` | 帧率 |
 | `frame_id` | str | `'camera_link'` | TF frame ID |
 
 **启动：**
