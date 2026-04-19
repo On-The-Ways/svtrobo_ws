@@ -407,9 +407,12 @@ Web 控制台提供 IMU 数据的实时查看接口（ZED 2i 内置 IMU）：
 
 | 数据 | 格式 | 频率 | 说明 |
 |------|------|------|------|
-| ZED 彩色图 | JPEG (images/zed/) | 13.5 fps | ~83KB/帧 |
-| ZED 深度图 | JPEG JET colormap (depth/zed/) | 13.5 fps | ~36KB/帧，0-20m归一化 |
-| ZED 点云 | npz (pointcloud/zed/) | ~1.4 fps | XYZRGBA float32, ~3.5MB/帧 (2x降采样) |
+| ZED 左眼彩色 | JPEG q95 (images/zed/) | 2 Hz | 1280x720, deadline-based |
+| ZED 右眼彩色 | JPEG q95 (images/zed_right/) | 2 Hz | 1280x720, 与左眼同步 |
+| D405 彩色图 | JPEG q95 (images/d405_1/, d405_2/) | 2 Hz | 1280x720 |
+| ZED 深度图 | JPEG q95 JET colormap (depth/zed/) | 2 Hz | 1280x720, 0-20m归一化 |
+| D405 深度图 | JPEG q95 JET colormap (depth/d405_*/) | 2 Hz | 1280x720 |
+| ZED 点云 | npz float16 (pointcloud/zed/) | 2 Hz | XYZRGBA, 2x降采样, ~3.5MB/帧 |
 | IMU | imu.jsonl | ~70 Hz | accel/gyro/mag/pressure/temp |
 | ROS2 bag | rosbag/*.db3 | 原始频率 | 5个话题 |
 | 录制摘要 | summary.json | - | 时长/帧数/大小 |
@@ -473,10 +476,13 @@ python3 server.py --host 0.0.0.0 --port 8080
 
 ```python
 CAMERA_CONFIG = {
-    'd405_1': {'type': 'realsense', 'serial': '409122272399', 'size': (640, 480), 'fps': 15, 'depth': True},
-    'd405_2': {'type': 'realsense', 'serial': '409122273344', 'size': (640, 480), 'fps': 15, 'depth': True},
-    'zed':    {'type': 'zed',       'serial': None,           'size': None,       'fps': 15, 'depth': True, 'depth_mode': 'NEURAL'},
+    'd405_1': {'type': 'realsense', 'serial': '409122272399', 'size': (1280, 720), 'fps': 6, 'depth': True},
+    'd405_2': {'type': 'realsense', 'serial': '409122273344', 'size': (1280, 720), 'fps': 6, 'depth': True},
+    'zed':    {'type': 'zed', 'resolution': 'HD720', 'fps': 15, 'depth': True},
 }
+JPEG_QUALITY = 95
+PC_DOWNSAMPLE = 2      # 点云降采样 (1=全分辨率, 2=半)
+PC_DTYPE = 'float16'   # 点云精度 ('float16' 或 'float32')
 ```
 
 > **前端只显示彩色流**，深度数据仅在录制时后台保存。

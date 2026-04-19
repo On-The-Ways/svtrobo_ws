@@ -751,10 +751,12 @@ Web 控制台右下角录制按钮可一键采集所有数据：
 | 类型 | 数据源 | 格式 | 频率 |
 |------|--------|------|------|
 | ROS2 bag | `/svtrobot_cmd` `/lift_control_cmd` `/f710/joy` `/chassis/joint_states` `/chassis/diagnostics` | .db3 | 原始频率 |
-| 摄像头帧 | D405 #1, D405 #2 | JPEG | 1 FPS |
-| 摄像头帧 | ZED 2i | JPEG | 13.5 FPS |
-| ZED 深度 | ZED 2i | JET colormap JPEG | 13.5 FPS |
-| ZED 点云 | ZED 2i | XYZRGBA npz | ~1.4 Hz |
+| D405 彩色图 | D405 #1, D405 #2 | JPEG q95 | 2 Hz (deadline-based) |
+| D405 深度图 | D405 #1, D405 #2 | JET colormap JPEG q95 | 2 Hz |
+| ZED 左眼彩色 | ZED 2i | JPEG q95 (1280x720) | 2 Hz (deadline-based) |
+| ZED 右眼彩色 | ZED 2i | JPEG q95 (1280x720) | 2 Hz |
+| ZED 深度图 | ZED 2i | JET colormap JPEG q95 | 2 Hz |
+| ZED 点云 | ZED 2i | XYZRGBA float16 npz, 2x降采样 | 2 Hz |
 | IMU | ZED 2i 内置 | imu.jsonl | ~70 Hz (accel/gyro/mag/pressure/temp) |
 
 **手柄采集控制：**
@@ -767,9 +769,14 @@ Web 控制台右下角录制按钮可一键采集所有数据：
 
 ```
 recordings/YYYYMMDD_HHMMSS/
-├── images/zed/           # 彩色图 JPEG (13.5fps)
-├── depth/zed/            # 深度图 JET colormap JPEG (13.5fps)
-├── pointcloud/zed/       # ZED点云 npz (~1.4Hz)
+├── images/zed/           # ZED左眼 JPEG q95 (1280x720, 2Hz)
+├── images/zed_right/     # ZED右眼 JPEG q95 (1280x720, 2Hz)
+├── images/d405_1/        # D405 #1 彩色 JPEG q95 (1280x720, 2Hz)
+├── images/d405_2/        # D405 #2 彩色 JPEG q95 (1280x720, 2Hz)
+├── depth/zed/            # ZED深度 JET colormap JPEG q95 (2Hz)
+├── depth/d405_1/         # D405 #1 深度 JET colormap JPEG q95 (2Hz)
+├── depth/d405_2/         # D405 #2 深度 JET colormap JPEG q95 (2Hz)
+├── pointcloud/zed/       # ZED点云 XYZRGBA float16, 2x降采样 (~3.5MB/帧, 2Hz)
 ├── rosbag/               # ROS2 bag
 ├── imu.jsonl             # IMU数据 (~70Hz)
 ├── summary.json          # 录制摘要

@@ -303,9 +303,10 @@ ZED SDK 已安装在 Jetson Orin 上，运行在 **SDK 模式**：
 
 | 功能 | 状态 |
 |------|------|
-| 彩色图 | 1280x720 (HD720) @ 15fps |
+| 彩色图 | 1280x720 (HD720) @ 15fps (录制保存2Hz) |
 | 深度图 | NEURAL 深度模式，float32 (mm) |
-| 点云 | XYZRGBA float32 (~1.4Hz) |
+| 点云 | XYZRGBA float32 (~3.5MB/帧, 2Hz录制, 可配降采样+float16) |
+| 右眼 | 1280x720 (HD720), 与左眼同步采集 |
 | IMU | SDK + 独立线程 (~70Hz) |
 
 > 当 SDK 不可用时自动降级到 OpenCV V4L2 模式 (672x376)。
