@@ -85,14 +85,14 @@ bool RobStrideMotor::receive_status_frame(double timeout_sec) {
     temperature_ = static_cast<float>(temperature_u16) * 0.1f;
   } else if (communication_type == 17) {
     params.data = uint8_t(data[4]);
-    std::cout << params.data << std::endl;
+    // std::cout << params.data << std::endl;
     params.index = 0X7005;
     for (int index_num = 0; index_num <= 13; index_num++) {
       if ((data[1] << 8 | data[0]) == Index_List[index_num])
         switch (index_num) {
         case 0:
           drw.run_mode.data = uint8_t(data[4]);
-          std::cout << "mode data: " << static_cast<int>(data[4]) << std::endl;
+          // std::cout << "mode data: " << static_cast<int>(data[4]) << std::endl;
           ;
           break;
         case 1:

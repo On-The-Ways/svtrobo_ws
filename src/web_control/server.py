@@ -32,13 +32,20 @@ STATIC_DIR = BASE_DIR / 'static'
 
 # --- Camera Configuration ---
 CAMERA_CONFIG = {
-    'd405_1': {'type': 'realsense', 'serial': '409122272399', 'size': (640, 480), 'fps': 15, 'depth': True},
-    'd405_2': {'type': 'realsense', 'serial': '409122273344', 'size': (640, 480), 'fps': 15, 'depth': True},
-    'zed':    {'type': 'zed',       'serial': None,           'size': None,       'fps': 15, 'depth': True},
+    'd405_1': {'type': 'realsense', 'serial': '409122272399', 'size': (1280, 720), 'fps': 6, 'depth': True},
+    'd405_2': {'type': 'realsense', 'serial': '409122273344', 'size': (1280, 720), 'fps': 6, 'depth': True},
+    'zed':    {'type': 'zed',       'serial': None,           'size': None,       'fps': 15, 'depth': True, 'resolution': 'HD720'},
 }
 
-JPEG_QUALITY = 70
+JPEG_QUALITY = 95
+
+# --- Point Cloud Saving Options ---
+PC_DOWNSAMPLE = 2          # Downsample factor for point cloud (1=full, 2=half, 3=third, etc.)
+PC_DTYPE = 'float16'       # Point cloud numpy dtype: 'float16' (half size) or 'float32' (full precision)
 STREAM_FPS = 15
+
+# Recording: deadline-based 2Hz frame saving
+RECORD_INTERVAL = 0.5  # seconds between saved frames
 
 
 class CameraManager:
@@ -76,6 +83,7 @@ class CameraManager:
                     # Stop IMU-only reader to avoid ZED device conflict
                     stop_imu_reader()
                     cam = ZEDCamera(
+                        resolution=cfg.get('resolution', 'HD720'),
                         fps=cfg['fps'],
                         color_only=not cfg.get('depth', False),
                     )
@@ -84,12 +92,13 @@ class CameraManager:
 
                 stop_event = threading.Event()
                 frame_queue = queue.Queue(maxsize=2)
+                right_queue = queue.Queue(maxsize=2) if (name == 'zed') else None
                 depth_queue = queue.Queue(maxsize=2) if cfg.get('depth') else None
                 pc_queue = queue.Queue(maxsize=1) if (name == 'zed' and cfg.get('depth')) else None
 
                 t = threading.Thread(
                     target=self._capture_loop,
-                    args=(name, cam, frame_queue, stop_event, depth_queue, pc_queue),
+                    args=(name, cam, frame_queue, stop_event, depth_queue, pc_queue, right_queue),
                     daemon=True,
                 )
                 t.start()
@@ -99,6 +108,7 @@ class CameraManager:
                     'thread': t,
                     'stop_event': stop_event,
                     'frame_queue': frame_queue,
+                    'right_queue': right_queue,
                     'depth_queue': depth_queue,
                     'pc_queue': pc_queue,
                     'running': True,
@@ -214,12 +224,29 @@ class CameraManager:
         except queue.Empty:
             return None
 
+    def get_right_frame(self, name):
+        """Get the latest right eye JPEG frame and timestamp for ZED (non-blocking).
+
+        Returns:
+            (jpeg_bytes, timestamp_us) or None
+        """
+        if name not in self.cameras or not self.cameras[name]['running']:
+            return None
+        rq = self.cameras[name].get('right_queue')
+        if rq is None:
+            return None
+        try:
+            return rq.get_nowait()
+        except queue.Empty:
+            return None
+
     @staticmethod
-    def _capture_loop(name, cam, frame_queue, stop_event, depth_queue=None, pc_queue=None, pc_trigger=None):
+    def _capture_loop(name, cam, frame_queue, stop_event, depth_queue=None, pc_queue=None, right_queue=None):
         """Background thread: continuously capture frames and encode as JPEG.
         
         depth_queue: if provided, raw depth frames are queued for recording.
         pc_queue: if provided (ZED only), XYZRGBA point cloud frames are queued.
+        right_queue: if provided (ZED only), right eye JPEG frames are queued.
         """
         # Point cloud capture throttle (time-based, 2Hz interval)
         PC_INTERVAL = 0.5  # seconds between point cloud captures (2Hz)
@@ -228,14 +255,21 @@ class CameraManager:
 
         while not stop_event.is_set():
             try:
-                result = cam.capture()
+                # For ZED with stereo, use _capture_sdk directly to get (left, right, depth)
+                if right_queue is not None and hasattr(cam, '_capture_sdk'):
+                    result = cam._capture_sdk()
+                    right_img = result[1] if len(result) == 3 else None
+                    depth_raw = result[2] if len(result) == 3 else result[1]
+                else:
+                    result = cam.capture()
+                    right_img = None
+                    depth_raw = result[1] if result else None
+
                 if result is None:
                     continue
-                color = result[0]  # (color, depth) or (left, depth)
+                color = result[0]
                 if color is None:
                     continue
-
-                depth_raw = result[1]  # float32 mm (ZED) or uint16 (D405) or None
 
                 _, jpeg = cv2.imencode('.jpg', color, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
                 frame_bytes = jpeg.tobytes()
@@ -247,6 +281,18 @@ class CameraManager:
                 except queue.Empty:
                     pass
                 frame_queue.put((frame_bytes, timestamp_us))
+
+                # Queue right eye JPEG for ZED stereo recording
+                if right_queue is not None and right_img is not None:
+                    try:
+                        _, r_jpeg = cv2.imencode('.jpg', right_img, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
+                        try:
+                            right_queue.get_nowait()
+                        except queue.Empty:
+                            pass
+                        right_queue.put((r_jpeg.tobytes(), timestamp_us))
+                    except Exception as e:
+                        logger.debug(f"Camera {name} right queue error: {e}")
 
                 # Save raw depth for recording
                 if depth_queue is not None and depth_raw is not None:
@@ -537,9 +583,19 @@ class RecordingManager:
         }
 
     def _save_camera_frames_loop(self):
-        """Continuously save camera frames (color + depth + pointcloud) + IMU from queues."""
+        """Continuously save camera frames (color + depth + pointcloud + right eye) + IMU from queues.
+        
+        Uses deadline-based scheduling for precise 2Hz frame saving:
+        - Maintains per-camera next_deadline timestamps
+        - Only saves when current time >= next_deadline
+        - Deadlines never drift — each is offset from the recording start time
+        """
         import numpy as _np
         cam_names = ['d405_1', 'd405_2', 'zed']
+
+        # Deadline-based 2Hz scheduling: one deadline per camera
+        _start_time = time.monotonic()
+        _next_deadline = {name: _start_time + RECORD_INTERVAL for name in cam_names}
 
         # IMU JSONL output
         imu_path = self.output_dir / 'imu.jsonl'
@@ -549,7 +605,13 @@ class RecordingManager:
         try:
             while not self.stop_event.is_set():
                 any_saved = False
+                _now = time.monotonic()
+
                 for name in cam_names:
+                    # Deadline-based throttling: only save if deadline reached
+                    if _now < _next_deadline[name]:
+                        continue
+
                     # Drain all queued color frames, save latest only
                     latest_color = None
                     while True:
@@ -568,7 +630,13 @@ class RecordingManager:
                         except Exception as e:
                             logger.warning(f"Failed to save {name} frame: {e}")
 
-                    # Drain all queued depth frames, save latest only
+                        # Advance deadline for this camera
+                        _next_deadline[name] += RECORD_INTERVAL
+                        # If we fell behind multiple deadlines, skip to next valid one
+                        if _next_deadline[name] < _now:
+                            _next_deadline[name] = _now + RECORD_INTERVAL
+
+                    # Drain all queued depth frames, save latest only (if deadline met)
                     latest_depth = None
                     while True:
                         depth_result = self.camera_mgr.get_depth_frame(name)
@@ -576,7 +644,6 @@ class RecordingManager:
                             break
                         latest_depth = depth_result
                     if latest_depth:
-                        any_saved = True
                         depth_raw, d_timestamp_us = latest_depth
                         try:
                             depth_max = 20000.0 if name == 'zed' else 1000.0
@@ -586,7 +653,7 @@ class RecordingManager:
                                 depth_vis = _np.clip(depth_raw.astype(_np.float32) / depth_max, 0, 1)
                             depth_u8 = (depth_vis * 255).astype(_np.uint8)
                             depth_colored = cv2.applyColorMap(depth_u8, cv2.COLORMAP_JET)
-                            _, depth_jpeg = cv2.imencode('.jpg', depth_colored, [cv2.IMWRITE_JPEG_QUALITY, 70])
+                            _, depth_jpeg = cv2.imencode('.jpg', depth_colored, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
                             depth_dir = self.output_dir / 'depth' / name
                             depth_dir.mkdir(parents=True, exist_ok=True)
                             depth_path = depth_dir / f'{d_timestamp_us}.jpg'
@@ -594,8 +661,26 @@ class RecordingManager:
                         except Exception as e:
                             logger.warning(f"Failed to save {name} depth: {e}")
 
-                    # Save ZED point cloud if available (drain, keep latest)
+                    # Save ZED right eye + point cloud if available
                     if name == 'zed':
+                        # Drain right eye frames
+                        latest_right = None
+                        while True:
+                            r_result = self.camera_mgr.get_right_frame(name)
+                            if r_result is None:
+                                break
+                            latest_right = r_result
+                        if latest_right:
+                            right_frame, r_ts = latest_right
+                            right_dir = self.output_dir / 'images' / 'zed_right'
+                            right_dir.mkdir(parents=True, exist_ok=True)
+                            right_path = right_dir / f'{r_ts}.jpg'
+                            try:
+                                right_path.write_bytes(right_frame)
+                            except Exception as e:
+                                logger.warning(f"Failed to save zed right frame: {e}")
+
+                        # Drain point cloud (no downsampling — save full resolution)
                         latest_pc = None
                         while True:
                             pc_result = self.camera_mgr.get_pc_frame(name)
@@ -606,12 +691,16 @@ class RecordingManager:
                             any_saved = True
                             pc_data, pc_ts = latest_pc
                             try:
-                                # 2x降采样: (720,1280,4) -> (360,640,4), 14MB->3.5MB
-                                pc_small = pc_data[::2, ::2, :]
                                 pc_dir = self.output_dir / 'pointcloud' / name
                                 pc_dir.mkdir(parents=True, exist_ok=True)
                                 pc_path = pc_dir / f'{pc_ts}.npz'
-                                _np.savez(pc_path, xyzrgba=pc_small)
+                                # Apply downsample and dtype conversion
+                                pc_arr = pc_data
+                                if PC_DOWNSAMPLE > 1:
+                                    pc_arr = pc_arr[::PC_DOWNSAMPLE, ::PC_DOWNSAMPLE, :]
+                                if PC_DTYPE != pc_arr.dtype:
+                                    pc_arr = pc_arr.astype(PC_DTYPE)
+                                _np.savez(pc_path, xyzrgba=pc_arr)
                             except Exception as e:
                                 logger.warning(f"Failed to save {name} pointcloud: {e}")
 
@@ -623,9 +712,12 @@ class RecordingManager:
                     imu_file.write(imu_line + "\n")
                     imu_count += 1
 
-                # Fast poll: 10ms sleep when idle, no sleep when actively saving
+                # Sleep until next deadline or 10ms idle
                 if not any_saved:
-                    if self.stop_event.wait(0.01):
+                    # Find nearest deadline across all cameras
+                    nearest = min(_next_deadline.values())
+                    wait_time = min(0.01, max(0.001, nearest - time.monotonic()))
+                    if self.stop_event.wait(wait_time):
                         break
         finally:
             imu_file.close()

@@ -264,16 +264,16 @@ public:
     // for (int i = 7; i >= 0; --i) { // 从高字节到低字节打印
     //     std::cout << std::bitset<8>(frame.data[i]) << " ";
     // }
-    std::cout << "canid = 0x" << std::hex << std::uppercase << can_id
-              << std::dec << std::endl;
+    // std::cout << "canid = 0x" << std::hex << std::uppercase << can_id
+    //           << std::dec << std::endl;
 
     // std::cout << "data = ";
-    for (int i = 0; i < 8; ++i) {
-      std::cout << "data[" << i << "] = 0x" << std::setw(2) << std::setfill('0')
-                << std::hex << std::uppercase << static_cast<int>(frame.data[i])
-                << "  ";
-    }
-    std::cout << std::dec << std::endl; // 恢复为十进制输出
+    // for (int i = 0; i < 8; ++i) {
+    //   std::cout << "data[" << i << "] = 0x" << std::setw(2) << std::setfill('0')
+    //             << std::hex << std::uppercase << static_cast<int>(frame.data[i])
+    //             << "  ";
+    // }
+    // std::cout << std::dec << std::endl; // 恢复为十进制输出
 
     std::vector<uint8_t> data(frame.data, frame.data + frame.can_dlc);
 

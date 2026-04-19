@@ -61,6 +61,7 @@ class ZEDCamera:
         self.runtime_params = None
         # Reusable sl.Mat objects (avoid per-frame allocation)
         self._img_mat = None
+        self._right_mat = None
         self._depth_mat = None
         self._pc_mat = None
         # OpenCV 模式对象
@@ -119,6 +120,7 @@ class ZEDCamera:
 
             # 预分配 sl.Mat (复用，避免每帧分配)
             self._img_mat = sl.Mat()
+            self._right_mat = sl.Mat()
             if not self.color_only:
                 self._depth_mat = sl.Mat()
                 self._pc_mat = sl.Mat()
@@ -190,33 +192,39 @@ class ZEDCamera:
         采集一帧
 
         Returns:
-            SDK 模式: (left_bgr, depth_float32_mm)
+            SDK 模式: (left_bgr, depth_float32_mm)  — 兼容旧接口，右眼丢弃
             OpenCV 模式: (left_bgr, depth_uint16_mm)
             失败: (None, None)
         """
         if not self.is_running:
             raise RuntimeError('相机未启动，请先调用 start()')
         if self.use_sdk:
-            return self._capture_sdk()
+            left, right, depth = self._capture_sdk()
+            return left, depth
         return self._capture_opencv()
 
     def _capture_sdk(self):
         err = self.zed.grab(self.runtime_params)
         if err != sl.ERROR_CODE.SUCCESS:
-            return None, None
+            return None, None, None
 
         self.zed.retrieve_image(self._img_mat, sl.VIEW.LEFT)
         bgra = self._img_mat.get_data()
         if bgra is None:
-            return None, None
+            return None, None, None
         left = bgra[:, :, :3]  # BGRA -> BGR (drop alpha)
 
+        # Retrieve right eye (always, for stereo recording)
+        self.zed.retrieve_image(self._right_mat, sl.VIEW.RIGHT)
+        right_bgra = self._right_mat.get_data()
+        right = right_bgra[:, :, :3] if right_bgra is not None else None
+
         if self.color_only:
-            return left, None
+            return left, right, None
 
         self.zed.retrieve_measure(self._depth_mat, sl.MEASURE.DEPTH)
         depth = self._depth_mat.get_data()
-        return left, depth
+        return left, right, depth
 
     def _capture_opencv(self):
         ret, frame = self.cap.read()
@@ -272,27 +280,13 @@ class ZEDCamera:
         return left_path, depth_path
 
     def capture_stereo(self):
-        """采集左右眼图像 + 深度
+        """采集左右眼图像 + 深度 (复用预分配 sl.Mat)
 
         Returns:
             (left, right, depth)
         """
         if self.use_sdk:
-            err = self.zed.grab(self.runtime_params)
-            if err != sl.ERROR_CODE.SUCCESS:
-                return None, None, None
-
-            left_sl = sl.Mat()
-            right_sl = sl.Mat()
-            depth_sl = sl.Mat()
-            self.zed.retrieve_image(left_sl, sl.VIEW.LEFT)
-            self.zed.retrieve_image(right_sl, sl.VIEW.RIGHT)
-            self.zed.retrieve_measure(depth_sl, sl.MEASURE.DEPTH)
-
-            left = left_sl.get_data()[:, :, :3]  # BGRA -> BGR
-            right = right_sl.get_data()[:, :, :3]  # BGRA -> BGR
-            depth = depth_sl.get_data()
-            return left, right, depth
+            return self._capture_sdk()  # 已返回 (left, right, depth)，复用 _img_mat/_right_mat/_depth_mat
         else:
             ret, frame = self.cap.read()
             if not ret:
