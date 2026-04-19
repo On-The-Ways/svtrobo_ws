@@ -40,7 +40,7 @@ CAMERA_CONFIG = {
 JPEG_QUALITY = 95
 
 # --- Point Cloud Saving Options ---
-PC_DOWNSAMPLE = 2          # Downsample factor for point cloud (1=full, 2=half, 3=third, etc.)
+PC_DOWNSAMPLE = 1          # Downsample factor for point cloud (1=full, 2=half, 3=third, etc.)
 PC_DTYPE = 'float16'       # Point cloud numpy dtype: 'float16' (half size) or 'float32' (full precision)
 STREAM_FPS = 15
 
