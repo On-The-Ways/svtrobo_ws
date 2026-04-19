@@ -248,9 +248,9 @@ class CameraManager:
         pc_queue: if provided (ZED only), XYZRGBA point cloud frames are queued.
         right_queue: if provided (ZED only), right eye JPEG frames are queued.
         """
-        # Point cloud capture throttle (time-based, 2Hz interval)
-        PC_INTERVAL = 0.5  # seconds between point cloud captures (2Hz)
-        _last_pc_time = 0.0
+        # Point cloud capture throttle (deadline-based, 2Hz)
+        _pc_deadline = time.monotonic() + 0.5  # first point cloud after 0.5s
+        PC_INTERVAL = 0.5
         frame_count = 0
 
         while not stop_event.is_set():
@@ -305,9 +305,9 @@ class CameraManager:
                     except Exception as e:
                         logger.debug(f"Camera {name} depth queue error: {e}")
 
-                # ZED point cloud capture (throttled by time, 2Hz)
-                _now = time.time()
-                if pc_queue is not None and (_now - _last_pc_time) >= PC_INTERVAL:
+                # ZED point cloud capture (deadline-based, 2Hz)
+                _now = time.monotonic()
+                if pc_queue is not None and _now >= _pc_deadline:
                     try:
                         pc_data = cam.capture_pointcloud()
                         if pc_data is not None:
@@ -316,8 +316,13 @@ class CameraManager:
                             except queue.Empty:
                                 pass
                             pc_queue.put((pc_data, timestamp_us))
-                            _last_pc_time = _now
+                        _pc_deadline += PC_INTERVAL
+                        if _pc_deadline < _now:
+                            _pc_deadline = _now + PC_INTERVAL
                     except Exception as e:
+                        _pc_deadline += PC_INTERVAL
+                        if _pc_deadline < time.monotonic():
+                            _pc_deadline = time.monotonic() + PC_INTERVAL
                         logger.debug(f"Camera {name} pointcloud error: {e}")
 
                 frame_count += 1
