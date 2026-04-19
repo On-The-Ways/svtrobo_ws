@@ -412,7 +412,7 @@ Web 控制台提供 IMU 数据的实时查看接口（ZED 2i 内置 IMU）：
 | D405 彩色图 | JPEG q95 (images/d405_1/, d405_2/) | 2 Hz | 1280x720 |
 | ZED 深度图 | JPEG q95 JET colormap (depth/zed/) | 2 Hz | 1280x720, 0-20m归一化 |
 | D405 深度图 | JPEG q95 JET colormap (depth/d405_*/) | 2 Hz | 1280x720 |
-| ZED 点云 | npz float16 (pointcloud/zed/) | 2 Hz | XYZRGBA, 2x降采样, ~3.5MB/帧 |
+| ZED 点云 | npz float16 (pointcloud/zed/) | 2 Hz | XYZRGBA, 全分辨率1280x720, ~7MB/帧 |
 | IMU | imu.jsonl | ~70 Hz | accel/gyro/mag/pressure/temp |
 | ROS2 bag | rosbag/*.db3 | 原始频率 | 5个话题 |
 | 录制摘要 | summary.json | - | 时长/帧数/大小 |
@@ -481,7 +481,7 @@ CAMERA_CONFIG = {
     'zed':    {'type': 'zed', 'resolution': 'HD720', 'fps': 15, 'depth': True},
 }
 JPEG_QUALITY = 95
-PC_DOWNSAMPLE = 2      # 点云降采样 (1=全分辨率, 2=半)
+PC_DOWNSAMPLE = 1      # 点云降采样 (1=全分辨率, 2=半)
 PC_DTYPE = 'float16'   # 点云精度 ('float16' 或 'float32')
 ```
 

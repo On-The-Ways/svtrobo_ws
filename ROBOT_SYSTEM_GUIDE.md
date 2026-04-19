@@ -756,7 +756,7 @@ Web 控制台右下角录制按钮可一键采集所有数据：
 | ZED 左眼彩色 | ZED 2i | JPEG q95 (1280x720) | 2 Hz (deadline-based) |
 | ZED 右眼彩色 | ZED 2i | JPEG q95 (1280x720) | 2 Hz |
 | ZED 深度图 | ZED 2i | JET colormap JPEG q95 | 2 Hz |
-| ZED 点云 | ZED 2i | XYZRGBA float16 npz, 2x降采样 | 2 Hz |
+| ZED 点云 | ZED 2i | XYZRGBA float16 npz (1280x720, ~7MB/帧) | 2 Hz |
 | IMU | ZED 2i 内置 | imu.jsonl | ~70 Hz (accel/gyro/mag/pressure/temp) |
 
 **手柄采集控制：**
@@ -776,7 +776,7 @@ recordings/YYYYMMDD_HHMMSS/
 ├── depth/zed/            # ZED深度 JET colormap JPEG q95 (2Hz)
 ├── depth/d405_1/         # D405 #1 深度 JET colormap JPEG q95 (2Hz)
 ├── depth/d405_2/         # D405 #2 深度 JET colormap JPEG q95 (2Hz)
-├── pointcloud/zed/       # ZED点云 XYZRGBA float16, 2x降采样 (~3.5MB/帧, 2Hz)
+├── pointcloud/zed/       # ZED点云 XYZRGBA float16, 全分辨率 (~7MB/帧, 2Hz)
 ├── rosbag/               # ROS2 bag
 ├── imu.jsonl             # IMU数据 (~70Hz)
 ├── summary.json          # 录制摘要

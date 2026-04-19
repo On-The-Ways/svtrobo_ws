@@ -40,8 +40,8 @@ recordings/
     │   ├── zed/                       # ZED 深度 (13.5fps, ~36KB/帧, 0-20m归一化)
     │   ├── d405_1/                    # D405 #1 深度 (如在线, 0-1m归一化)
     │   └── d405_2/                    # D405 #2 深度 (如在线)
-    ├── pointcloud/                    # 3D点云 (2x降采样, float16)
-    │   └── zed/                       # ZED XYZRGBA float16 (360x640, ~3.5MB/帧, 2Hz)
+    ├── pointcloud/                    # 3D点云 (float16, 全分辨率)
+    │   └── zed/                       # ZED XYZRGBA float16 (720x1280, ~7MB/帧, 2Hz)
     │       ├── 1744900000123456.npz   # npz非压缩格式
     │       └── ...
     ├── rosbag/                        # ROS2 原始录制数据
@@ -109,7 +109,7 @@ recordings/
 | 单帧大小 | ~14MB |
 | 仅 ZED | 仅 ZED 2i 支持点云采集
 
-> 采集时自动 2x 降采样（720x1280 → 360x640）+ float16精度转换，每帧从 14MB(float32全分辨率) 降至 ~3.5MB，2Hz录制。可通过 server.py 中 `PC_DOWNSAMPLE` 和 `PC_DTYPE` 参数随时调整。 |
+> 采集时使用 float16 精度保存（全分辨率 720x1280），每帧从 14MB(float32) 降至 ~7MB，2Hz录制。可通过 server.py 中 `PC_DOWNSAMPLE`（降采样，默认1=全分辨率）和 `PC_DTYPE`（默认float16）参数随时调整。 |
 
 > 使用 `np.load("xxx.npz")["xyzrgba"]` 读取。
 
@@ -238,7 +238,7 @@ python3 src/web_control/bag_converter.py recordings/YYYYMMDD_HHMMSS/rosbag recor
 |------|------|------|------|
 | ZED 彩色图 | `images/zed/*.jpg` | 13.5 Hz | ZED SDK capture |
 | ZED 深度图 | `depth/zed/*.jpg` | 13.5 Hz | ZED SDK retrieve_measure |
-| ZED 点云 | `pointcloud/zed/*.npz` | 2 Hz | ZED SDK, 2x降采样 float16 (360x640, ~3.5MB/帧) |
+| ZED 点云 | `pointcloud/zed/*.npz` | 2 Hz | ZED SDK, float16 (720x1280, ~7MB/帧) |
 | IMU | `imu.jsonl` | ~70 Hz | ZED SDK get_imu_data |
 | 底盘关节状态 | `chassis_joint_states.jsonl` | ~10 Hz | ROS2 /chassis/joint_states |
 | 底盘诊断 | `chassis_diagnostics.jsonl` | ~10 Hz | ROS2 /chassis/diagnostics |
@@ -290,6 +290,6 @@ with open('imu.jsonl') as f:
 import numpy as np
 
 data = np.load("pointcloud/zed/1744900000123456.npz")["xyzrgba"]
-# data.shape = (360, 640, 4), dtype=float16 (2x降采样后)
+# data.shape = (720, 1280, 4), dtype=float16
 # X, Y, Z 单位 mm, 第4列 RGBA 打包
 ```
