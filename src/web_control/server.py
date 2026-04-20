@@ -339,6 +339,7 @@ class RecordingManager:
         self.running = False
         self.bag_process = None
         self.save_thread = None
+        self.imu_save_thread = None
         self.stop_event = threading.Event()
         self.output_dir = None
         self.start_time = None
@@ -401,6 +402,10 @@ class RecordingManager:
             )
             self.save_thread.start()
 
+            self.imu_save_thread = threading.Thread(
+                target=self._save_imu_loop, daemon=True)
+            self.imu_save_thread.start()
+
             self.running = True
             self.start_time = time.time()
             return True, 'Recording started', str(self.output_dir)
@@ -424,6 +429,8 @@ class RecordingManager:
             self.stop_event.set()
             if self.save_thread:
                 self.save_thread.join(timeout=5)
+            if self.imu_save_thread:
+                self.imu_save_thread.join(timeout=3)
 
             # Stop cameras that were auto-started by recording
             for cam_name in list(self._cameras_started):
@@ -562,14 +569,7 @@ class RecordingManager:
         _start_time = time.monotonic()
         _next_deadline = {name: _start_time + RECORD_INTERVAL for name in cam_names}
 
-        # IMU 10Hz deadline
-        _imu_interval = 1.0 / IMU_DATA_HZ
-        _imu_next_deadline = _start_time + _imu_interval
-
-        # IMU JSONL output
-        imu_path = self.output_dir / 'imu.jsonl'
-        imu_file = open(imu_path, 'a')
-        imu_count = 0
+        # IMU saving is handled by a separate _save_imu_loop thread
 
         try:
             while not self.stop_event.is_set():
@@ -669,28 +669,42 @@ class RecordingManager:
                             except Exception as e:
                                 logger.warning(f"Failed to save {name} pointcloud: {e}")
 
-                # Save IMU data from cache to JSONL (10Hz deadline, fresh timestamp)
-                with imu_cache["lock"]:
-                    imu_data = imu_cache["data"]
-                _imu_now = time.monotonic()
-                if imu_data is not None and _imu_now >= _imu_next_deadline:
-                    imu_line = json.dumps(imu_data)
-                    imu_file.write(imu_line + "\n")
-                    imu_count += 1
-                    _imu_next_deadline += _imu_interval
-                    if _imu_next_deadline < _imu_now:
-                        _imu_next_deadline = _imu_now + _imu_interval
 
                 # Sleep until next deadline or 10ms idle
                 if not any_saved:
-                    # Find nearest deadline across cameras AND IMU
-                    nearest = min(min(_next_deadline.values()), _imu_next_deadline)
+                    nearest = min(_next_deadline.values())
                     wait_time = min(0.01, max(0.001, nearest - time.monotonic()))
                     if self.stop_event.wait(wait_time):
                         break
         finally:
-            imu_file.close()
-            logger.info(f"Camera frame saver exiting, saved {imu_count} IMU samples")
+            logger.info("Camera frame saver exiting")
+
+
+    def _save_imu_loop(self):
+        """Dedicated thread: save IMU data at 10Hz with duplicate detection."""
+        imu_path = self.output_dir / 'imu.jsonl'
+        imu_interval = 1.0 / IMU_DATA_HZ
+        count = 0
+        next_deadline = time.monotonic() + imu_interval
+        with open(imu_path, 'a') as f:
+            while not self.stop_event.is_set():
+                now = time.monotonic()
+                if now < next_deadline:
+                    wait = max(0.001, min(imu_interval, next_deadline - now))
+                    if self.stop_event.wait(wait):
+                        break
+                    continue
+                with imu_cache["lock"]:
+                    imu_data = imu_cache["data"]
+                if imu_data is not None:
+                    sample = dict(imu_data)
+                    sample["server_ts"] = time.time()
+                    f.write(json.dumps(sample) + chr(10))
+                    count += 1
+                next_deadline += imu_interval
+                if next_deadline < now:
+                    next_deadline = now + imu_interval
+        logger.info(f"IMU saver exiting, saved {count} samples")
 
 
 class F710Manager:
