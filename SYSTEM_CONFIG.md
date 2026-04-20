@@ -467,8 +467,8 @@ recordings/<session>/
 ├── rosbag/              # ROS2 bag (所有话题)
 ├── images/<cam>/        # 彩色图 JPEG (采集频率)
 ├── depth/<cam>/         # 深度图 .jpg (JET colormap, 采集频率)
-├── pointcloud/zed/      # ZED 点云 npz (非压缩), (720,1280,4) float32 (~8.9MB/帧, ~1.4Hz)
-├── imu.jsonl            # IMU 数据 (~70Hz), 每行一个 JSON: accel, gyro_dps, gyro_rad, mag, imu_temp, pressure, env_temp
+├── pointcloud/zed/      # ZED 点云 npz (非压缩), (720,1280,4) float32 (~8.9MB/帧, 2Hz)
+├── imu.jsonl            # IMU 数据 (~15Hz (native grab rate)), 每行一个 JSON: accel, gyro_dps, gyro_rad, mag, imu_temp, pressure, env_temp
 ├── chassis_diagnostics.jsonl
 ├── chassis_joint_states.jsonl
 ├── f710_joy.jsonl
@@ -490,7 +490,7 @@ recordings/<session>/
 IMU 数据通过独立后台线程读取，无需启动 ZED 相机的视频/深度流：
 
 - **模式**: ZED SDK, VGA@15fps, DEPTH_MODE.NONE（最轻量）
-- **频率**: ~70Hz 写入 `imu_cache`
+- **频率**: ~15Hz 写入 `imu_cache`
 - **前端 API**: WebSocket `/ws/imu` 实时推送，HTTP `GET /api/imu` 回退（返回最新 accel, gyro_dps, gyro_rad, mag, imu_temp, pressure, env_temp）
 - **录制时**: 直接从 `imu_cache` 读取并写入 `imu.jsonl`，不通过 ROS2 话题（无 IMU 发布者）
 - **录制结束**: ZED 相机关闭后，IMU-only 线程自动恢复独立运行
@@ -521,7 +521,7 @@ IMU 数据通过独立后台线程读取，无需启动 ZED 相机的视频/深�
 
 ZED SDK 同一时刻只允许一个进程打开相机，需要协调 IMU 线程和相机采集：
 
-- **正常待机**: IMU 独立线程以 VGA+DEPTH_MODE.NONE 模式打开 ZED，~70Hz 读取传感器数据
+- **正常待机**: IMU 独立线程以 VGA+DEPTH_MODE.NONE 模式打开 ZED，~15-20Hz 读取传感器数据
 - **手动启动 ZED 相机**: `CameraManager.start_camera("zed")` 先调用 `stop_imu_reader()` 释放 ZED，再启动相机（HD720+NEURAL）。启动失败时自动恢复 IMU 线程
 - **手动停止 ZED 相机**: `CameraManager.stop_camera("zed")` 关闭相机后调用 `start_imu_reader()` 恢复 IMU
 - **录制流程**: `RecordingManager` 同样在录制开始时 `stop_imu_reader()`，录制结束后 `start_imu_reader()`，IMU 数据从运行中的 ZED 相机获取
