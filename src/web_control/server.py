@@ -251,8 +251,7 @@ class CameraManager:
                 if color is None:
                     continue
 
-                _, jpeg = cv2.imencode('.jpg', color, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
-                frame_bytes = jpeg.tobytes()
+                # Store raw BGR numpy (no JPEG encode here - encoding moved to save/stream)
                 timestamp_us = int(time.time() * 1_000_000)
 
                 # Drop old frame if queue is full
@@ -260,17 +259,16 @@ class CameraManager:
                     frame_queue.get_nowait()
                 except queue.Empty:
                     pass
-                frame_queue.put((frame_bytes, timestamp_us))
+                frame_queue.put((color, timestamp_us))
 
-                # Queue right eye JPEG for ZED stereo recording
+                # Queue raw right eye BGR for ZED stereo recording
                 if right_queue is not None and right_img is not None:
                     try:
-                        _, r_jpeg = cv2.imencode('.jpg', right_img, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
                         try:
                             right_queue.get_nowait()
                         except queue.Empty:
                             pass
-                        right_queue.put((r_jpeg.tobytes(), timestamp_us))
+                        right_queue.put((right_img, timestamp_us))
                     except Exception as e:
                         logger.debug(f"Camera {name} right queue error: {e}")
 
@@ -287,13 +285,20 @@ class CameraManager:
 
                 frame_count += 1
 
-                # Extract IMU data from ZED camera (if SDK mode)
+                # Update IMU cache after each grab (ZED sensors refresh on grab)
                 if name == 'zed' and hasattr(cam, 'get_imu_data'):
                     try:
                         imu_data = cam.get_imu_data()
-                        if imu_data:
+                        if imu_data is not None:
                             with imu_cache['lock']:
                                 imu_cache['data'] = imu_data
+                            # Push to recording queue (dedup handled by grab-tied refresh)
+                            sample = dict(imu_data)
+                            sample["server_ts"] = time.time()
+                            try:
+                                imu_rec_queue.put_nowait(sample)
+                            except Exception:
+                                pass
                     except Exception:
                         pass
 
@@ -595,7 +600,12 @@ class RecordingManager:
                         img_dir.mkdir(parents=True, exist_ok=True)
                         path = img_dir / f'{timestamp_us}.jpg'
                         try:
-                            path.write_bytes(frame)
+                            # JPEG encode at save time (2Hz), not in capture loop (15Hz)
+                            if isinstance(frame, bytes):
+                                path.write_bytes(frame)
+                            else:
+                                _, jpeg = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
+                                path.write_bytes(jpeg.tobytes())
                         except Exception as e:
                             logger.warning(f"Failed to save {name} frame: {e}")
 
@@ -645,7 +655,11 @@ class RecordingManager:
                             right_dir.mkdir(parents=True, exist_ok=True)
                             right_path = right_dir / f'{r_ts}.jpg'
                             try:
-                                right_path.write_bytes(right_frame)
+                                if isinstance(right_frame, bytes):
+                                    right_path.write_bytes(right_frame)
+                                else:
+                                    _, r_jpeg = cv2.imencode('.jpg', right_frame, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
+                                    right_path.write_bytes(r_jpeg.tobytes())
                             except Exception as e:
                                 logger.warning(f"Failed to save zed right frame: {e}")
 
@@ -681,29 +695,34 @@ class RecordingManager:
 
 
     def _save_imu_loop(self):
-        """Dedicated thread: save IMU data at 10Hz with duplicate detection."""
+        """Dedicated thread: write IMU samples from queue to imu.jsonl.
+
+        The _capture_loop pushes every unique IMU sample (after each ZED grab)
+        into imu_rec_queue. This thread simply drains the queue and writes to disk.
+        Since IMU data refreshes only on grab(), recording at grab rate (~15Hz)
+        gives accurate, drift-free timestamps.
+        """
         imu_path = self.output_dir / 'imu.jsonl'
-        imu_interval = 1.0 / IMU_DATA_HZ
         count = 0
-        next_deadline = time.monotonic() + imu_interval
-        with open(imu_path, 'a') as f:
+
+        with open(imu_path, 'w') as f:
             while not self.stop_event.is_set():
-                now = time.monotonic()
-                if now < next_deadline:
-                    wait = max(0.001, min(imu_interval, next_deadline - now))
-                    if self.stop_event.wait(wait):
-                        break
-                    continue
-                with imu_cache["lock"]:
-                    imu_data = imu_cache["data"]
-                if imu_data is not None:
-                    sample = dict(imu_data)
-                    sample["server_ts"] = time.time()
+                try:
+                    sample = imu_rec_queue.get(timeout=0.05)
                     f.write(json.dumps(sample) + chr(10))
                     count += 1
-                next_deadline += imu_interval
-                if next_deadline < now:
-                    next_deadline = now + imu_interval
+                except Exception:
+                    pass
+
+        # Drain remaining
+        while not imu_rec_queue.empty():
+            try:
+                sample = imu_rec_queue.get_nowait()
+                f.write(json.dumps(sample) + chr(10))
+                count += 1
+            except Exception:
+                break
+
         logger.info(f"IMU saver exiting, saved {count} samples")
 
 
@@ -768,6 +787,7 @@ camera_mgr = CameraManager()
 recording_mgr = RecordingManager(camera_mgr)
 f710_mgr = F710Manager()
 imu_cache = {'data': None, 'lock': threading.Lock()}
+imu_rec_queue = queue.Queue(maxsize=100)
 _imu_thread = None
 _imu_stop = threading.Event()
 
@@ -798,7 +818,13 @@ async def camera_stream_handler(request):
             result = camera_mgr.get_frame(name)
             if result is not None:
                 frame, _ = result
-                msg = boundary + header + frame + b'\r\n'
+                # JPEG encode for streaming (raw numpy from capture loop)
+                if isinstance(frame, bytes):
+                    jpeg_bytes = frame
+                else:
+                    _, jpeg = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
+                    jpeg_bytes = jpeg.tobytes()
+                msg = boundary + header + jpeg_bytes + b'\r\n'
                 await response.write(msg)
             await asyncio.sleep(1.0 / STREAM_FPS)
     except (ConnectionResetError, ConnectionError):
