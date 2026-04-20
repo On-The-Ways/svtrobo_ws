@@ -46,6 +46,8 @@ STREAM_FPS = 15
 
 # Recording: deadline-based 2Hz frame saving
 RECORD_INTERVAL = 0.5  # seconds between saved frames
+IMU_DATA_HZ = 10       # IMU recording frequency (Hz)
+ROS_DATA_HZ = 10       # ROS2 topic recording frequency (Hz)
 
 
 class CameraManager:
@@ -94,11 +96,9 @@ class CameraManager:
                 frame_queue = queue.Queue(maxsize=2)
                 right_queue = queue.Queue(maxsize=2) if (name == 'zed') else None
                 depth_queue = queue.Queue(maxsize=2) if cfg.get('depth') else None
-                pc_queue = queue.Queue(maxsize=1) if (name == 'zed' and cfg.get('depth')) else None
-
                 t = threading.Thread(
                     target=self._capture_loop,
-                    args=(name, cam, frame_queue, stop_event, depth_queue, pc_queue, right_queue),
+                    args=(name, cam, frame_queue, stop_event, depth_queue, right_queue),
                     daemon=True,
                 )
                 t.start()
@@ -110,7 +110,6 @@ class CameraManager:
                     'frame_queue': frame_queue,
                     'right_queue': right_queue,
                     'depth_queue': depth_queue,
-                    'pc_queue': pc_queue,
                     'running': True,
                 }
                 logger.info(f"Camera {name} started")
@@ -208,22 +207,6 @@ class CameraManager:
         except queue.Empty:
             return None
 
-    def get_pc_frame(self, name):
-        """Get the latest point cloud frame and timestamp for a camera (non-blocking).
-
-        Returns:
-            (numpy_xyzrgba, timestamp_us) or None
-        """
-        if name not in self.cameras or not self.cameras[name]['running']:
-            return None
-        pq = self.cameras[name].get('pc_queue')
-        if pq is None:
-            return None
-        try:
-            return pq.get_nowait()
-        except queue.Empty:
-            return None
-
     def get_right_frame(self, name):
         """Get the latest right eye JPEG frame and timestamp for ZED (non-blocking).
 
@@ -241,16 +224,13 @@ class CameraManager:
             return None
 
     @staticmethod
-    def _capture_loop(name, cam, frame_queue, stop_event, depth_queue=None, pc_queue=None, right_queue=None):
+    def _capture_loop(name, cam, frame_queue, stop_event, depth_queue=None, right_queue=None):
         """Background thread: continuously capture frames and encode as JPEG.
         
         depth_queue: if provided, raw depth frames are queued for recording.
-        pc_queue: if provided (ZED only), XYZRGBA point cloud frames are queued.
         right_queue: if provided (ZED only), right eye JPEG frames are queued.
+        Point cloud is retrieved inside _capture_sdk() and stored in cam._latest_pc.
         """
-        # Point cloud capture throttle (deadline-based, 2Hz)
-        _pc_deadline = time.monotonic() + 0.5  # first point cloud after 0.5s
-        PC_INTERVAL = 0.5
         frame_count = 0
 
         while not stop_event.is_set():
@@ -305,26 +285,6 @@ class CameraManager:
                     except Exception as e:
                         logger.debug(f"Camera {name} depth queue error: {e}")
 
-                # ZED point cloud capture (deadline-based, 2Hz)
-                _now = time.monotonic()
-                if pc_queue is not None and _now >= _pc_deadline:
-                    try:
-                        pc_data = cam.capture_pointcloud()
-                        if pc_data is not None:
-                            try:
-                                pc_queue.get_nowait()
-                            except queue.Empty:
-                                pass
-                            pc_queue.put((pc_data, timestamp_us))
-                        _pc_deadline += PC_INTERVAL
-                        if _pc_deadline < _now:
-                            _pc_deadline = _now + PC_INTERVAL
-                    except Exception as e:
-                        _pc_deadline += PC_INTERVAL
-                        if _pc_deadline < time.monotonic():
-                            _pc_deadline = time.monotonic() + PC_INTERVAL
-                        logger.debug(f"Camera {name} pointcloud error: {e}")
-
                 frame_count += 1
 
                 # Extract IMU data from ZED camera (if SDK mode)
@@ -352,7 +312,7 @@ class CameraManager:
 # --- Recording Manager ---
 
 
-RECORDING_DIR = Path('/home/svt/svtrobo_ws/recordings')
+RECORDING_DIR = Path('/svtrobo_data/recordings')
 
 # Topics to record via ros2 bag
 RECORD_TOPICS = [
@@ -602,6 +562,10 @@ class RecordingManager:
         _start_time = time.monotonic()
         _next_deadline = {name: _start_time + RECORD_INTERVAL for name in cam_names}
 
+        # IMU 10Hz deadline
+        _imu_interval = 1.0 / IMU_DATA_HZ
+        _imu_next_deadline = _start_time + _imu_interval
+
         # IMU JSONL output
         imu_path = self.output_dir / 'imu.jsonl'
         imu_file = open(imu_path, 'a')
@@ -685,16 +649,12 @@ class RecordingManager:
                             except Exception as e:
                                 logger.warning(f"Failed to save zed right frame: {e}")
 
-                        # Drain point cloud (no downsampling — save full resolution)
-                        latest_pc = None
-                        while True:
-                            pc_result = self.camera_mgr.get_pc_frame(name)
-                            if pc_result is None:
-                                break
-                            latest_pc = pc_result
-                        if latest_pc:
+                        # Save point cloud from cam._latest_pc (retrieved in grab loop)
+                        cam_inst = self.camera_mgr.cameras[name]['instance'] if name in self.camera_mgr.cameras else None
+                        if cam_inst and hasattr(cam_inst, '_latest_pc') and cam_inst._latest_pc is not None:
                             any_saved = True
-                            pc_data, pc_ts = latest_pc
+                            pc_data = cam_inst._latest_pc
+                            pc_ts = timestamp_us
                             try:
                                 pc_dir = self.output_dir / 'pointcloud' / name
                                 pc_dir.mkdir(parents=True, exist_ok=True)
@@ -709,18 +669,22 @@ class RecordingManager:
                             except Exception as e:
                                 logger.warning(f"Failed to save {name} pointcloud: {e}")
 
-                # Save IMU data from cache to JSONL
+                # Save IMU data from cache to JSONL (10Hz deadline, fresh timestamp)
                 with imu_cache["lock"]:
                     imu_data = imu_cache["data"]
-                if imu_data is not None:
+                _imu_now = time.monotonic()
+                if imu_data is not None and _imu_now >= _imu_next_deadline:
                     imu_line = json.dumps(imu_data)
                     imu_file.write(imu_line + "\n")
                     imu_count += 1
+                    _imu_next_deadline += _imu_interval
+                    if _imu_next_deadline < _imu_now:
+                        _imu_next_deadline = _imu_now + _imu_interval
 
                 # Sleep until next deadline or 10ms idle
                 if not any_saved:
-                    # Find nearest deadline across all cameras
-                    nearest = min(_next_deadline.values())
+                    # Find nearest deadline across cameras AND IMU
+                    nearest = min(min(_next_deadline.values()), _imu_next_deadline)
                     wait_time = min(0.01, max(0.001, nearest - time.monotonic()))
                     if self.stop_event.wait(wait_time):
                         break

@@ -64,6 +64,7 @@ class ZEDCamera:
         self._right_mat = None
         self._depth_mat = None
         self._pc_mat = None
+        self._latest_pc = None
         # OpenCV 模式对象
         self.cap = None
         self.stereo_matcher = None
@@ -224,6 +225,16 @@ class ZEDCamera:
 
         self.zed.retrieve_measure(self._depth_mat, sl.MEASURE.DEPTH)
         depth = self._depth_mat.get_data()
+
+        # Retrieve point cloud in same grab (shares GPU data, minimal overhead)
+        if self._pc_mat is not None:
+            try:
+                self.zed.retrieve_measure(self._pc_mat, sl.MEASURE.XYZRGBA)
+                pc_data = self._pc_mat.get_data()
+                self._latest_pc = pc_data if pc_data is not None else self._latest_pc
+            except Exception:
+                pass
+
         return left, right, depth
 
     def _capture_opencv(self):
@@ -362,22 +373,16 @@ class ZEDCamera:
             return None
 
     def capture_pointcloud(self):
-        """采集一帧 XYZRGBA 点云 (仅 SDK 模式 + depth 开启时可用)
+        """获取最近一帧 XYZRGBA 点云 (仅 SDK 模式 + depth 开启时可用)
+
+        点云在每次 _capture_sdk() grab 时自动更新到 _latest_pc。
+        此方法直接返回缓存，不再触发独立 retrieve。
 
         Returns:
             numpy (H, W, 4) float32 — X,Y,Z (mm) + RGBA 打包
             None if not available (color_only mode or no SDK)
         """
-        if not self.use_sdk or not self.zed or not self.is_running or self.color_only:
-            return None
-        try:
-            self.zed.retrieve_measure(self._pc_mat, sl.MEASURE.XYZRGBA)
-            data = self._pc_mat.get_data()
-            if data is None:
-                return None
-            return data
-        except Exception:
-            return None
+        return self._latest_pc
 
     # ---- 工具 ----
 

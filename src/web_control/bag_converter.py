@@ -59,6 +59,8 @@ def msg_to_dict(msg):
     return result
 
 
+TARGET_HZ = 10  # Downsample all topics to this frequency
+
 def convert(bag_dir: Path, output_dir: Path, delete_db: bool = False) -> bool:
     """Convert a ROS2 bag directory to JSONL files. Returns True on success."""
     # Find db3 file
@@ -92,12 +94,31 @@ def convert(bag_dir: Path, output_dir: Path, delete_db: bool = False) -> bool:
         safe_name = info['name'].strip('/').replace('/', '_')
         writers[topic_id] = open(output_dir / f'{safe_name}.jsonl', 'w')
 
+    # Downsample: target-timestamp alignment for precise output Hz
+    min_interval_ns = int(1e9 / TARGET_HZ)
+    next_target = {}  # topic_id -> next desired output timestamp (ns)
+
     # Read and convert messages
     cursor.execute("SELECT topic_id, timestamp, data FROM messages ORDER BY timestamp")
     count = 0
+    skipped = 0
     for topic_id, timestamp, data in cursor.fetchall():
         if topic_id not in writers:
             continue
+        # Downsample: pick first message >= next_target timestamp
+        if topic_id in next_target:
+            if timestamp < next_target[topic_id]:
+                skipped += 1
+                continue
+            # Align next target to avoid drift
+            next_target[topic_id] += min_interval_ns
+            # If fell behind, jump to next valid slot
+            while next_target[topic_id] < timestamp:
+                next_target[topic_id] += min_interval_ns
+        else:
+            # First message for this topic: set target for next
+            next_target[topic_id] = timestamp + min_interval_ns
+
         info = topics[topic_id]
         try:
             msg = deserialize_message(bytes(data), info['msg_class'])
@@ -114,7 +135,7 @@ def convert(bag_dir: Path, output_dir: Path, delete_db: bool = False) -> bool:
         f.close()
     conn.close()
 
-    print(f"Converted {count} messages to {output_dir}")
+    print(f"Converted {count} messages to {output_dir} (skipped {skipped} for {TARGET_HZ}Hz downsample)")
 
     if delete_db and db_path.exists():
         db_path.unlink()
