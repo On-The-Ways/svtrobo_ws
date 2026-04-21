@@ -49,8 +49,8 @@
 
     # 轴索引映射（以 jstest 为准；不同设备/驱动编号可能不同）
     # 本机：右摇杆 左右=Axes2 → angular.z；前后=Axes3（本节点未用，仅作记录）
-    axis.left_x: 0     # 左摇杆 左右
-    axis.left_y: 1     # 左摇杆 前后
+    axis.left_x: 4     # 左摇杆 左右
+    axis.left_y: 5     # 左摇杆 前后
     axis.right_x: 2    # 右摇杆 左右 → angular.z
     axis.lt: 4         # 如需使用轴方式的 LT，可在此调整
     axis.rt: 5         # 如需使用轴方式的 RT，可在此调整
