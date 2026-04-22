@@ -23,9 +23,9 @@
 
     # 最大线速度 / 角速度（单位按你的底盘侧约定）
     velocity.max_linear: 0.4
-    velocity.max_angular: 0.4
+    velocity.max_angular: 2.0
     # 右手柄角速度缩放，>1 时转向更大
-    velocity.angular_scale: 5.0
+    velocity.angular_scale: 1.0
 
     # 左手柄左右：发送的 linear.y 取反（true=发送时对 vy 取反）
     invert.left_x: true
@@ -42,7 +42,7 @@
     speed_scale.hard_max: 1.5
     # 启动时的缩放；若大于 max，会自动夹紧到 max（与 hard_max 取较小者）
     speed_scale.initial: 0.25
-    speed_scale.step: 0.05
+    speed_scale.step: 0.1
 
     # 升降速度 
     lift.speed: 500
