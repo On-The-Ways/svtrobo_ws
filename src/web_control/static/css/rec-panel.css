@@ -1,6 +1,7 @@
 /* ═══════════════════════════════════════════════════════════
    SVTROBO Recording Status Panel v3
    3-row layout, no scrollbar, start/stop buttons
+   MAXIMIZED for small screen
    ═══════════════════════════════════════════════════════════ */
 
 /* ── Overlay ── */
@@ -19,9 +20,8 @@
 #rec-panel {
     background: linear-gradient(180deg, #0d1117 0%, #161b22 100%);
     border-radius: 20px;
-    padding: 24px 28px 20px;
-    width: 70vw;
-    max-width: 860px;
+    padding: 34px 38px 32px;
+    width: 95vw;
     box-shadow: 0 12px 60px rgba(0,0,0,0.7);
     border: 2px solid #30363d;
     display: flex;
@@ -40,15 +40,15 @@
     flex-shrink: 0;
 }
 #rec-panel-title {
-    font-size: 20px;
+    font-size: 28px;
     font-weight: 700;
     color: #fff;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 18px;
 }
 .rec-dot {
-    width: 16px; height: 16px;
+    width: 24px; height: 24px;
     border-radius: 50%;
     flex-shrink: 0;
 }
@@ -58,17 +58,17 @@
 }
 .rec-dot.recording {
     background: #2ea043;
-    box-shadow: 0 0 12px #2ea04388;
+    box-shadow: 0 0 16px #2ea04388;
     animation: rec-pulse 1.5s ease-in-out infinite;
 }
 .rec-dot.stopped {
     background: #2ea043;
-    box-shadow: 0 0 12px #2ea04388;
+    box-shadow: 0 0 16px #2ea04388;
     animation: none;
 }
 .rec-dot.error {
     background: #f85149;
-    box-shadow: 0 0 16px #f8514988;
+    box-shadow: 0 0 20px #f8514988;
     animation: error-blink 0.5s ease-in-out infinite;
 }
 @keyframes rec-pulse {
@@ -81,7 +81,7 @@
 }
 #rec-panel-close {
     background: none; border: none;
-    color: #8b949e; font-size: 28px;
+    color: #8b949e; font-size: 36px;
     cursor: pointer; padding: 0 4px; line-height: 1;
 }
 #rec-panel-close:hover { color: #fff; }
@@ -89,12 +89,12 @@
 /* ── Timer ── */
 #rec-panel-timer {
     text-align: center;
-    font-size: 80px;
+    font-size: 140px;
     font-weight: 200;
     font-family: 'Courier New', 'SF Mono', monospace;
     color: #fff;
     letter-spacing: 6px;
-    padding: 10px 0 8px;
+    padding: 16px 0 12px;
     flex-shrink: 0;
     text-shadow: 0 0 30px rgba(46, 160, 67, 0.3);
 }
@@ -107,14 +107,14 @@
 .rec-row {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 18px;
+    margin-bottom: 18px;
     flex-shrink: 0;
 }
 .rec-row-items {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    gap: 18px;
     flex: 1;
 }
 .rec-row-items.ros-row {
@@ -125,10 +125,10 @@
 .rec-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 14px;
+    gap: 12px;
+    padding: 18px 20px;
     background: #0d1117;
-    border-radius: 12px;
+    border-radius: 14px;
     border: 1px solid #21262d;
     transition: border-color 0.3s, background 0.3s;
 }
@@ -136,14 +136,14 @@
 
 /* ── Light ── */
 .rec-light {
-    width: 24px; height: 24px;
+    width: 38px; height: 38px;
     border-radius: 50%;
     flex-shrink: 0;
     transition: all 0.4s;
 }
 .rec-light.ok {
     background: #2ea043;
-    box-shadow: 0 0 14px #2ea04388;
+    box-shadow: 0 0 18px #2ea04388;
 }
 .rec-light.idle {
     background: #484f58;
@@ -151,27 +151,27 @@
 }
 .rec-light.error {
     background: #f85149;
-    box-shadow: 0 0 18px #f8514988;
+    box-shadow: 0 0 22px #f8514988;
     animation: error-blink 0.5s ease-in-out infinite;
 }
 
 /* ── Item text ── */
 .rec-item-label {
-    font-size: 14px;
+    font-size: 20px;
     font-weight: 600;
     color: #e6edf3;
     line-height: 1.3;
     white-space: nowrap;
 }
 .rec-item-value {
-    font-size: 12px;
+    font-size: 16px;
     color: #8b949e;
-    margin-top: 1px;
+    margin-top: 2px;
 }
 .rec-item-value span {
     color: #2ea043;
     font-weight: 700;
-    font-size: 15px;
+    font-size: 24px;
     font-family: 'Courier New', monospace;
 }
 .rec-light.error ~ .rec-item-info .rec-item-value span,
@@ -182,18 +182,18 @@
 /* ── Action Buttons ── */
 #rec-panel-stop {
     margin-top: auto;
-    padding-top: 12px;
+    padding-top: 14px;
     flex-shrink: 0;
 }
 .rec-action-btn {
     display: block;
     width: 100%;
-    padding: 16px;
-    font-size: 20px;
+    padding: 26px;
+    font-size: 26px;
     font-weight: 700;
     color: #fff;
     border: none;
-    border-radius: 14px;
+    border-radius: 16px;
     cursor: pointer;
     transition: background 0.2s, transform 0.1s;
     letter-spacing: 2px;
