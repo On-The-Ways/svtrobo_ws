@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/hardware-status.css">
+    <link rel="stylesheet" href="/static/css/rec-panel.css">
     <script src="/static/js/roslib.min.js"></script>
 </head>
 <body>
@@ -313,6 +314,13 @@
 </main>
 
 <!-- Load JS modules -->
+<!-- Exit Kiosk Floating Button -->
+<div id="kiosk-exit-btn" class="kiosk-exit-btn" style="display:none;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    退出全屏
+    <span id="kiosk-exit-countdown" class="kiosk-exit-countdown">10s</span>
+</div>
+
 <script src="/static/js/app.js"></script>
 <script src="/static/js/chassis.js"></script>
 <script src="/static/js/lift.js"></script>
@@ -324,6 +332,9 @@
 <script src="/static/js/f710-toggle.js"></script>
 <script src="/static/js/hardware-status.js"></script>
 <script src="/static/js/data-record.js"></script>
+<script src="/static/js/rec-panel.js"></script>
+<script src="/static/js/master-lock.js"></script>
+
 
 </body>
 </html>

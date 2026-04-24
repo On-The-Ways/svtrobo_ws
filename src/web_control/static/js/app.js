@@ -75,6 +75,9 @@ const App = {
             ControlMode.init(this.ros);
             Camera.setEnabled(true);
             DataRecord.enable();
+            // Request master control
+            MasterLock.init(this.serverUrl, (isMaster, holder) => this.onMasterChange(isMaster, holder));
+            MasterLock.request();
         });
 
         this.ros.on('error', (error) => {
@@ -116,7 +119,41 @@ const App = {
             ControlMode.disable();
             Camera.setEnabled(false);
             DataRecord.disable();
+            MasterLock.release();
         });
+    },
+
+    onMasterChange(isMaster, holder) {
+        if (isMaster) {
+            Chassis.enable();
+            Lift.enable();
+            Camera.setEnabled(true);
+            DataRecord.enable();
+            if (ControlMode && ControlMode.enable) ControlMode.enable();
+            this._showMasterBanner(false);
+        } else {
+            Chassis.disable();
+            Lift.disable();
+            Camera.setEnabled(false);
+            DataRecord.disable();
+            if (ControlMode && ControlMode.disable) ControlMode.disable();
+            this._showMasterBanner(true, holder);
+        }
+    },
+
+    _showMasterBanner(show, holder) {
+        let banner = document.getElementById('readonly-banner');
+        if (show) {
+            if (!banner) {
+                banner = document.createElement('div');
+                banner.id = 'readonly-banner';
+                banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#da3633;color:#fff;text-align:center;padding:10px 16px;font-size:15px;font-weight:600;z-index:99998;';
+                document.body.appendChild(banner);
+            }
+            banner.textContent = '🔒 只读模式 — 另一个页面 (' + (holder || '?') + ') 正在控制';
+        } else if (banner) {
+            banner.remove();
+        }
     },
 
     disconnect() {
@@ -144,6 +181,53 @@ const App = {
         el.className = 'connection-status ' + info.cls;
     },
 };
+
+// === Exit Kiosk Floating Button ===
+(function() {
+    const btn = document.getElementById('kiosk-exit-btn');
+    const countdown = document.getElementById('kiosk-exit-countdown');
+    if (!btn) return;
+    let hideTimer = null;
+    let countdownInterval = null;
+    let remaining = 10;
+
+    function showExitBtn() {
+        btn.style.display = 'flex';
+        remaining = 10;
+        countdown.textContent = remaining + 's';
+        clearInterval(countdownInterval);
+        clearTimeout(hideTimer);
+        countdownInterval = setInterval(function() {
+            remaining--;
+            if (remaining <= 0) {
+                hideExitBtn();
+            } else {
+                countdown.textContent = remaining + 's';
+            }
+        }, 1000);
+        hideTimer = setTimeout(hideExitBtn, 10000);
+    }
+
+    function hideExitBtn() {
+        btn.style.display = 'none';
+        clearInterval(countdownInterval);
+        clearTimeout(hideTimer);
+    }
+
+    document.addEventListener('click', function(e) {
+        if (btn.contains(e.target)) return;
+        if (btn.style.display !== 'none') {
+            hideExitBtn();
+        } else {
+            showExitBtn();
+        }
+    });
+
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        fetch('/api/exit-kiosk', { method: 'POST' });
+    });
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     App.init();

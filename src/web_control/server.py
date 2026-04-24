@@ -308,6 +308,97 @@ class CameraManager:
 
         logger.info(f"Camera {name} capture thread exiting")
 
+
+    def _force_recover_zed(self):
+        """Hard destroy and recreate ZED camera instance.
+
+        Used when ZED enters a bad state (e.g. from rapid start/stop cycles).
+        Completely tears down the old instance and creates a fresh one.
+        Returns True on success.
+        """
+        logger.warning("Force recovering ZED camera...")
+
+        # Step 1: Stop and remove existing ZED if present
+        if 'zed' in self.cameras:
+            try:
+                info = self.cameras['zed']
+                info['stop_event'].set()
+                info['thread'].join(timeout=5.0)
+                try:
+                    info['instance'].stop()
+                except Exception:
+                    pass
+                del self.cameras['zed']
+                logger.info("Force recover: old ZED instance removed")
+            except Exception as e:
+                logger.warning(f"Force recover: error removing old ZED: {e}")
+
+        # Step 2: Ensure IMU reader is stopped (it holds ZED open)
+        stop_imu_reader()
+        time.sleep(0.5)  # Let USB device fully release
+
+        # Step 3: Fresh ZED open
+        try:
+            sys.path.insert(0, str(Path(__file__).parent.parent / 'camera_driver'))
+            from camera_driver import ZEDCamera
+
+            cam = ZEDCamera(
+                resolution=CAMERA_CONFIG['zed'].get('resolution', 'HD720'),
+                fps=CAMERA_CONFIG['zed']['fps'],
+                color_only=not CAMERA_CONFIG['zed'].get('depth', False),
+            )
+            cam.start()
+
+            stop_event = threading.Event()
+            frame_queue = queue.Queue(maxsize=2)
+            right_queue = queue.Queue(maxsize=2)
+            depth_queue = queue.Queue(maxsize=2) if CAMERA_CONFIG['zed'].get('depth') else None
+            t = threading.Thread(
+                target=self._capture_loop,
+                args=('zed', cam, frame_queue, stop_event, depth_queue, right_queue),
+                daemon=True,
+            )
+            t.start()
+
+            self.cameras['zed'] = {
+                'instance': cam,
+                'thread': t,
+                'stop_event': stop_event,
+                'frame_queue': frame_queue,
+                'right_queue': right_queue,
+                'depth_queue': depth_queue,
+                'running': True,
+            }
+            logger.info("Force recover: ZED camera recreated successfully")
+            return True
+        except Exception as e:
+            logger.error(f"Force recover failed: {e}")
+            # Restart IMU reader as fallback
+            start_imu_reader()
+            return False
+
+    def _check_zed_healthy(self, timeout=3.0):
+        """Verify ZED camera is actually producing frames.
+
+        Waits up to timeout seconds for at least one frame from the ZED capture queue.
+        Returns True if frames are flowing.
+        """
+        if 'zed' not in self.cameras or not self.cameras['zed']['running']:
+            return False
+
+        fq = self.cameras['zed']['frame_queue']
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            try:
+                fq.get_nowait()
+                return True
+            except Exception:
+                pass
+            time.sleep(0.1)
+
+        logger.warning("ZED health check: no frames received within timeout")
+        return False
+
     def stop_all(self):
         """Stop all running cameras."""
         for name in list(self.cameras.keys()):
@@ -352,14 +443,27 @@ class RecordingManager:
         # Track cameras started by recording (so we only stop those we started)
         self._cameras_started = set()
 
-    def start(self):
+    def start(self, test_mode=False):
         """Start data recording. Returns (ok, message, path)."""
         with self._lock:
             if self.running:
                 return False, 'Already recording', None
 
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            self.output_dir = RECORDING_DIR / timestamp
+            timestamp = datetime.now().strftime('%Y-%m-%d')
+            time_str = datetime.now().strftime('%H%M%S')
+            if test_mode:
+                self.output_dir = RECORDING_DIR / '_test' / timestamp / time_str
+            else:
+                self.output_dir = RECORDING_DIR / timestamp / time_str
+            # Pre-check disk space
+            try:
+                stat = os.statvfs(str(RECORDING_DIR))
+                free_mb = (stat.f_bavail * stat.f_frsize) / (1024 * 1024)
+                if free_mb < 500:
+                    return False, f'Disk space low ({free_mb:.0f}MB free), cannot start recording', None
+            except Exception:
+                pass
+
             self.output_dir.mkdir(parents=True, exist_ok=True)
 
             # Start ros2 bag record
@@ -399,6 +503,99 @@ class RecordingManager:
                         cam_start_errors.append(f"{cam_name}: {msg}")
                         logger.warning(f"Recording failed to start camera {cam_name}: {msg}")
 
+            # ── Camera health check: ZED must be producing frames ──
+            zed_ok = 'zed' in self._cameras_started
+            if zed_ok:
+                zed_ok = self.camera_mgr._check_zed_healthy(timeout=3.0)
+
+            # Recovery loop: retry ZED up to 3 times with full destroy+recreate
+            MAX_ZED_RETRIES = 3
+            retry_count = 0
+            while not zed_ok and 'zed' in CAMERA_CONFIG:
+                retry_count += 1
+                if retry_count > MAX_ZED_RETRIES:
+                    logger.error(f"ZED camera failed after {MAX_ZED_RETRIES} recovery attempts")
+                    # ── Ultimate fallback: restart this service ──
+                    logger.error("Initiating service restart as last resort...")
+                    # Clean up what we started
+                    self.stop_event.set()
+                    if self.bag_process and self.bag_process.poll() is None:
+                        self.bag_process.terminate()
+                        self.bag_process.wait(timeout=5)
+                    for cn in list(self._cameras_started):
+                        try:
+                            self.camera_mgr.stop_camera(cn)
+                        except Exception:
+                            pass
+                    self._cameras_started.clear()
+                    # Remove the empty session directory
+                    try:
+                        import shutil
+                        if self.output_dir and self.output_dir.exists():
+                            shutil.rmtree(self.output_dir, ignore_errors=True)
+                    except Exception:
+                        pass
+
+                    # Fork a child process to restart svtrobo-web
+                    import os as _os
+                    try:
+                        pid = _os.fork()
+                        if pid == 0:
+                            _os.setsid()
+                            import subprocess as _sp
+                            _sp.Popen(
+                                ['sudo', 'systemctl', 'restart', 'svtrobo-web'],
+                                stdout=_sp.DEVNULL, stderr=_sp.DEVNULL,
+                                preexec_fn=_os.setpgrp
+                            )
+                            _os._exit(0)
+                    except Exception as fork_err:
+                        logger.error(f"Fork restart failed: {fork_err}")
+                        try:
+                            subprocess.Popen(
+                                ['sudo', 'systemctl', 'restart', 'svtrobo-web'],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                preexec_fn=os.setpgrp
+                            )
+                        except Exception:
+                            pass
+
+                    return False, 'ZED camera unrecoverable, restarting svtrobo-web service...', None
+
+                logger.warning(f"ZED not healthy, recovery attempt {retry_count}/{MAX_ZED_RETRIES}...")
+                time.sleep(1)
+
+                # Full force recover: destroy + recreate
+                recovered = self.camera_mgr._force_recover_zed()
+                if recovered:
+                    self._cameras_started.add('zed')
+                    zed_ok = self.camera_mgr._check_zed_healthy(timeout=3.0)
+                    if zed_ok:
+                        logger.info(f"ZED recovered on attempt {retry_count}")
+                else:
+                    logger.warning(f"ZED force recover failed on attempt {retry_count}")
+
+            if not zed_ok and 'zed' in CAMERA_CONFIG:
+                logger.error("ZED camera not available - recording WITHOUT camera is invalid")
+                # Clean up
+                self.stop_event.set()
+                if self.bag_process and self.bag_process.poll() is None:
+                    self.bag_process.terminate()
+                    self.bag_process.wait(timeout=5)
+                for cn in list(self._cameras_started):
+                    try:
+                        self.camera_mgr.stop_camera(cn)
+                    except Exception:
+                        pass
+                self._cameras_started.clear()
+                try:
+                    import shutil
+                    if self.output_dir and self.output_dir.exists():
+                        shutil.rmtree(self.output_dir, ignore_errors=True)
+                except Exception:
+                    pass
+                return False, 'ZED camera not available, recording aborted', None
+
             # Start camera frame saver
             self.stop_event.clear()
             self.save_thread = threading.Thread(
@@ -410,6 +607,12 @@ class RecordingManager:
             self.imu_save_thread = threading.Thread(
                 target=self._save_imu_loop, daemon=True)
             self.imu_save_thread.start()
+
+            # Start recording watchdog (monitors ZED + rosbag + disk)
+            self._watchdog_abort = False
+            self.watchdog_thread = threading.Thread(
+                target=self._recording_watchdog, daemon=True)
+            self.watchdog_thread.start()
 
             self.running = True
             self.start_time = time.time()
@@ -436,6 +639,10 @@ class RecordingManager:
                 self.save_thread.join(timeout=5)
             if self.imu_save_thread:
                 self.imu_save_thread.join(timeout=3)
+
+            # Join watchdog thread
+            if hasattr(self, 'watchdog_thread') and self.watchdog_thread:
+                self.watchdog_thread.join(timeout=3)
 
             # Stop cameras that were auto-started by recording
             for cam_name in list(self._cameras_started):
@@ -468,7 +675,11 @@ class RecordingManager:
                 if bag_dir.exists():
                     self._convert_bag(bag_dir, self.output_dir)
 
-            return True, 'Recording stopped', info
+            abort_reason = ''
+            if hasattr(self, '_watchdog_abort') and self._watchdog_abort:
+                abort_reason = ' [ABORTED by watchdog]'
+                logger.warning(f"Recording was aborted by watchdog{abort_reason}")
+            return True, f'Recording stopped{abort_reason}', info
 
     def _write_summary(self, output_dir, duration):
         """Write summary.json to the recording output directory."""
@@ -478,6 +689,7 @@ class RecordingManager:
             output_path = Path(output_dir)
             # Extract timestamp from directory name (e.g. 20250101_120000)
             timestamp = output_path.name
+            full_timestamp = output_path.parent.name.replace('-', '') + '_' + timestamp
 
             cameras = {}
             # Stat cameras: images (jpg) and depth (npy)
@@ -514,7 +726,7 @@ class RecordingManager:
             total_size_mb = round(total_bytes / (1024 * 1024), 2)
 
             summary = {
-                "timestamp": timestamp,
+                "timestamp": full_timestamp,
                 "duration_seconds": round(duration, 2),
                 "cameras": cameras,
                 "pointcloud": pointcloud,
@@ -548,16 +760,211 @@ class RecordingManager:
 
         threading.Thread(target=_do, daemon=True, name='bag-converter').start()
 
+    def _count_files(self, directory, ext='*.jpg'):
+        """Count files matching pattern in directory. Returns 0 if not exists."""
+        if not directory or not directory.exists():
+            return 0
+        return sum(1 for f in directory.glob(ext) if f.is_file())
+
     def get_status(self):
-        """Return current recording status."""
+        """Return current recording status with per-source health info."""
         elapsed = 0
         if self.running and self.start_time:
             elapsed = time.time() - self.start_time
-        return {
+
+        result = {
             'running': self.running,
             'path': str(self.output_dir) if self.output_dir else None,
             'elapsed': round(elapsed, 1),
         }
+        # Add abort message for frontend detection
+        if hasattr(self, '_watchdog_abort') and self._watchdog_abort:
+            result['message'] = 'Recording ABORTED by watchdog'
+
+        if self.running and self.output_dir:
+            d = self.output_dir
+
+            # ── Camera frame counts ──
+            zed_left = self._count_files(d / 'images' / 'zed')
+            zed_right = self._count_files(d / 'images' / 'zed_right')
+            zed_depth = self._count_files(d / 'depth' / 'zed')
+            zed_pc = self._count_files(d / 'pointcloud' / 'zed', '*.npz')
+            d405_1 = self._count_files(d / 'images' / 'd405_1')
+            d405_2 = self._count_files(d / 'images' / 'd405_2')
+
+            # ── IMU samples ──
+            imu_count = 0
+            imu_path = d / 'imu.jsonl'
+            if imu_path.exists():
+                try:
+                    imu_count = sum(1 for _ in open(imu_path))
+                except Exception:
+                    pass
+
+            # ── Rosbag status ──
+            rosbag_alive = False
+            if self.bag_process and self.bag_process.poll() is None:
+                rosbag_alive = True
+
+            # ── ZED frame freshness (from watchdog) ──
+            zed_fresh = True
+            if hasattr(self, '_watchdog_zed_last_frame'):
+                zed_fresh = (time.monotonic() - self._watchdog_zed_last_frame) < 10
+
+            # ── Determine overall status for each source ──
+            # ok = producing data, error = not producing, idle = not applicable
+            cameras_running = self._cameras_started
+
+            sources = {}
+
+            # ZED
+            if 'zed' in cameras_running:
+                sources['zed_left'] = {'status': 'ok' if zed_left > 0 else ('error' if not zed_fresh else 'idle'), 'count': zed_left}
+                sources['zed_right'] = {'status': 'ok' if zed_right > 0 else ('error' if not zed_fresh else 'idle'), 'count': zed_right}
+                sources['zed_depth'] = {'status': 'ok' if zed_depth > 0 else ('error' if not zed_fresh else 'idle'), 'count': zed_depth}
+                sources['pointcloud'] = {'status': 'ok' if zed_pc > 0 else ('error' if not zed_fresh else 'idle'), 'count': zed_pc}
+            elif 'zed' not in CAMERA_CONFIG:
+                pass  # ZED not configured
+
+            # D405
+            for cam, cnt in [('d405_1', d405_1), ('d405_2', d405_2)]:
+                if cam in cameras_running:
+                    sources[cam] = {'status': 'ok' if cnt > 0 else 'idle', 'count': cnt}
+                elif cam in CAMERA_CONFIG and cam not in cameras_running:
+                    sources[cam] = {'status': 'idle', 'count': 0, 'note': '未连接'}
+
+            # IMU
+            if 'zed' in cameras_running:
+                sources['imu'] = {'status': 'ok' if imu_count > 0 else ('error' if not zed_fresh else 'idle'), 'count': imu_count}
+
+            # Rosbag: per-topic message counts from sqlite3
+            bag_dir = d / 'rosbag'
+            ros_topic_map = {
+                'ros_cmd': '/svtrobot_cmd',
+                'ros_joy': '/f710/joy',
+                'ros_lift': '/lift_control_cmd',
+                'ros_chassis': '/chassis/joint_states',
+                'ros_diag': '/chassis/diagnostics',
+            }
+            if rosbag_alive and bag_dir:
+                try:
+                    import glob, sqlite3
+                    db_files = sorted(glob.glob(str(bag_dir / '*.db3')))
+                    if db_files:
+                        # Open the latest (or only) db3
+                        db = sqlite3.connect(db_files[-1])
+                        # Build topic_id -> name mapping
+                        topic_ids = {}
+                        for row in db.execute('SELECT id, name FROM topics'):
+                            topic_ids[row[0]] = row[1]
+                        # Count messages per topic_id
+                        msg_counts = {}
+                        for row in db.execute('SELECT topic_id, COUNT(*) FROM messages GROUP BY topic_id'):
+                            msg_counts[row[0]] = row[1]
+                        db.close()
+                        # Map to frontend keys
+                        name_to_id = {v: k for k, v in topic_ids.items()}
+                        for fkey, topic_name in ros_topic_map.items():
+                            tid = name_to_id.get(topic_name)
+                            cnt = msg_counts.get(tid, 0) if tid else 0
+                            sources[fkey] = {'status': 'ok' if cnt > 0 else 'idle', 'count': cnt}
+                except Exception as e:
+                    logger.debug(f'Rosbag topic count error: {e}')
+                    # Fallback: all unknown
+                    for fkey in ros_topic_map:
+                        sources[fkey] = {'status': 'idle', 'count': 0}
+            else:
+                for fkey in ros_topic_map:
+                    sources[fkey] = {'status': 'error', 'count': 0}
+
+            result['sources'] = sources
+
+        return result
+
+
+    def _recording_watchdog(self):
+        """Background thread: monitor recording health during active recording.
+
+        Checks every 2 seconds:
+        1. ZED camera is still producing frames (no mid-recording drop)
+        2. ros2 bag subprocess is still alive
+        3. Disk has enough free space
+        If any check fails, attempts recovery or aborts recording.
+        """
+        ZED_TIMEOUT = 6.0       # No frames for 6s = ZED dropped
+        DISK_MIN_MB = 500       # Minimum 500MB free to continue
+        CHECK_INTERVAL = 2.0
+
+        zed_last_frame_time = time.monotonic()  # Updated by save loop
+
+        # We need a shared ref for the save loop to update
+        # Store on self so the save loop can poke it
+        self._watchdog_zed_last_frame = zed_last_frame_time
+        self._watchdog_abort = False  # Set by watchdog to signal abort
+
+        while not self.stop_event.is_set():
+            self.stop_event.wait(CHECK_INTERVAL)
+            if self.stop_event.is_set():
+                break
+            if not self.running:
+                break
+
+            # ── Check 1: ZED frame flow ──
+            elapsed_since_frame = time.monotonic() - self._watchdog_zed_last_frame
+            if elapsed_since_frame > ZED_TIMEOUT and 'zed' in self._cameras_started:
+                logger.error(f"Watchdog: ZED no frames for {elapsed_since_frame:.1f}s, attempting recovery...")
+                # Try force recover
+                recovered = self.camera_mgr._force_recover_zed()
+                if recovered:
+                    self._cameras_started.add('zed')
+                    # Verify it actually produces frames
+                    if self.camera_mgr._check_zed_healthy(timeout=3.0):
+                        logger.info("Watchdog: ZED recovered during recording")
+                        self._watchdog_zed_last_frame = time.monotonic()
+                        continue
+
+                logger.error("Watchdog: ZED recovery failed during recording, aborting...")
+                self._watchdog_abort = True
+                # Trigger async stop from main thread via the save thread's event
+                self.stop_event.set()
+                break
+
+            # ── Check 2: ros2 bag subprocess alive ──
+            if self.bag_process and self.bag_process.poll() is not None:
+                logger.error(f"Watchdog: ros2 bag died (exit code {self.bag_process.returncode}), restarting...")
+                # Try to restart ros2 bag
+                bag_dir = self.output_dir / 'rosbag'
+                try:
+                    cmd = (
+                        'source /opt/ros/humble/setup.bash && '
+                        'source /home/svt/svtrobo_ws/install/setup.bash && '
+                        'exec ros2 bag record ' + ' '.join(RECORD_TOPICS) + f' -o {bag_dir}'
+                    )
+                    self.bag_process = subprocess.Popen(
+                        ['bash', '-c', cmd],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    logger.info("Watchdog: ros2 bag restarted successfully")
+                except Exception as e:
+                    logger.error(f"Watchdog: ros2 bag restart failed: {e}, aborting recording")
+                    self._watchdog_abort = True
+                    self.stop_event.set()
+                    break
+
+            # ── Check 3: Disk space ──
+            try:
+                stat = os.statvfs(str(RECORDING_DIR))
+                free_mb = (stat.f_bavail * stat.f_frsize) / (1024 * 1024)
+                if free_mb < DISK_MIN_MB:
+                    logger.error(f"Watchdog: disk space low ({free_mb:.0f}MB free), aborting recording")
+                    self._watchdog_abort = True
+                    self.stop_event.set()
+                    break
+            except Exception:
+                pass
+
+        logger.info("Recording watchdog exiting")
 
     def _save_camera_frames_loop(self):
         """Continuously save camera frames (color + depth + pointcloud + right eye) + IMU from queues.
@@ -614,6 +1021,10 @@ class RecordingManager:
                         # If we fell behind multiple deadlines, skip to next valid one
                         if _next_deadline[name] < _now:
                             _next_deadline[name] = _now + RECORD_INTERVAL
+
+                        # Poke watchdog: ZED is producing frames
+                        if name == 'zed' and hasattr(self, '_watchdog_zed_last_frame'):
+                            self._watchdog_zed_last_frame = time.monotonic()
 
                     # Drain all queued depth frames, save latest only (if deadline met)
                     latest_depth = None
@@ -842,6 +1253,9 @@ async def camera_start_handler(request):
 async def camera_stop_handler(request):
     data = await request.json()
     name = data.get('camera', '')
+    # Block stopping cameras during active recording — only recording stop() may do that
+    if recording_mgr.running and name in recording_mgr._cameras_started:
+        return web.json_response({'ok': False, 'message': 'Cannot stop camera during active recording'})
     ok, msg = camera_mgr.stop_camera(name)
     return web.json_response({'ok': ok, 'message': msg})
 
@@ -851,7 +1265,12 @@ async def camera_status_handler(request):
 
 
 async def recording_start_handler(request):
-    ok, msg, path = recording_mgr.start()
+    try:
+        body = await request.json() if request.content_type == 'application/json' else {}
+    except Exception:
+        body = {}
+    test_mode = body.get('test', False)
+    ok, msg, path = recording_mgr.start(test_mode=test_mode)
     return web.json_response({'ok': ok, 'message': msg, 'path': path})
 
 
@@ -879,6 +1298,17 @@ async def f710_stop_handler(request):
 async def f710_status_handler(request):
     return web.json_response(f710_mgr.get_status())
 
+async def exit_kiosk_handler(request):
+    """退出 Firefox kiosk 全屏模式."""
+    try:
+        await asyncio.create_subprocess_exec(
+            "killall", "firefox",
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.DEVNULL
+        )
+    except Exception as e:
+        logger.warning(f"exit-kiosk failed: {e}")
+    return web.json_response({"status": "ok"})
 
 def _imu_reader_loop():
     """独立线程：以最小开销读取 ZED IMU（VGA+无深度，~20Hz）"""
@@ -1062,6 +1492,73 @@ async def rosbridge_proxy_handler(request):
     return ws_client
 
 
+# ── Master Lock: only one page can control at a time ──
+_master_lock = {
+    'session_id': None,   # unique ID assigned to each tab
+    'last_seen': 0,       # timestamp of last heartbeat
+    'addr': '',           # client IP for display
+}
+import uuid, time
+
+async def master_request_handler(request):
+    """Request master control. Returns {master: true/false, holder: addr}."""
+    global _master_lock
+    try:
+        data = await request.json()
+    except Exception:
+        data = {}
+    sid = data.get('session_id', '')
+    addr = request.remote or ''
+
+    now = time.time()
+    # Auto-release if master hasn't heartbeated in 15s
+    if _master_lock['session_id'] and (now - _master_lock['last_seen']) > 15:
+        logger.info(f"Master lock auto-released (timeout from {_master_lock['addr']})")
+        _master_lock['session_id'] = None
+
+    if not sid:
+        sid = str(uuid.uuid4())
+
+    if _master_lock['session_id'] is None:
+        # Lock is free, take it
+        _master_lock['session_id'] = sid
+        _master_lock['last_seen'] = now
+        _master_lock['addr'] = addr
+        return web.json_response({'master': True, 'session_id': sid})
+    elif _master_lock['session_id'] == sid:
+        # Already master, refresh heartbeat
+        _master_lock['last_seen'] = now
+        _master_lock['addr'] = addr
+        return web.json_response({'master': True, 'session_id': sid})
+    else:
+        # Someone else is master
+        return web.json_response({'master': False, 'session_id': sid, 'holder': _master_lock['addr']})
+
+async def master_release_handler(request):
+    """Release master control."""
+    global _master_lock
+    try:
+        data = await request.json()
+    except Exception:
+        data = {}
+    sid = data.get('session_id', '')
+    if _master_lock['session_id'] == sid:
+        _master_lock['session_id'] = None
+        logger.info(f"Master lock released by {_master_lock['addr']}")
+    return web.json_response({'ok': True})
+
+async def master_status_handler(request):
+    """Check who is master."""
+    now = time.time()
+    if _master_lock['session_id'] and (now - _master_lock['last_seen']) > 15:
+        _master_lock['session_id'] = None
+    is_master = _master_lock['session_id'] is not None
+    return web.json_response({
+        'locked': is_master,
+        'holder': _master_lock['addr'] if is_master else None,
+    })
+
+
 def create_app():
     app = web.Application()
     app.on_shutdown.append(on_shutdown)
@@ -1080,8 +1577,12 @@ def create_app():
     app.router.add_post('/f710/stop', f710_stop_handler)
     app.router.add_get('/f710/status', f710_status_handler)
     app.router.add_get('/api/imu', imu_data_handler)
+    app.router.add_post("/api/exit-kiosk", exit_kiosk_handler)
     # Start standalone IMU reader (lightweight, no video/depth)
     start_imu_reader()
+    app.router.add_post('/api/master/request', master_request_handler)
+    app.router.add_post('/api/master/release', master_release_handler)
+    app.router.add_get('/api/master/status', master_status_handler)
     app.router.add_get('/ws', rosbridge_proxy_handler)
     app.router.add_get('/ws/imu', imu_ws_handler)
 

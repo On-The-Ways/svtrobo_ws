@@ -1176,3 +1176,46 @@ input[type="range"].modern-slider::-webkit-slider-thumb:hover {
     0%, 100% { border-color: rgba(239, 68, 68, 0.5); }
     50% { border-color: rgba(239, 68, 68, 0.9); }
 }
+/* === Exit Kiosk Floating Button === */
+.kiosk-exit-btn {
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 16px 32px;
+    border-radius: 12px;
+    background: rgba(239, 68, 68, 0.95);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: var(--font);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    z-index: 99999;
+    box-shadow: 0 6px 24px rgba(239, 68, 68, 0.5);
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    animation: kiosk-exit-in 0.2s ease;
+}
+.kiosk-exit-btn:hover {
+    background: rgba(239, 68, 68, 1);
+    box-shadow: 0 6px 30px rgba(239, 68, 68, 0.7);
+    transform: translateX(-50%) scale(1.03);
+}
+.kiosk-exit-btn:active {
+    transform: translateX(-50%) scale(0.98);
+}
+
+.kiosk-exit-countdown {
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+@keyframes kiosk-exit-in {
+    from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}

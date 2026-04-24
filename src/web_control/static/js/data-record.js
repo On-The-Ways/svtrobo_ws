@@ -43,6 +43,8 @@ const DataRecord = {
         this.updateUI();
         // Check if recording is already in progress (page refresh case)
         this.checkStatus();
+        // Start idle status polling to detect external recording (e.g. gamepad)
+        this._startIdlePolling();
     },
 
     disable() {
@@ -52,15 +54,20 @@ const DataRecord = {
         }
         this._disabled = true;
         this.stopTimers();
+        this._stopIdlePolling();
         this.updateUI();
     },
 
     async toggle() {
         if (this._disabled) return;
         if (this.recording) {
-            await this.stop();
+            // Show panel with current recording state
+            if (typeof RecPanel !== 'undefined') RecPanel.show();
+            return;
         } else {
-            await this.start();
+            // Just open the panel, don't start recording yet
+            if (typeof RecPanel !== 'undefined') RecPanel.show();
+            return;
         }
     },
 
@@ -81,6 +88,8 @@ const DataRecord = {
                 this.startTime = Date.now();
                 this.updateUI();
                 this.startTimers();
+                // Show large status panel
+                // Panel already open, just update state
             } else {
                 this.showToast('启动录制失败: ' + (data.message || '未知错误'), 'error');
             }
@@ -104,17 +113,33 @@ const DataRecord = {
                 this.recording = false;
                 this.stopTimers();
                 this.updateUI();
+                if (typeof RecPanel !== 'undefined') RecPanel.onRecordingStopped();
                 const dur = data.duration || 0;
                 const path = data.path || '';
-                this.showToast(
-                    '录制完成！时长 ' + dur + 's\n保存至: ' + path,
-                    'success'
-                );
+                // Check for watchdog abort
+                const msg = data.message || '';
+                if (msg.includes('ABORTED') || msg.includes('abort')) {
+                    this.showToast('⚠ 录制被异常中断！请检查相机连接\n时长 ' + dur + 's', 'error');
+                } else {
+                    this.showToast('录制完成！时长 ' + dur + 's\n保存至: ' + path, 'success');
+                }
             } else {
                 this.showToast('停止录制失败: ' + (data.message || '未知错误'), 'error');
             }
         } catch (e) {
             this.showToast('无法连接服务器', 'error');
+        }
+    },
+
+    _startIdlePolling() {
+        this._stopIdlePolling();
+        this._idlePollTimer = setInterval(() => this.checkStatus(), 5000);
+    },
+
+    _stopIdlePolling() {
+        if (this._idlePollTimer) {
+            clearInterval(this._idlePollTimer);
+            this._idlePollTimer = null;
         }
     },
 
@@ -124,10 +149,22 @@ const DataRecord = {
             if (!resp.ok) return;
             const data = await resp.json();
             if (data.running) {
-                this.recording = true;
-                this.startTime = Date.now() - data.elapsed * 1000;
+                if (!this.recording) {
+                    // Recording started externally (e.g. gamepad)
+                    this.recording = true;
+                    this.startTime = Date.now() - data.elapsed * 1000;
+                    this.updateUI();
+                    this.startTimers();
+                } else {
+                    // Update elapsed time to stay in sync
+                    this.startTime = Date.now() - data.elapsed * 1000;
+                }
+            } else if (this.recording) {
+                // Recording stopped externally (e.g. gamepad/watchdog)
+                this.recording = false;
+                this.stopTimers();
                 this.updateUI();
-                this.startTimers();
+                if (typeof RecPanel !== 'undefined') RecPanel.onRecordingStopped();
             }
         } catch (e) {
             // Server unreachable, ignore silently
@@ -214,4 +251,5 @@ const DataRecord = {
 
 document.addEventListener('DOMContentLoaded', () => {
     DataRecord.init();
+    if (typeof RecPanel !== 'undefined') RecPanel.init();
 });
