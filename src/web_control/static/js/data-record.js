@@ -155,6 +155,7 @@ const DataRecord = {
                     this.startTime = Date.now() - data.elapsed * 1000;
                     this.updateUI();
                     this.startTimers();
+                    if (typeof RecPanel !== 'undefined') RecPanel.show();
                 } else {
                     // Update elapsed time to stay in sync
                     this.startTime = Date.now() - data.elapsed * 1000;

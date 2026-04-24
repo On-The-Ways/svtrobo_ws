@@ -133,7 +133,14 @@ const RecPanel = {
             if (!resp.ok) return;
             const data = await resp.json();
             if (data.running) {
-                // Already recording externally, sync state
+                // New recording detected — reset display from previous session
+                this._stopLocalTimer();
+                this._lastElapsed = undefined;
+                this.timerEl.textContent = '00:00';
+                for (const key of Object.keys(this.SOURCE_CFG)) {
+                    this._setLight(key, 'idle');
+                    document.getElementById('rec-val-' + key).textContent = '--';
+                }
                 this.isRecording = true;
                 this.recordingDone = false;
                 this.abortDetected = false;
