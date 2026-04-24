@@ -19,7 +19,7 @@ const RecPanel = {
     ROWS: [
         ['zed_color', 'd405_1', 'd405_2'],
         ['zed_depth', 'pointcloud', 'imu'],
-        ['ros_cmd', 'ros_joy', 'ros_lift', 'ros_chassis', 'ros_diag'],
+        ['ros_cmd', 'ros_lift', 'ros_joy', 'ros_chassis', 'ros_diag'],
     ],
 
     SOURCE_CFG: {
@@ -292,7 +292,7 @@ const RecPanel = {
         this._updateSimpleSource('pointcloud', sources['pointcloud']);
         this._updateSimpleSource('imu', sources['imu']);
 
-        const rosKeys = ['ros_cmd', 'ros_joy', 'ros_lift', 'ros_chassis', 'ros_diag'];
+        const rosKeys = ['ros_cmd', 'ros_lift', 'ros_joy', 'ros_chassis', 'ros_diag'];
         for (const key of rosKeys) {
             const src = sources[key];
             if (src) {

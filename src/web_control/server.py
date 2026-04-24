@@ -837,8 +837,8 @@ class RecordingManager:
             if 'zed' in cameras_running:
                 sources['imu'] = {'status': 'ok' if imu_count > 0 else ('error' if not zed_fresh else 'idle'), 'count': imu_count}
 
-            # Rosbag: per-topic message counts from sqlite3
-            bag_dir = d / 'rosbag'
+            # Rosbag: per-topic message counts from sqlite3 (merge all rosbag*/ dirs)
+            import glob as _glob, sqlite3 as _sqlite3
             ros_topic_map = {
                 'ros_cmd': '/svtrobot_cmd',
                 'ros_joy': '/f710/joy',
@@ -846,31 +846,29 @@ class RecordingManager:
                 'ros_chassis': '/chassis/joint_states',
                 'ros_diag': '/chassis/diagnostics',
             }
-            if rosbag_alive and bag_dir:
+            if rosbag_alive or (d / 'rosbag').exists():
                 try:
-                    import glob, sqlite3
-                    db_files = sorted(glob.glob(str(bag_dir / '*.db3')))
-                    if db_files:
-                        # Open the latest (or only) db3
-                        db = sqlite3.connect(db_files[-1])
-                        # Build topic_id -> name mapping
+                    # Find all rosbag*/ subdirectories and collect all db3 files
+                    all_db_files = []
+                    for bag_sub in sorted(d.iterdir()):
+                        if bag_sub.is_dir() and bag_sub.name.startswith('rosbag'):
+                            all_db_files.extend(sorted(_glob.glob(str(bag_sub / '*.db3'))))
+                    # Aggregate message counts across all db3 files
+                    total_msg_counts = {}  # topic_name -> count
+                    for db_file in all_db_files:
+                        db = _sqlite3.connect(f'file:{db_file}?mode=ro', uri=True)
                         topic_ids = {}
                         for row in db.execute('SELECT id, name FROM topics'):
                             topic_ids[row[0]] = row[1]
-                        # Count messages per topic_id
-                        msg_counts = {}
                         for row in db.execute('SELECT topic_id, COUNT(*) FROM messages GROUP BY topic_id'):
-                            msg_counts[row[0]] = row[1]
+                            tname = topic_ids.get(row[0], '')
+                            total_msg_counts[tname] = total_msg_counts.get(tname, 0) + row[1]
                         db.close()
-                        # Map to frontend keys
-                        name_to_id = {v: k for k, v in topic_ids.items()}
-                        for fkey, topic_name in ros_topic_map.items():
-                            tid = name_to_id.get(topic_name)
-                            cnt = msg_counts.get(tid, 0) if tid else 0
-                            sources[fkey] = {'status': 'ok' if cnt > 0 else 'idle', 'count': cnt}
+                    for fkey, topic_name in ros_topic_map.items():
+                        cnt = total_msg_counts.get(topic_name, 0)
+                        sources[fkey] = {'status': 'ok' if cnt > 0 else 'idle', 'count': cnt}
                 except Exception as e:
                     logger.debug(f'Rosbag topic count error: {e}')
-                    # Fallback: all unknown
                     for fkey in ros_topic_map:
                         sources[fkey] = {'status': 'idle', 'count': 0}
             else:
@@ -932,8 +930,12 @@ class RecordingManager:
             # ── Check 2: ros2 bag subprocess alive ──
             if self.bag_process and self.bag_process.poll() is not None:
                 logger.error(f"Watchdog: ros2 bag died (exit code {self.bag_process.returncode}), restarting...")
-                # Try to restart ros2 bag
-                bag_dir = self.output_dir / 'rosbag'
+                # Try to restart ros2 bag (numbered subfolder)
+                if not hasattr(self, '_bag_restart_idx'):
+                    self._bag_restart_idx = 1
+                else:
+                    self._bag_restart_idx += 1
+                bag_dir = self.output_dir / f'rosbag_{self._bag_restart_idx}'
                 try:
                     cmd = (
                         'source /opt/ros/humble/setup.bash && '
@@ -945,7 +947,7 @@ class RecordingManager:
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.DEVNULL,
                     )
-                    logger.info("Watchdog: ros2 bag restarted successfully")
+                    logger.info(f"Watchdog: ros2 bag restarted as {bag_dir.name}")
                 except Exception as e:
                     logger.error(f"Watchdog: ros2 bag restart failed: {e}, aborting recording")
                     self._watchdog_abort = True
