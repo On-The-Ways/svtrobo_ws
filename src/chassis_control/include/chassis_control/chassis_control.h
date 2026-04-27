@@ -98,6 +98,11 @@ private:
     RateLimiter rl_rate_limiter;
     RateLimiter rr_rate_limiter;
 
+    RateLimiter fl_speed_limiter;
+    RateLimiter fr_speed_limiter;
+    RateLimiter rl_speed_limiter;
+    RateLimiter rr_speed_limiter;
+
     std::unique_ptr<ZLAC8015D> front_;
     std::unique_ptr<ZLAC8015D> rear_;
 

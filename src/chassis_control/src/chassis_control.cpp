@@ -12,7 +12,11 @@ ChassisControlNode::ChassisControlNode(void):rclcpp::Node("chassis_control_node"
                                         fl_rate_limiter(MAX_ANGLE_RATE),
                                         fr_rate_limiter(MAX_ANGLE_RATE),
                                         rl_rate_limiter(MAX_ANGLE_RATE),
-                                        rr_rate_limiter(MAX_ANGLE_RATE){
+                                        rr_rate_limiter(MAX_ANGLE_RATE),
+                                        fl_speed_limiter(MAX_WHEEL_SPEED_RATE),
+                                        fr_speed_limiter(MAX_WHEEL_SPEED_RATE),
+                                        rl_speed_limiter(MAX_WHEEL_SPEED_RATE),
+                                        rr_speed_limiter(MAX_WHEEL_SPEED_RATE){
     this->declare_parameter<double>("robot.chassis_radius");
     this->declare_parameter<double>("robot.wheel_perimeter");
 
@@ -233,14 +237,26 @@ void ChassisControlNode::excute_loop(void)
         && fabs(chassis_control_para.front_right_angle-motor2.position_)<=0.1
         && fabs(chassis_control_para.front_left_angle-motor1.position_)<=0.1)
       {
-          front_->set_target_speed_lr_rpm(chassis_control_para.front_right_speed*WHEEL_FR_DIRETION,
-                                        chassis_control_para.front_left_speed*WHEEL_FL_DIRETION);
-          rear_->set_target_speed_lr_rpm(chassis_control_para.rear_left_speed*WHEEL_RL_DIRETION,
-                                        chassis_control_para.rear_right_speed*WHEEL_RR_DIRETION);
+          // 舵角到位：通过 RateLimiter 平滑输出轮速（从 0 渐增，不会突变）
+          double fl_spd = fl_speed_limiter.limit(chassis_control_para.front_left_speed, dt);
+          double fr_spd = fr_speed_limiter.limit(chassis_control_para.front_right_speed, dt);
+          double rl_spd = rl_speed_limiter.limit(chassis_control_para.rear_left_speed, dt);
+          double rr_spd = rr_speed_limiter.limit(chassis_control_para.rear_right_speed, dt);
+
+          front_->set_target_speed_lr_rpm(fr_spd*WHEEL_FR_DIRETION,
+                                        fl_spd*WHEEL_FL_DIRETION);
+          rear_->set_target_speed_lr_rpm(rl_spd*WHEEL_RL_DIRETION,
+                                        rr_spd*WHEEL_RR_DIRETION);
 
       }
       else
       {
+        // 舵角未到位：轮速强制为 0，同时喂 0 给 RateLimiter 使其跟踪实际发送值
+        fl_speed_limiter.limit(0.0, dt);
+        fr_speed_limiter.limit(0.0, dt);
+        rl_speed_limiter.limit(0.0, dt);
+        rr_speed_limiter.limit(0.0, dt);
+
         front_->set_target_speed_lr_rpm(0,0);
         rear_->set_target_speed_lr_rpm(0,0);
       }

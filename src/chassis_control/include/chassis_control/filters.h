@@ -4,8 +4,9 @@
 #include <iostream>
 
 #define FILTER_ALPHA 0.75f        // 低通滤波系数 (0-1, 越小越平滑但响应越慢)
-#define MAX_ANGLE_RATE 5.0f       // 最大角度变化率 (rad/s)
+#define MAX_ANGLE_RATE 3.0f       // 最大角度变化率 (rad/s)，原 5.0
 #define MAX_WHEEL_SPEED 100.0f    // 最大轮子速度 (rpm)，根据实际电机能力调整
+#define MAX_WHEEL_SPEED_RATE 50.0f // 最大轮速变化率 (RPM/s)，防止舵角到位后轮速突变
 
 class LowPassFilter {
 public:

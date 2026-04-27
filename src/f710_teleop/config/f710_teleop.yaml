@@ -9,6 +9,10 @@
     deadzone.remap: true
     # 摇杆低通（0=关），略降偶发抖动
     axis.smoothing_alpha: 0.35
+    # 加速度限制（m/s² 和 rad/s²）：限制速度每秒最大变化量，实现平滑加减速
+    # 0.8 → 从静止到满速 0.4m/s 需 0.5s
+    acceleration.max_linear_accel: 0.8
+    acceleration.max_angular_accel: 2.0
     publish_rate: 25.0
     # 首次按 A 之前不发速度/升降（只发全 0），防止开机自启乱动
     safety.gate_until_first_a: true

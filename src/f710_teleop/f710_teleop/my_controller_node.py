@@ -149,6 +149,10 @@ class F710TeleopNode(Node):
         self.declare_parameter("startup.zero_cmd_sec", 0.0)
         # 0=关闭；0~1 越大越跟手、越小越稳（抑制摇杆噪声导致的偶发抖动）
         self.declare_parameter("axis.smoothing_alpha", 0.35)
+        # 加速度限制（0=关闭）：限制速度每秒最大变化量，实现平滑加减速
+        # 从静止到 max_linear=0.4 需要约 0.4/accel 的时间
+        self.declare_parameter("acceleration.max_linear_accel", 0.8)
+        self.declare_parameter("acceleration.max_angular_accel", 2.0)
         self.declare_parameter("axis.lt", 2)       # 左扳机
         self.declare_parameter("axis.rt", 5)       # 右扳机
 
@@ -181,6 +185,8 @@ class F710TeleopNode(Node):
         publish_rate = float(self.get_parameter("publish_rate").value)
         self.startup_zero_cmd_sec = float(self.get_parameter("startup.zero_cmd_sec").value)
         self.axis_smoothing_alpha = float(self.get_parameter("axis.smoothing_alpha").value)
+        self.max_linear_accel = float(self.get_parameter("acceleration.max_linear_accel").value)
+        self.max_angular_accel = float(self.get_parameter("acceleration.max_angular_accel").value)
         self.gate_until_first_a = bool(self.get_parameter("safety.gate_until_first_a").value)
         self.require_deadman = bool(self.get_parameter("safety.require_deadman").value)
         self.estop_latch = bool(self.get_parameter("safety.estop_latch").value)
@@ -276,6 +282,9 @@ class F710TeleopNode(Node):
         # 上一周期是否发过非零 cmd_vel（用于松杆时补发一次停车）
         self._prev_cmd_vel_active = False
         self._filt_axis = {"lx": 0.0, "ly": 0.0, "rx": 0.0}
+        self._prev_vx = 0.0   # 加速度限制器上一帧输出
+        self._prev_vy = 0.0
+        self._prev_wz = 0.0
         self._prev_a = 0
         self._prev_b = 0
         self._estop_latched = False
@@ -396,6 +405,38 @@ class F710TeleopNode(Node):
         self._filt_axis[key] = out
         return out
 
+    def _apply_acceleration_limit(self, twist: Twist, dt: float) -> None:
+        """限制速度变化率，实现平滑加减速。
+        vx/vy 使用合成矢量加速度限制，防止方向切换时对角线加速过快。
+        angular.z 独立限制。
+        """
+        if dt <= 0 or (self.max_linear_accel <= 0 and self.max_angular_accel <= 0):
+            return
+
+        # vx/vy: 合成矢量加速度限制
+        if self.max_linear_accel > 0:
+            dvx = twist.linear.x - self._prev_vx
+            dvy = twist.linear.y - self._prev_vy
+            delta_mag = (dvx * dvx + dvy * dvy) ** 0.5
+            max_delta = self.max_linear_accel * dt
+            if delta_mag > max_delta and delta_mag > 1e-9:
+                scale = max_delta / delta_mag
+                dvx *= scale
+                dvy *= scale
+            self._prev_vx += dvx
+            self._prev_vy += dvy
+            twist.linear.x = self._prev_vx
+            twist.linear.y = self._prev_vy
+
+        # angular.z: 独立限制
+        if self.max_angular_accel > 0:
+            dwz = twist.angular.z - self._prev_wz
+            max_dwz = self.max_angular_accel * dt
+            if abs(dwz) > max_dwz:
+                dwz = max_dwz if dwz > 0 else -max_dwz
+            self._prev_wz += dwz
+            twist.angular.z = self._prev_wz
+
     def _get_button(self, index: int) -> int:
         if 0 <= index < len(self.joy.buttons):
             return self.joy.buttons[index]
@@ -485,6 +526,9 @@ class F710TeleopNode(Node):
         self._last_lift_direction = 0
         self._last_lift_speed = 0
         self._prev_cmd_vel_active = False
+        self._prev_vx = 0.0
+        self._prev_vy = 0.0
+        self._prev_wz = 0.0
 
     def _publish_mode(self) -> None:
         """发布手柄模式 (X/D/unknown)，约每秒发布一次."""
@@ -604,6 +648,8 @@ class F710TeleopNode(Node):
 
             # 发布底盘速度（静止时数值归零，避免 linear.x: -0.0 等）
             twist = self._compute_cmd_vel()
+            # 加速度限制：平滑加减速，避免起步/转向冲击
+            self._apply_acceleration_limit(twist, 1.0 / publish_rate)
             self._sanitize_twist(twist)
             idle = self._twist_is_idle(twist)
             if self.cmd_vel_publish_always:
