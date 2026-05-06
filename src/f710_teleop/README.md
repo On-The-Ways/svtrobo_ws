@@ -21,6 +21,7 @@ Logitech F710（或兼容手柄）控制底盘与升降机构的 ROS2 Python 功
     - `direction = 0`：停止
     - `speed = 500`（可配置）
 - LT / RT 调整底盘速度缩放因子 `speed_scale ∈ [0.01, 1.0]`。
+- **加速度限制**：`max_linear_accel: 0.8 m/s²`、`max_angular_accel: 2.0 rad/s²`，从静止到满速需 ~0.5s，运动更平滑。
 - **X/D 模式自动检测**：读取 sysfs 设备名称判断手柄模式（XInput / DirectInput），X 模式下自动阻断所有控制指令。
 - **外部使能控制**：通过 `/f710/enable` 话题远程启停手柄控制，状态通过 `/f710/status` 发布。
 - **原始数据录制**：发布原始手柄数据到 `/f710/joy`（sensor_msgs/Joy），支持 ros2 bag 录制。
@@ -152,13 +153,13 @@ ros2 run f710_teleop my_controller_node --ros-args \
 - 用 `jstest /dev/input/js1` 查看：
   - 摇杆、按钮是否在对应轴 / 按钮编号上变化。
 - 检查配置：
-  - `axis.left_x` / `axis.left_y` / `axis.right_x` 是否与当前手柄轴编号一致；
+  - `axis.left_x` (4) / `axis.left_y` (5) / `axis.right_x` (2) 是否与当前手柄轴编号一致；
   - `button.lt` / `button.rt` 是否与 LT / RT 按钮编号一致。
 - 可通过命令行快速覆盖以测试：
   ```bash
   ros2 run f710_teleop my_controller_node --ros-args \
     -p device_path:=/dev/input/js1 \
-    -p axis.left_x:=0 -p axis.left_y:=1 -p axis.right_x:=2 \
+    -p axis.left_x:=4 -p axis.left_y:=5 -p axis.right_x:=2 \
     -p button.lt:=6 -p button.rt:=7
   ```
 

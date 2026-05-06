@@ -161,7 +161,11 @@ http://<机器人IP>:8080
 | Lift | `lift.js` | 升降机构速度滑条 + 方向按钮 |
 | StatusMonitor | `status.js` | ROS Topic 列表显示 |
 | ControlMode | `f710-toggle.js` | 手柄/Web 模式互斥切换、X/D 模式检测与警告 |
-| DataRecord | `data-record.js` | 数据录制悬浮按钮，一键采集 bag + 摄像头帧；手柄 X/Y 按钮也可触发采集 |
+| DataRecord | `data-record.js` | 数据录制核心逻辑（bag + 摄像头帧 + JSONL）；手柄 X/Y 按钮也可触发 |
+| RecPanel | `rec-panel.js` | 录制面板 v3c：按钮触发弹窗式面板，ROS topic 计数（SQLite），停止后保留面板 |
+| MasterLock | `master-lock.js` | 主控锁：手柄/Web 模式互斥切换 |
+| HardwareStatus | `hardware-status.js` | 硬件在线检测（不依赖 ROS 连接） |
+| ImuStatus | `imu-status.js` | IMU 实时数据 WebSocket 显示 |
 
 ---
 
@@ -382,7 +386,11 @@ web_control/
         ├── camera.js          # 相机启停控制 + MJPEG 显示
         ├── diagnostics.js     # VBUS/温度/错误码诊断面板
         ├── f710-toggle.js     # 手柄/Web 模式互斥切换 + X/D 模式警告
-        ├── data-record.js     # 数据录制悬浮按钮（bag + 摄像头帧）
+        ├── data-record.js     # 数据录制核心逻辑（bag + 摄像头帧 + JSONL 转换）
+        ├── rec-panel.js       # 录制面板 v3c（按钮触发弹窗，ROS topic 计数，SQLite 统计）
+        ├── master-lock.js     # 主控锁（手柄/Web 模式互斥切换）
+        ├── hardware-status.js # 硬件在线状态检测（ZED/D405/IMU/底盘/手柄）
+        ├── imu-status.js      # IMU 实时数据 WebSocket 显示
         ├── imu-status.js      # IMU 实时状态显示（WebSocket + HTTP 回退）
         ├── lift.js            # 升降机构控制
         └── status.js          # ROS Topic 列表显示

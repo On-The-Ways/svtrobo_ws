@@ -17,7 +17,7 @@
 | Node.js | v22.22.2 |
 | pnpm | /usr/bin/pnpm |
 
-## 2. systemd 自启服务 (共9个, 全部 enabled)
+## 2. systemd 自启服务 (共10个, 全部 enabled)
 
 ### 启动顺序与依赖链
 
@@ -32,10 +32,13 @@ sysinit.target
             │         ├─ svtrobo-web.service (web_control :8080)
             │         └─ svtrobo-nodeapi.service (Node.js API :28181)
             └─ pcan-monitor.service (每10秒检查 CAN 状态 + err-71 检测)
+            └─ svtrobo-arm.service (双臂控制, bimanual, ROS_LOCALHOST_ONLY=1)
             └─ (以上均 Wants=svtrobo-can.service)
 ```
 
 所有服务均 `Restart=on-failure, RestartSec=5`（f710-fix 和 svtrobo-can 除外，它们是 oneshot）。
+
+**ROS_LOCALHOST_ONLY**: svtrobo-arm 服务设置了 `ROS_LOCALHOST_ONLY=1`，限制 DDS 通讯仅在本机回环接口，防止局域网其他 ROS2 设备干扰。
 
 ### 2.1 f710-fix.service
 
@@ -116,10 +119,10 @@ WantedBy=multi-user.target
 
 | 接口 | 模式 | Bitrate | 用途 |
 |------|------|---------|------|
-| can0 | CAN FD | 1M/5M | 底盘控制 |
-| can1 | CAN FD | 1M/5M | 底盘控制 |
-| can2 | CAN 2.0 | 1M | 底盘控制 |
-| can3 | CAN 2.0 | 1M | 底盘控制 |
+| can0 | CAN FD | 1M/5M | 右臂 (openarm_right) |
+| can1 | CAN FD | 1M/5M | 左臂 (openarm_left) |
+| can2 | CAN 2.0 | 1M | 底盘转向电机 (RobStride) |
+| can3 | CAN 2.0 | 1M | 底盘轮电机 (ZLAC8015D) |
 | can4 | CAN 2.0 | 500K | 扩展 |
 | can5 | CAN 2.0 | 500K | 扩展 |
 
@@ -145,7 +148,36 @@ WantedBy=multi-user.target
 
 **端口**: 9090 (WebSocket)
 
-### 2.4 svtrobo-chassis.service
+### 2.4 svtrobo-arm.service
+
+**用途**: OpenArm bimanual 双臂控制，通过 CAN-FD 驱动左右两条机械臂。
+
+```ini
+[Unit]
+Description=OpenArm机械臂控制
+After=svtrobo-can.service
+Wants=svtrobo-can.service
+
+[Service]
+Type=simple
+User=svt
+Environment=ROS_DOMAIN_ID=0
+Environment=ROS_LOCALHOST_ONLY=1
+ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/svt/svtrobo_ws/install/setup.bash && exec ros2 launch arm_preset_manager arm_preset_manager.launch.py"
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**启动节点**: robot_state_publisher, ros2_control_node, preset_manager_node
+
+**Controller 启动时序**: joint_state_broadcaster(1s) → left/right_forward_position_controller(1.5s) → left/right_gripper_controller(2s) → preset_manager(5s)
+
+**注意**: 必须设置 `ROS_LOCALHOST_ONLY=1`，局域网有多个 ROS2 设备，否则 DDS 发现会失败。
+
+### 2.5 svtrobo-chassis.service
 
 ```ini
 [Unit]
@@ -169,7 +201,7 @@ WantedBy=multi-user.target
 
 **已知问题**: chassis_control_node crash 时 ros2 launch 父进程不退出，systemd 不会触发 Restart。现已通过 chassis-watchdog 自动恢复（见 2.5）。
 
-### 2.5 svtrobo-chassis-watchdog.service
+### 2.6 svtrobo-chassis-watchdog.service
 
 **用途**: 每5秒检查 chassis_control_node 是否存活，连续2次检测失败则自动 restart svtrobo-chassis 服务。
 **原理**: 通过 `ros2 node list` 检查 `/chassis_control` 是否存在，解决 ros2 launch 父进程不退出导致 systemd 无法自动恢复的问题。
@@ -194,7 +226,7 @@ WantedBy=multi-user.target
 
 **检测逻辑**: 每5秒轮询一次，连续2次未发现 `/chassis_control` 节点 → 执行 `systemctl restart svtrobo-chassis`。
 
-### 2.6 pcan-monitor.service
+### 2.7 pcan-monitor.service
 
 **用途**: 每10秒检查 CAN 接口状态 + PCAN err-71 检测，自动尝试恢复。
 **原理**: 监控 `ip link show canX` 状态和 dmesg 中的 PCAN 错误，检测到异常时执行 modprobe 重载和服务重启。
@@ -218,7 +250,7 @@ WantedBy=multi-user.target
 
 **检测逻辑**: 每10秒检查一次 CAN 接口状态和 dmesg 中 pcan err-71 错误计数。
 
-### 2.7 svtrobo-f710.service
+### 2.8 svtrobo-f710.service
 
 ```ini
 [Unit]
@@ -243,7 +275,7 @@ WantedBy=multi-user.target
 
 **ExecStartPre**: 等待 /dev/input/js0 出现（最多30秒）
 
-### 2.8 svtrobo-web.service
+### 2.9 svtrobo-web.service
 
 ```ini
 [Unit]
@@ -265,7 +297,7 @@ WantedBy=multi-user.target
 
 **端口**: 8080 (HTTP)
 
-### 2.9 svtrobo-nodeapi.service
+### 2.10 svtrobo-nodeapi.service
 
 ```ini
 [Unit]
@@ -415,7 +447,7 @@ chassis_control:
 ### CAN 全部 DOWN (PCAN err-71)
 ```bash
 # 快速恢复 (modprobe 重载 + CAN 配置 + 服务重启)
-ssh svt@10.0.0.56 "echo '123456' | sudo -S modprobe -r pcan && sleep 2 && echo '123456' | sudo -S modprobe pcan && sleep 5 && echo '123456' | sudo -S systemctl restart svtrobo-can && echo '123456' | sudo -S systemctl restart svtrobo-rosbridge && sleep 2 && echo '123456' | sudo -S systemctl restart svtrobo-chassis svtrobo-f710 svtrobo-web svtrobo-nodeapi && rm -rf /dev/shm/fastrtps_* && echo RECOVERED"
+ssh svt@10.0.0.56 "echo '123456' | sudo -S modprobe -r pcan && sleep 2 && echo '123456' | sudo -S modprobe pcan && sleep 5 && echo '123456' | sudo -S systemctl restart svtrobo-can && echo '123456' | sudo -S systemctl restart svtrobo-rosbridge && sleep 2 && echo '123456' | sudo -S systemctl restart svtrobo-arm svtrobo-chassis svtrobo-f710 svtrobo-web svtrobo-nodeapi && rm -rf /dev/shm/fastrtps_* && echo RECOVERED"
 ```
 
 ### chassis_control_node 崩溃 (SDO write timeout)

@@ -1,6 +1,6 @@
 # SVTROBO - 四轮独立转向/独立驱动全向移动机器人
 
-基于 ROS2 Humble 的 4WIS4WID 全向移动机器人控制系统，支持 Web 浏览器、F710 手柄、Python API 多种控制方式。
+基于 ROS2 Humble 的 4WIS4WID 全向移动机器人控制系统，支持双臂控制、Web 浏览器、F710 手柄、Python API 多种控制方式。
 
 ## 项目结构
 
@@ -9,6 +9,11 @@ svtrobo_ws/
 ├── src/
 │   ├── start_all.sh                                  # 一键启动全部服务
 │   ├── stop_all.sh                                   # 一键停止全部服务
+│   ├── arm_preset_manager/                            # 双臂控制 (Python)
+│   │   ├── arm_preset_manager/preset_manager_node.py  #   预设姿态管理节点
+│   │   ├── config/arm_presets.yaml                    #   预设关节值 + D-pad 映射
+│   │   ├── launch/arm_preset_manager.launch.py        #   bimanual 双臂启动文件
+│   │   └── scripts/start_arm.sh                       #   独立启动脚本
 │   ├── chassis_control/                              # 底盘控制 (C++, 1kHz)
 │   │   ├── src/                                      #   底盘/舵向/轮驱/升降/滤波 实现文件
 │   │   ├── include/chassis_control/                  #   头文件
@@ -25,19 +30,22 @@ svtrobo_ws/
 │   │   ├── bag_converter.py                          #   bag (.db3) → JSONL 自动转换
 │   │   ├── static/                                   #   前端（HTML/CSS/JS 模块）
 │   │   └── WEB_CONTROL_GUIDE.md                      #   Web 控制台使用说明
-│   └── camera_driver/                                # 摄像头驱动 (Python)
-│       └── camera_driver/
-│           ├── realsense_camera.py                    #   RealSense D405 驱动
-│           ├── realsense_node.py                      #   RealSense ROS2 节点
-│           ├── zed_camera.py                          #   ZED 2i 驱动 (SDK + sl.Mat复用)
-│           ├── zed_node.py                            #   ZED ROS2 节点
-│           └── CAMERA_DRIVER_GUIDE.md                 #   摄像头驱动 API 文档
+│   ├── camera_driver/                                # 摄像头驱动 (Python)
+│   │   └── camera_driver/
+│   │       ├── realsense_camera.py                    #   RealSense D405 驱动
+│   │       ├── realsense_node.py                      #   RealSense ROS2 节点
+│   │       ├── zed_camera.py                          #   ZED 2i 驱动 (SDK + sl.Mat复用)
+│   │       ├── zed_node.py                            #   ZED ROS2 节点
+│   │       └── CAMERA_DRIVER_GUIDE.md                 #   摄像头驱动 API 文档
+│   ├── openarm_can/                                  # OpenArm CAN-FD 驱动层
+│   ├── openarm_description/                          # OpenArm URDF/xacro 模型
+│   └── openarm_ros2/                                 # OpenArm ros2_control 接口
 ├── scripts/                                          # 运维脚本
 │   ├── chassis_watchdog.sh                           #   底盘节点存活监控
 │   └── pcan_monitor.sh                               #   PCAN/CAN 状态监控
 ├── systemd/                                          # systemd service 文件备份
 ├── recordings/                                       # 录制数据存储（含 README 格式说明）
-├── SYSTEM_CONFIG.md                                  # 系统配置文档 (9个systemd服务)
+├── SYSTEM_CONFIG.md                                  # 系统配置文档 (10个systemd服务)
 ├── ROBOT_SYSTEM_GUIDE.md                             # 系统完整技术文档
 └── README.md                                         # 本文件
 ```
@@ -64,9 +72,45 @@ svtrobo_ws/
    CAN2 转向电机  CAN3 轮电机
    0x65 0x66 0x67 0x68    ZLAC8015D ×2
    RobStride ×4
+
+┌───────────────────────────────────────────────────┐
+│               双臂控制 (bimanual)                   │
+│  F710 D-pad → preset_manager_node → ros2_control  │
+│                                                     │
+│   CAN0 右臂 (openarm_right)    CAN1 左臂 (openarm_left)  │
+│   7 DOF + 夹爪                 7 DOF + 夹爪              │
+└───────────────────────────────────────────────────┘
 ```
 
+## CAN 总线分配
+
+| 接口 | 模式 | Bitrate | 用途 |
+|------|------|---------|------|
+| can0 | CAN FD | 1M/5M | 右臂 (openarm_right) |
+| can1 | CAN FD | 1M/5M | 左臂 (openarm_left) |
+| can2 | CAN 2.0 | 1M | 底盘转向电机 (RobStride ×4) |
+| can3 | CAN 2.0 | 1M | 底盘轮电机 (ZLAC8015D ×2) |
+| can4 | CAN 2.0 | 500K | 扩展 |
+| can5 | CAN 2.0 | 500K | 扩展 |
+
 ## 功能包说明
+
+### arm_preset_manager — 双臂预设姿态管理
+
+基于 OpenArm 硬件的 bimanual 双臂控制包，通过 CAN-FD 驱动双臂。
+
+- **bimanual 双臂模式**：右臂 can0、左臂 can1，各 7 DOF + 夹爪
+- **6 个 ros2_control controller**：joint_state_broadcaster + 左右位置控制 + 左右夹爪
+- **手柄 D-pad 快速切换**预设姿态（home/ready/carry/place），与底盘控制解耦
+- **文本指令备用**：通过 `/arm/preset_cmd` 话题控制
+- **启动自动回 home 位**
+- **急停保护**：锁存式急停，需手动解除
+
+```
+ros2 launch arm_preset_manager arm_preset_manager.launch.py
+```
+
+> 详见 [arm_preset_manager/README.md](src/arm_preset_manager/README.md)
 
 ### chassis_control — 底盘与升降控制
 
@@ -88,9 +132,9 @@ Python ROS2 节点，直接读取 `/dev/input/jsX` 设备。
 
 - **手柄模式：D 模式（DirectInput）**，不是 X 模式
 - **X/D 模式自动检测**：读取 sysfs 设备名称判断手柄模式，X 模式自动禁用控制并前端警告
-- 左摇杆控制前后/平移，右摇杆控制转向
+- 左摇杆(axes4/5)控制前后/平移，右摇杆(axes2)控制转向
 - A 解锁使能，B 急停，LB/RB 升降，LT/RT 加减速
-- 40% 死区 + 低通滤波，运动平滑
+- 40% 死区 + 低通滤波 + 加速度限制，运动平滑
 - 发布原始手柄数据到 `/f710/joy`，支持录制
 - Web 前端可通过 `/f710/enable` 远程启停
 - 发布模式状态到 `/f710/mode`（"X"/"D"/"unknown"）
@@ -125,8 +169,25 @@ ros2 launch rosbridge_server rosbridge_websocket_launch.py  # rosbridge (9090)
 - **ZED SDK 模式**：HD720 彩色图 + NEURAL 深度 + XYZRGBA 点云 + IMU (~70Hz)
 - **RealSense D405**：彩色图 + 深度图，快速设备检测避免阻塞
 - sl.Mat 对象复用，减少每帧 C++ 堆分配开销
-- 相机内参获取、点云降采样 (2x)
+- 相机内参获取、点云全分辨率 float16
 - IMU 独立线程读取，前端 WebSocket 实时推送
+
+## systemd 服务 (10个)
+
+| 服务 | 说明 | 端口 |
+|------|------|------|
+| f710-fix.service | F710 手柄驱动修复 (oneshot) | - |
+| svtrobo-can.service | CAN 接口配置 (oneshot) | - |
+| svtrobo-rosbridge.service | Rosbridge WebSocket | 9090 |
+| svtrobo-arm.service | 双臂控制 (bimanual) | - |
+| svtrobo-chassis.service | 底盘+升降控制 | - |
+| svtrobo-chassis-watchdog.service | 底盘节点存活监控 | - |
+| svtrobo-f710.service | F710 手柄遥操作 | - |
+| svtrobo-web.service | Web 控制台 | 8080 |
+| svtrobo-nodeapi.service | Node.js API | 28181 |
+| pcan-monitor.service | PCAN/CAN 状态监控 | - |
+
+> 详见 [SYSTEM_CONFIG.md](SYSTEM_CONFIG.md)
 
 ## 快速启动
 
@@ -150,6 +211,9 @@ bash src/stop_all.sh
 ### 单独启动
 
 ```bash
+# 仅双臂
+ros2 launch arm_preset_manager arm_preset_manager.launch.py
+
 # 仅底盘 + 升降
 ros2 launch chassis_control svtrobo_bringup.launch.py
 
@@ -172,6 +236,8 @@ source install/setup.bash
 
 ## ROS2 话题
 
+### 底盘与手柄
+
 | 话题 | 类型 | 方向 | 说明 |
 |------|------|------|------|
 | `/svtrobot_cmd` | geometry_msgs/Twist | 控制 → 底盘 | 线速度 x/y + 角速度 z |
@@ -183,6 +249,17 @@ source install/setup.bash
 | `/chassis/joint_states` | sensor_msgs/JointState | 底盘 → 外部 | 电机位置/速度/力矩 (100Hz) |
 | `/chassis/diagnostics` | ChassisDiagnostics | 底盘 → 外部 | 电压/温度/错误码 (100Hz) |
 
+### 双臂控制
+
+| 话题 | 类型 | 方向 | 说明 |
+|------|------|------|------|
+| `/joint_states` | sensor_msgs/JointState | 双臂 → 外部 | 16 个关节状态（左右各 7+joint + finger） |
+| `/left_forward_position_controller/commands` | Float64MultiArray | 控制 → 左臂 | 左臂关节位置 [j1~j7] |
+| `/right_forward_position_controller/commands` | Float64MultiArray | 控制 → 右臂 | 右臂关节位置 [j1~j7] |
+| `/left_gripper_controller/commands` | Float64MultiArray | 控制 → 左夹爪 | 0.0=闭合, 0.044=全开 |
+| `/right_gripper_controller/commands` | Float64MultiArray | 控制 → 右夹爪 | 0.0=闭合, 0.044=全开 |
+| `/arm/preset_cmd` | std_msgs/String | 外部 → 双臂 | 文本指令（预设名/gripper_open/close/emergency） |
+
 ## 数据录制
 
 Web 控制台右下角录制按钮或 F710 手柄 X/Y 按钮，自动采集：
@@ -191,7 +268,7 @@ Web 控制台右下角录制按钮或 F710 手柄 X/Y 按钮，自动采集：
 |------|------|------|------|
 | ZED 彩色图 | JPEG | 13.5 fps | 1280x720, ~49KB/帧 |
 | ZED 深度图 | JPEG (JET colormap) | 13.5 fps | 归一化着色后保存 |
-| ZED 点云 | npz | ~1.3 fps | 2x降采样 (360x640), ~3.5MB/帧 |
+| ZED 点云 | npz | ~1.3 fps | 全分辨率(720x1280) float16, ~7MB/帧 |
 | IMU | imu.jsonl | ~70 Hz | accel/gyro/mag/pressure/temp |
 | ROS2 bag | db3 | 原始频率 | 5个话题，录制结束自动转JSONL |
 | 录制摘要 | summary.json | - | 时长/帧数/大小 |
@@ -204,7 +281,7 @@ Web 控制台右下角录制按钮或 F710 手柄 X/Y 按钮，自动采集：
 recordings/YYYYMMDD_HHMMSS/
 ├── images/zed/                  # 彩色图 JPEG (13.5fps)
 ├── depth/zed/                   # 深度图 JET colormap JPEG (13.5fps)
-├── pointcloud/zed/              # 点云 npz (2x降采样, ~1.3Hz)
+├── pointcloud/zed/              # 点云 npz (全分辨率 float16, ~1.3Hz)
 ├── rosbag/                      # ROS2 bag (5个话题)
 ├── imu.jsonl                    # IMU数据 (~70Hz)
 ├── summary.json                 # 录制摘要
@@ -222,7 +299,9 @@ recordings/YYYYMMDD_HHMMSS/
 | 文档 | 内容 |
 |------|------|
 | [ROBOT_SYSTEM_GUIDE.md](ROBOT_SYSTEM_GUIDE.md) | 系统完整技术文档 |
+| [SYSTEM_CONFIG.md](SYSTEM_CONFIG.md) | 系统配置文档 (10个 systemd 服务) |
 | [recordings/README.md](recordings/README.md) | 录制数据格式与 JSONL 字段说明 |
+| [src/arm_preset_manager/README.md](src/arm_preset_manager/README.md) | 双臂控制使用文档 |
 | [src/chassis_control/PYTHON_API_GUIDE.md](src/chassis_control/PYTHON_API_GUIDE.md) | Python 控制接口文档 |
 | [src/web_control/WEB_CONTROL_GUIDE.md](src/web_control/WEB_CONTROL_GUIDE.md) | Web 控制台使用说明 |
 | [src/camera_driver/CAMERA_DRIVER_GUIDE.md](src/camera_driver/CAMERA_DRIVER_GUIDE.md) | 摄像头驱动 API 文档 |

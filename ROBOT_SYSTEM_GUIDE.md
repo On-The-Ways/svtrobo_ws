@@ -634,7 +634,7 @@ ros2 param get /chassis_control robot.rr_motor_start_angle  # → 3.5
 
 ### 9.0a Systemd 开机自启
 
-svt(Jetson Orin)使用9个systemd服务开机自启，按顺序依赖启动：
+svt(Jetson Orin)使用10个systemd服务开机自启，按顺序依赖启动：
 
 | 序号 | 服务 | 说明 | 依赖 |
 |------|------|------|------|
@@ -646,13 +646,14 @@ svt(Jetson Orin)使用9个systemd服务开机自启，按顺序依赖启动：
 | 6 | svtrobo-f710.service | F710手柄遥控(含X/Y采集) | svtrobo-chassis |
 | 7 | svtrobo-nodeapi.service | Node.js API(28181) | svtrobo-web |
 | 8 | svtrobo-chassis-watchdog.service | chassis存活检测 | svtrobo-chassis |
-| 9 | pcan-monitor.service | CAN状态监控 | svtrobo-can |
+| 9 | svtrobo-arm.service | 双臂控制(bimanual), ROS_LOCALHOST_ONLY=1 | svtrobo-can |
+| 10 | pcan-monitor.service | CAN状态监控 | svtrobo-can |
 
 管理命令：
 
 ```bash
 # 查看所有服务状态
-for svc in f710-fix svtrobo-can svtrobo-rosbridge svtrobo-chassis svtrobo-web svtrobo-f710 svtrobo-nodeapi svtrobo-chassis-watchdog pcan-monitor; do
+for svc in f710-fix svtrobo-can svtrobo-rosbridge svtrobo-arm svtrobo-chassis svtrobo-web svtrobo-f710 svtrobo-nodeapi svtrobo-chassis-watchdog pcan-monitor; do
   systemctl is-active $svc
 done
 
@@ -693,7 +694,7 @@ bash src/stop_all.sh
 ### 9.1 编译
 
 ```bash
-cd /home/openarm/svtrobo_ws
+cd /home/svt/svtrobo_ws
 colcon build --packages-select chassis_control
 source install/setup.bash
 ```
