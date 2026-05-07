@@ -32,8 +32,8 @@ STATIC_DIR = BASE_DIR / 'static'
 
 # --- Camera Configuration ---
 CAMERA_CONFIG = {
-    'd405_1': {'type': 'realsense', 'serial': '409122272399', 'size': (1280, 720), 'fps': 6, 'depth': True},
-    'd405_2': {'type': 'realsense', 'serial': '409122273344', 'size': (1280, 720), 'fps': 6, 'depth': True},
+    'd405_1': {'type': 'realsense', 'serial': '409122272399', 'size': (1280, 720), 'fps': 5, 'depth': True},
+    'd405_2': {'type': 'realsense', 'serial': '409122273344', 'size': (1280, 720), 'fps': 5, 'depth': True},
     'zed':    {'type': 'zed',       'serial': None,           'size': None,       'fps': 15, 'depth': True, 'resolution': 'HD720'},
 }
 
@@ -171,8 +171,6 @@ class CameraManager:
                             break
                 except Exception:
                     pass
-                if not device and "intel" in lsusb_out and "realsense" in lsusb_out:
-                    device = True
             elif cfg["type"] == "zed":
                 device = "2b03:f880" in lsusb_out or "stereolabs" in lsusb_out
             result[name] = {"running": running, "device": device}
