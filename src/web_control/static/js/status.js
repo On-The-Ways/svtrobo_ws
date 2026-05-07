@@ -1,19 +1,21 @@
-/**
- * SVTROBO Web Control - Status Monitor Module
- * Battery status (placeholder) + Topic list
- */
-
+// Patched status.js - adds topics dot
 const StatusMonitor = {
     ros: null,
 
     init(ros) {
         this.ros = ros;
         this.refreshTopics();
-        // Refresh topic list every 5s
-        setInterval(() => this.refreshTopics(), 5000);
+        this._timer = setInterval(() => this.refreshTopics(), 5000);
+    },
+
+    setDot(online) {
+        const dot = document.getElementById('dot-topics');
+        if (dot) dot.className = 'section-dot ' + (online ? 'online' : 'offline-dot');
     },
 
     disable() {
+        this.setDot(false);
+        if (this._timer) { clearInterval(this._timer); this._timer = null; }
         const container = document.getElementById('topic-list');
         if (container) container.innerHTML = '<div class="topic-empty">未连接</div>';
         const countEl = document.getElementById('topic-count');
@@ -32,6 +34,7 @@ const StatusMonitor = {
 
             const request = new ROSLIB.ServiceRequest({});
             topicsClient.callService(request, (result) => {
+                this.setDot(true);
                 this.updateTopicList(result.topics);
             });
         } catch (e) {

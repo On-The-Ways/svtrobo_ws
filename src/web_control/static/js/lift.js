@@ -4,6 +4,7 @@
 
 const Lift = {
     liftTopic: null,
+    liftStateTopic: null,
     speed: 300,
     _disabled: false,
 
@@ -16,6 +17,11 @@ const Lift = {
 
         this.setupButtons();
         this.setupSpeedSlider();
+    },
+
+    setDot(online) {
+        const dot = document.getElementById('dot-lift-ctrl');
+        if (dot) dot.className = 'section-dot ' + (online ? 'online' : 'offline-dot');
     },
 
     setupButtons() {
@@ -42,8 +48,8 @@ const Lift = {
     },
 
     disable() {
+        this.setDot(false);
         this._disabled = true;
-        // Send stop command when disabling
         if (this.liftTopic) {
             this.liftTopic.publish(new ROSLIB.Message({ data: [0, 0] }));
         }

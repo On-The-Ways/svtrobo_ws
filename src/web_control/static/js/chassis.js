@@ -15,31 +15,29 @@ const Chassis = {
     currentWz: 0,
     _disabled: false,
 
-    // Key mapping: key code -> {vx, vy, wz} direction unit vectors
     keyMap: {
-        'KeyW': { vx:  1, vy:  0, wz:  0 },   // Forward
-        'KeyS': { vx: -1, vy:  0, wz:  0 },   // Backward
-        'KeyA': { vx:  0, vy:  1, wz:  0 },   // Left
-        'KeyD': { vx:  0, vy: -1, wz:  0 },   // Right
-        'KeyQ': { vx:  0, vy:  0, wz:  1 },   // Rotate CCW
-        'KeyE': { vx:  0, vy:  0, wz: -1 },   // Rotate CW
+        'KeyW': { vx:  1, vy:  0, wz:  0 },
+        'KeyS': { vx: -1, vy:  0, wz:  0 },
+        'KeyA': { vx:  0, vy:  1, wz:  0 },
+        'KeyD': { vx:  0, vy: -1, wz:  0 },
+        'KeyQ': { vx:  0, vy:  0, wz:  1 },
+        'KeyE': { vx:  0, vy:  0, wz: -1 },
     },
 
     init(ros) {
-        // Publisher for chassis commands
         this.cmdTopic = new ROSLIB.Topic({
             ros: ros,
             name: '/svtrobot_cmd',
             messageType: 'geometry_msgs/Twist',
         });
 
-        // Subscriber for command feedback
         this.feedbackTopic = new ROSLIB.Topic({
             ros: ros,
             name: '/chassis/cmd_feedback',
             messageType: 'geometry_msgs/Twist',
         });
         this.feedbackTopic.subscribe((msg) => {
+            this.setDot(true);
             this.currentVx = msg.linear.x;
             this.currentVy = msg.linear.y;
             this.currentWz = msg.angular.z;
@@ -51,13 +49,15 @@ const Chassis = {
         this.updateFeedbackDisplay();
     },
 
+    setDot(online) {
+        const dot = document.getElementById('dot-chassis-ctrl');
+        if (dot) dot.className = 'section-dot ' + (online ? 'online' : 'offline-dot');
+    },
+
     setupKeyboard() {
         const panel = document.getElementById('chassis-panel');
 
-        // Focus management
-        panel.addEventListener('click', () => {
-            panel.focus();
-        });
+        panel.addEventListener('click', () => { panel.focus(); });
         panel.addEventListener('focus', () => {
             document.getElementById('keyboard-hint').style.display = 'none';
         });
@@ -67,11 +67,7 @@ const Chassis = {
         });
 
         panel.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                this.stopAll();
-                return;
-            }
+            if (e.code === 'Space') { e.preventDefault(); this.stopAll(); return; }
             if (this.keyMap[e.code]) {
                 e.preventDefault();
                 if (!this.activeKeys.has(e.code)) {
@@ -87,13 +83,10 @@ const Chassis = {
                 e.preventDefault();
                 this.activeKeys.delete(e.code);
                 this.updateDirection();
-                if (this.activeKeys.size === 0) {
-                    this.stopAll();
-                }
+                if (this.activeKeys.size === 0) this.stopAll();
             }
         });
 
-        // Make panel focusable
         panel.setAttribute('tabindex', '0');
     },
 
@@ -110,23 +103,11 @@ const Chassis = {
         let vx = 0, vy = 0, wz = 0;
         for (const key of this.activeKeys) {
             const dir = this.keyMap[key];
-            if (dir) {
-                vx += dir.vx;
-                vy += dir.vy;
-                wz += dir.wz;
-            }
+            if (dir) { vx += dir.vx; vy += dir.vy; wz += dir.wz; }
         }
-        // Normalize if combined magnitude > 1
         const mag = Math.sqrt(vx * vx + vy * vy);
-        if (mag > 1) {
-            vx /= mag;
-            vy /= mag;
-        }
-        return {
-            vx: vx * this.speed,
-            vy: vy * this.speed,
-            wz: wz * this.rotSpeed,
-        };
+        if (mag > 1) { vx /= mag; vy /= mag; }
+        return { vx: vx * this.speed, vy: vy * this.speed, wz: wz * this.rotSpeed };
     },
 
     publish() {
@@ -142,7 +123,7 @@ const Chassis = {
     startPublishing() {
         if (this.publishInterval) return;
         this.publish();
-        this.publishInterval = setInterval(() => this.publish(), 50); // 20Hz
+        this.publishInterval = setInterval(() => this.publish(), 50);
     },
 
     stopAll() {
@@ -152,7 +133,6 @@ const Chassis = {
         }
         this.activeKeys.clear();
         this.updateDirection();
-        // Send zero velocity
         if (this.cmdTopic) {
             this.cmdTopic.publish(new ROSLIB.Message({
                 linear: { x: 0, y: 0, z: 0 },
@@ -162,32 +142,19 @@ const Chassis = {
     },
 
     updateDirection() {
-        // Clear all highlights
         document.querySelectorAll('.dir-segment, .rot-indicator').forEach(el => el.classList.remove('active'));
-
         if (this.activeKeys.size === 0) return;
-
-        // Determine combined direction for display
         let vx = 0, vy = 0, wz = 0;
         for (const key of this.activeKeys) {
             const dir = this.keyMap[key];
             if (dir) { vx += dir.vx; vy += dir.vy; wz += dir.wz; }
         }
-
-        // Map to direction segments
         if (wz > 0) this.activateDir('ccw');
         if (wz < 0) this.activateDir('cw');
-
-        // Map vx/vy to one of 8 directions
         if (Math.abs(vx) > 0.01 || Math.abs(vy) > 0.01) {
-            const angle = Math.atan2(vy, vx); // angle from forward
+            const angle = Math.atan2(vy, vx);
             const idx = Math.round(angle / (Math.PI / 4));
-            const dirNames = ['e', 'se', 's', 'sw', 'w', 'nw', 'n', 'ne'];
-            // atan2: 0=forward, pi/2=left, etc.
-            const dirMap = {
-                0: 'n', 1: 'nw', 2: 'w', 3: 'sw',
-                4: 's', '-4': 's', '-3': 'se', '-2': 'e', '-1': 'ne',
-            };
+            const dirMap = { 0: 'n', 1: 'nw', 2: 'w', 3: 'sw', 4: 's', '-4': 's', '-3': 'se', '-2': 'e', '-1': 'ne' };
             const dir = dirMap[String(idx)] || 'n';
             this.activateDir(dir);
         }
@@ -199,6 +166,7 @@ const Chassis = {
     },
 
     disable() {
+        this.setDot(false);
         this._disabled = true;
         this.stopAll();
     },

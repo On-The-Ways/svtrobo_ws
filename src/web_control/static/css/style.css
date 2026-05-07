@@ -50,6 +50,17 @@ body {
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
+/* === Read-only Banner === */
+.readonly-banner {
+    background: #da3633;
+    color: #fff;
+    text-align: center;
+    padding: 10px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    width: 100%;
+}
+
 /* === Top Bar === */
 .top-bar {
     display: flex;
@@ -848,6 +859,38 @@ input[type="range"].modern-slider::-webkit-slider-thumb:hover {
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
+
+/* === Section Status Dot === */
+.section-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.section-header-row .motor-section-title,
+.section-header-row .panel-title {
+    margin-bottom: 0;
+}
+
+.section-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #475569;
+    transition: all 0.3s;
+    flex-shrink: 0;
+}
+
+.section-dot.online {
+    background: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+}
+
+.section-dot.offline-dot {
+    background: #475569;
+}
+
 
 .motor-table {
     width: 100%;

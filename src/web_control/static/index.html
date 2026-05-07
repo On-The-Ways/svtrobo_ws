@@ -10,8 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/hardware-status.css">
+    <link rel="stylesheet" href="/static/css/joint-display.css">
     <link rel="stylesheet" href="/static/css/rec-panel.css">
-    <script src="/static/js/roslib.min.js"></script>
+    <script src="/static/js/roslib.min.js?v=1778143010"></script>
 </head>
 <body>
 
@@ -32,8 +33,7 @@
 
 <main class="dashboard">
 
-    <!-- Camera Feeds moved to top -->
-    <section class="panel panel-cameras panel-full">
+<section class="panel panel-cameras panel-full">
         <h2 class="panel-title">相机画面</h2>
         <div class="camera-grid">
             <!-- D405 #1 -->
@@ -93,80 +93,15 @@
         </div>
     </section>
 
-    <div class="middle-panels">
-        <!-- Chassis Control + Lift -->
-        <section id="chassis-panel" class="panel panel-chassis">
-            <div class="panel-title-row">
-                <h2 class="panel-title">底盘与升降控制</h2>
-                <div class="f710-control">
-                    <div id="control-mode-toggle" class="mode-toggle">
-                        <div id="mode-opt-web" class="toggle-option">网页控制</div>
-                        <div id="mode-opt-gamepad" class="toggle-option">手柄控制</div>
-                    </div>
-                </div>
-            </div>
-        <div class="panel-body" style="position: relative;">
-            <div id="gamepad-mode-warning" class="gamepad-mode-warning" style="display: none;">
-                ⚠️ 手柄当前为 X 模式，控制已禁用！请将手柄背面开关拨到 D 模式
-            </div>
-            <div id="web-control-mask" class="mode-disabled-mask" style="display: none;">已切换至手柄模式，网页控制已禁用</div>
-            <div class="chassis-left">
-                <!-- Chassis Control Title -->
-                <h3 class="motor-section-title" style="margin-bottom:16px; align-self: center;">底盘控制</h3>
-
-                <!-- Direction Indicator -->
-                <div class="direction-display">
-                    <div id="keyboard-hint" class="keyboard-focus-hint">点击此处启用键盘控制</div>
-                    <div class="dir-ring">
-                        <div id="dir-n"  class="dir-segment dir-n">W</div>
-                        <div id="dir-ne" class="dir-segment dir-ne">W+E</div>
-                        <div id="dir-e"  class="dir-segment dir-e">E</div>
-                        <div id="dir-se" class="dir-segment dir-se">S+E</div>
-                        <div id="dir-s"  class="dir-segment dir-s">S</div>
-                        <div id="dir-sw" class="dir-segment dir-sw">S+Q</div>
-                        <div id="dir-w"  class="dir-segment dir-w">Q</div>
-                        <div id="dir-nw" class="dir-segment dir-nw">W+Q</div>
-                        <div class="dir-center"></div>
-                    </div>
-                    <!-- Rotation indicators moved to corners -->
-                    <div id="dir-ccw" class="rot-indicator rot-bl">逆时针 (Q)</div>
-                    <div id="dir-cw"  class="rot-indicator rot-br">顺时针 (E)</div>
-                </div>
-
-                <!-- Speed Control -->
-                <div class="speed-control">
-                    <label>速度: <span id="speed-value">0.05</span> m/s</label>
-                    <input type="range" id="speed-slider" min="0.05" max="0.50" step="0.01" value="0.05">
-                </div>
-            </div>
-            <div class="chassis-right">
-                <!-- Lift Control (moved here) -->
-                <h3 class="motor-section-title" style="margin-bottom:16px">升降控制</h3>
-                <div class="lift-controls-vertical">
-                    <div class="lift-slider-container">
-                        <div class="lift-slider-header">
-                            <span class="lift-slider-title">速度</span>
-                            <span class="lift-slider-val"><span id="lift-speed-value">50</span> <small>RPM</small></span>
-                        </div>
-                        <input type="range" id="lift-speed-slider" class="modern-slider" min="0" max="500" step="10" value="50">
-                    </div>
-                    <div class="lift-buttons-group">
-                        <button id="lift-up" class="btn btn-action btn-up">上升</button>
-                        <button id="lift-stop" class="btn btn-stop">停止</button>
-                        <button id="lift-down" class="btn btn-action btn-down">下降</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Robot Status -->
-    <section class="panel panel-motor-status">
-        <h2 class="panel-title">机器人状态</h2>
+<section class="panel panel-motor-status">
+        <h2 class="panel-title">底座状态</h2>
         <div class="robot-status-body">
             <!-- Motor Status (merged steer + wheel) -->
             <div class="motor-status-section">
-                <h3 class="motor-section-title">电机</h3>
+                <div class="section-header-row">
+                    <h3 class="motor-section-title">电机</h3>
+                    <span id="dot-motors" class="section-dot offline-dot"></span>
+                </div>
                 <table class="motor-table">
                     <thead>
                         <tr>
@@ -218,7 +153,10 @@
             </div>
             <!-- IMU Status -->
             <div class="motor-status-section imu-status-section">
-                <h3 class="motor-section-title">IMU 传感器</h3>
+                <div class="section-header-row">
+                    <h3 class="motor-section-title">IMU 传感器</h3>
+                    <span id="dot-imu" class="section-dot offline-dot"></span>
+                </div>
                 <div class="imu-data-grid">
                     <div class="imu-group">
                         <div class="imu-group-title">加速度 (m/s²)</div>
@@ -258,12 +196,12 @@
             </div>
         </div>
     </section>
-    </div>
 
-    <div class="bottom-panels">
-        <!-- Battery Status -->
-        <section class="panel panel-battery">
+<section class="panel panel-battery">
+            <div class="section-header-row">
             <h2 class="panel-title">电池状态</h2>
+            <span id="dot-battery" class="section-dot offline-dot"></span>
+        </div>
             <div class="battery-grid">
                 <div class="battery-item">
                     <div class="battery-label">电压</div>
@@ -302,14 +240,142 @@
             </div>
         </section>
 
-        <!-- Topic List -->
-        <section class="panel panel-topics">
+<section class="panel panel-arm-status">
+        <h2 class="panel-title">机械臂状态</h2>
+        <div class="arm-status-body">
+            <!-- Left Arm -->
+            <div id="section-left_arm" class="joint-section offline">
+                <div class="joint-section-header">
+                    <span class="joint-section-title">左臂</span>
+                    <span id="dot-left_arm" class="joint-section-dot offline-dot"></span>
+                </div>
+                <table class="joint-table">
+                    <thead><tr><th>关节</th><th>角度</th><th>速度</th><th>力矩</th></tr></thead>
+                    <tbody id="arm-left-body"><tr><td colspan="4" class="joint-offline-text">未连接</td></tr></tbody>
+                </table>
+            </div>
+            <!-- Right Arm -->
+            <div id="section-right_arm" class="joint-section offline">
+                <div class="joint-section-header">
+                    <span class="joint-section-title">右臂</span>
+                    <span id="dot-right_arm" class="joint-section-dot offline-dot"></span>
+                </div>
+                <table class="joint-table">
+                    <thead><tr><th>关节</th><th>角度</th><th>速度</th><th>力矩</th></tr></thead>
+                    <tbody id="arm-right-body"><tr><td colspan="4" class="joint-offline-text">未连接</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+<section class="panel panel-hand-status">
+        <h2 class="panel-title">灵巧手状态</h2>
+        <div class="hand-status-body">
+            <!-- Left Hand -->
+            <div id="section-left_hand" class="joint-section offline">
+                <div class="joint-section-header">
+                    <span class="joint-section-title">左手</span>
+                    <span id="dot-left_hand" class="joint-section-dot offline-dot"></span>
+                </div>
+                <table class="joint-table">
+                    <thead><tr><th>关节</th><th>位置</th><th>速度</th></tr></thead>
+                    <tbody id="hand-left-body"><tr><td colspan="3" class="joint-offline-text">未连接</td></tr></tbody>
+                </table>
+            </div>
+            <!-- Right Hand -->
+            <div id="section-right_hand" class="joint-section offline">
+                <div class="joint-section-header">
+                    <span class="joint-section-title">右手</span>
+                    <span id="dot-right_hand" class="joint-section-dot offline-dot"></span>
+                </div>
+                <table class="joint-table">
+                    <thead><tr><th>关节</th><th>位置</th><th>速度</th></tr></thead>
+                    <tbody id="hand-right-body"><tr><td colspan="3" class="joint-offline-text">未连接</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+<section id="chassis-panel" class="panel panel-chassis">
+            <div class="panel-title-row">
+                <h2 class="panel-title">底盘与升降控制</h2>
+                <div class="f710-control">
+                    <div id="control-mode-toggle" class="mode-toggle">
+                        <div id="mode-opt-web" class="toggle-option">网页控制</div>
+                        <div id="mode-opt-gamepad" class="toggle-option">手柄控制</div>
+                    </div>
+                </div>
+            </div>
+        <div class="panel-body" style="position: relative;">
+            <div id="gamepad-mode-warning" class="gamepad-mode-warning" style="display: none;">
+                ⚠️ 手柄当前为 X 模式，控制已禁用！请将手柄背面开关拨到 D 模式
+            </div>
+            <div id="web-control-mask" class="mode-disabled-mask" style="display: none;">已切换至手柄模式，网页控制已禁用</div>
+            <div class="chassis-left">
+                <!-- Chassis Control Title -->
+                <div class="section-header-row" style="margin-bottom:16px; justify-content:center;">
+                        <h3 class="motor-section-title">底盘控制</h3>
+                        <span id="dot-chassis-ctrl" class="section-dot offline-dot"></span>
+                    </div>
+
+                <!-- Direction Indicator -->
+                <div class="direction-display">
+                    <div id="keyboard-hint" class="keyboard-focus-hint">点击此处启用键盘控制</div>
+                    <div class="dir-ring">
+                        <div id="dir-n"  class="dir-segment dir-n">W</div>
+                        <div id="dir-ne" class="dir-segment dir-ne">W+E</div>
+                        <div id="dir-e"  class="dir-segment dir-e">E</div>
+                        <div id="dir-se" class="dir-segment dir-se">S+E</div>
+                        <div id="dir-s"  class="dir-segment dir-s">S</div>
+                        <div id="dir-sw" class="dir-segment dir-sw">S+Q</div>
+                        <div id="dir-w"  class="dir-segment dir-w">Q</div>
+                        <div id="dir-nw" class="dir-segment dir-nw">W+Q</div>
+                        <div class="dir-center"></div>
+                    </div>
+                    <!-- Rotation indicators moved to corners -->
+                    <div id="dir-ccw" class="rot-indicator rot-bl">逆时针 (Q)</div>
+                    <div id="dir-cw"  class="rot-indicator rot-br">顺时针 (E)</div>
+                </div>
+
+                <!-- Speed Control -->
+                <div class="speed-control">
+                    <label>速度: <span id="speed-value">0.05</span> m/s</label>
+                    <input type="range" id="speed-slider" min="0.05" max="0.50" step="0.01" value="0.05">
+                </div>
+            </div>
+            <div class="chassis-right">
+                <!-- Lift Control (moved here) -->
+                <div class="section-header-row" style="margin-bottom:16px">
+                        <h3 class="motor-section-title">升降控制</h3>
+                        <span id="dot-lift-ctrl" class="section-dot offline-dot"></span>
+                    </div>
+                <div class="lift-controls-vertical">
+                    <div class="lift-slider-container">
+                        <div class="lift-slider-header">
+                            <span class="lift-slider-title">速度</span>
+                            <span class="lift-slider-val"><span id="lift-speed-value">50</span> <small>RPM</small></span>
+                        </div>
+                        <input type="range" id="lift-speed-slider" class="modern-slider" min="0" max="500" step="10" value="50">
+                    </div>
+                    <div class="lift-buttons-group">
+                        <button id="lift-up" class="btn btn-action btn-up">上升</button>
+                        <button id="lift-stop" class="btn btn-stop">停止</button>
+                        <button id="lift-down" class="btn btn-action btn-down">下降</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<section class="panel panel-topics">
+            <div class="section-header-row">
             <h2 class="panel-title">话题列表 <span id="topic-count" class="topic-count">0</span></h2>
+            <span id="dot-topics" class="section-dot offline-dot"></span>
+        </div>
             <div id="topic-list" class="topic-container">
                 <div class="topic-empty">暂无订阅话题</div>
             </div>
         </section>
-    </div>
 
 </main>
 
@@ -321,19 +387,27 @@
     <span id="kiosk-exit-countdown" class="kiosk-exit-countdown">10s</span>
 </div>
 
-<script src="/static/js/app.js"></script>
-<script src="/static/js/chassis.js"></script>
-<script src="/static/js/lift.js"></script>
-<script src="/static/js/camera.js"></script>
-<script src="/static/js/status.js"></script>
-<script src="/static/js/diagnostics.js"></script>
-<script src="/static/js/chassis-status.js"></script>
-<script src="/static/js/imu-status.js"></script>
-<script src="/static/js/f710-toggle.js"></script>
-<script src="/static/js/hardware-status.js"></script>
-<script src="/static/js/data-record.js"></script>
-<script src="/static/js/rec-panel.js"></script>
-<script src="/static/js/master-lock.js"></script>
+<script src="/static/js/master-lock.js?v=1778143010"></script>
+<script src="/static/js/chassis.js?v=1778143010"></script>
+<script src="/static/js/lift.js?v=1778143010"></script>
+<script src="/static/js/camera.js?v=1778143010"></script>
+<script src="/static/js/status.js?v=1778143010"></script>
+<script src="/static/js/diagnostics.js?v=1778143010"></script>
+<script src="/static/js/chassis-status.js?v=1778143010"></script>
+<script src="/static/js/joint-display.js?v=1778143010"></script>
+<script src="/static/js/imu-status.js?v=1778143010"></script>
+<script src="/static/js/f710-toggle.js?v=1778143010"></script>
+<script src="/static/js/hardware-status.js?v=1778143010"></script>
+<script src="/static/js/data-record.js?v=1778143010"></script>
+<script src="/static/js/rec-panel.js?v=1778143010"></script>
+<script>
+// MasterLock diagnostics - inline before module load
+window._ml_diag = [];
+window.addEventListener('error', function(e) {
+    window._ml_diag.push('ERROR: ' + (e.message || e) + ' at ' + (e.filename||'') + ':' + (e.lineno||''));
+});
+</script>
+<script src="/static/js/app.js?v=1778143010"></script>
 
 
 </body>

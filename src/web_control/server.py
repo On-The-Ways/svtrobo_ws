@@ -1501,13 +1501,17 @@ _master_lock = {
 import uuid, time
 
 async def master_request_handler(request):
-    """Request master control. Returns {master: true/false, holder: addr}."""
+    """Request master control. Returns {master: true/false, holder: addr}.
+    With steal=true: force-grab the lock (used when a new tab connects).
+    With steal=false: normal heartbeat, don't grab from others.
+    """
     global _master_lock
     try:
         data = await request.json()
     except Exception:
         data = {}
     sid = data.get('session_id', '')
+    steal = data.get('steal', False)
     addr = request.remote or ''
 
     now = time.time()
@@ -1524,9 +1528,18 @@ async def master_request_handler(request):
         _master_lock['session_id'] = sid
         _master_lock['last_seen'] = now
         _master_lock['addr'] = addr
+        logger.info(f"Master lock acquired by {addr} (sid={sid[:8]})")
         return web.json_response({'master': True, 'session_id': sid})
     elif _master_lock['session_id'] == sid:
         # Already master, refresh heartbeat
+        _master_lock['last_seen'] = now
+        _master_lock['addr'] = addr
+        return web.json_response({'master': True, 'session_id': sid})
+    elif steal:
+        # Steal mode: new tab forcefully takes the lock
+        old_addr = _master_lock['addr']
+        logger.info(f"Master lock stolen by {addr} (sid={sid[:8]}), previous holder: {old_addr}")
+        _master_lock['session_id'] = sid
         _master_lock['last_seen'] = now
         _master_lock['addr'] = addr
         return web.json_response({'master': True, 'session_id': sid})

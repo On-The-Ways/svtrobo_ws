@@ -1,14 +1,9 @@
-/**
- * SVTROBO Web Control - Motor Diagnostics Module
- * Subscribes to /chassis/diagnostics for battery voltage, motor temps, error codes.
- */
-
+// Patched diagnostics.js - adds battery dot + offline text
 const Diagnostics = {
     diagTopic: null,
 
-    // 6S LiPo voltage thresholds (adjust to match actual battery)
-    VBUS_MIN: 19.8,   // 3.3V per cell * 6
-    VBUS_MAX: 25.2,   // 4.2V per cell * 6
+    VBUS_MIN: 19.8,
+    VBUS_MAX: 25.2,
 
     init(ros) {
         this.diagTopic = new ROSLIB.Topic({
@@ -18,8 +13,8 @@ const Diagnostics = {
         });
 
         this.diagTopic.subscribe((msg) => {
+            this.setDot(true);
             this.updateBatteryDisplay(msg.vbus);
-            // rosbridge encodes uint8[] as base64 string — decode it
             let errorCodes = msg.motor_error_codes;
             if (typeof errorCodes === 'string') {
                 const raw = atob(errorCodes);
@@ -32,11 +27,15 @@ const Diagnostics = {
         });
     },
 
+    setDot(online) {
+        const dot = document.getElementById('dot-battery');
+        if (dot) dot.className = 'section-dot ' + (online ? 'online' : 'offline-dot');
+    },
+
     updateBatteryDisplay(vbus) {
         const voltageEl = document.getElementById('battery-voltage');
         const percentEl = document.getElementById('battery-percent');
 
-        // VBUS=0 means not yet read
         if (vbus < 1.0) return;
 
         if (voltageEl) {
@@ -59,7 +58,7 @@ const Diagnostics = {
     },
 
     disable() {
-        // Reset battery display
+        this.setDot(false);
         const voltageEl = document.getElementById('battery-voltage');
         const percentEl = document.getElementById('battery-percent');
         const tempEl = document.getElementById('battery-temp');
@@ -67,7 +66,6 @@ const Diagnostics = {
         if (percentEl) { percentEl.textContent = '-- %'; percentEl.style.color = ''; }
         if (tempEl) tempEl.textContent = '-- °C';
 
-        // Reset motor display
         const positions = ['fl', 'fr', 'rl', 'rr'];
         for (const pos of positions) {
             const tEl = document.getElementById('motor-' + pos + '-temp');
@@ -111,7 +109,6 @@ const Diagnostics = {
             }
         }
 
-        // Update battery panel temperature with max motor temp
         if (maxTemp > 0) {
             const tempEl = document.getElementById('battery-temp');
             if (tempEl) {

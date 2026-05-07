@@ -23,6 +23,20 @@ const App = {
 
         // Camera module does not depend on ROS, initialize immediately
         Camera.init(this.serverUrl);
+        // Master lock: request immediately on page load, before ROS connection
+        try {
+            console.log('[App] MasterLock.init serverUrl=', this.serverUrl);
+            MasterLock.init(this.serverUrl, (isMaster, holder) => {
+                console.log('[App] onMasterChange isMaster=', isMaster, 'holder=', holder);
+                this.onMasterChange(isMaster, holder);
+            });
+            console.log('[App] MasterLock.request()...');
+            MasterLock.request().then((r) => console.log('[App] MasterLock.request result=', r)).catch((e) => console.error('[App] MasterLock.request ERROR:', e));
+        } catch (e) {
+            console.error('[App] MasterLock setup failed:', e);
+            // Send error to server via image beacon
+            new Image().src = '/api/master/status?error=' + encodeURIComponent(e.message || String(e));
+        }
         // Hardware status: show all devices immediately (HTTP-only polling)
         HardwareStatus.initStandalone();
         // IMU: initialized on connect, disabled on disconnect
@@ -72,11 +86,11 @@ const App = {
             ChassisStatus.init(this.ros);
             HardwareStatus.init(this.ros);
             IMUStatus.init(this.ros);
+            JointDisplay.init(this.ros);
             ControlMode.init(this.ros);
             Camera.setEnabled(true);
             DataRecord.enable();
-            // Request master control
-            MasterLock.init(this.serverUrl, (isMaster, holder) => this.onMasterChange(isMaster, holder));
+            // Re-request master lock on reconnect (release was called on disconnect)
             MasterLock.request();
         });
 
@@ -116,6 +130,7 @@ const App = {
             ChassisStatus.disable();
             HardwareStatus.disable();
             IMUStatus.disable();
+            JointDisplay.disable();
             ControlMode.disable();
             Camera.setEnabled(false);
             DataRecord.disable();
@@ -132,23 +147,28 @@ const App = {
             if (ControlMode && ControlMode.enable) ControlMode.enable();
             this._showMasterBanner(false);
         } else {
-            Chassis.disable();
-            Lift.disable();
-            Camera.setEnabled(false);
-            DataRecord.disable();
-            if (ControlMode && ControlMode.disable) ControlMode.disable();
-            this._showMasterBanner(true, holder);
+            // Only show banner and disable controls when connected & not master
+            if (this.connected) {
+                Chassis.disable();
+                Lift.disable();
+                Camera.setEnabled(false);
+                DataRecord.disable();
+                if (ControlMode && ControlMode.disable) ControlMode.disable();
+                this._showMasterBanner(true, holder);
+            }
         }
     },
 
     _showMasterBanner(show, holder) {
         let banner = document.getElementById('readonly-banner');
-        if (show) {
+        if (show && this.connected) {
             if (!banner) {
                 banner = document.createElement('div');
                 banner.id = 'readonly-banner';
-                banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#da3633;color:#fff;text-align:center;padding:10px 16px;font-size:15px;font-weight:600;z-index:99998;';
-                document.body.appendChild(banner);
+                banner.className = 'readonly-banner';
+                // Insert before <header> so it pushes everything down
+                const header = document.querySelector('.top-bar');
+                header.parentNode.insertBefore(banner, header);
             }
             banner.textContent = '🔒 只读模式 — 另一个页面 (' + (holder || '?') + ') 正在控制';
         } else if (banner) {

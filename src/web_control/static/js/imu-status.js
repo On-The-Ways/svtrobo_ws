@@ -1,9 +1,4 @@
-/**
- * SVTROBO Web Control - IMU Status Module
- * Primary: WebSocket connection to /ws/imu (20Hz push)
- * Fallback: HTTP polling to /api/imu (10Hz)
- */
-
+// Patched imu-status.js - adds IMU dot + offline text
 const IMUStatus = {
     topic: null,
     magTopic: null,
@@ -16,14 +11,18 @@ const IMUStatus = {
     ws: null,
     wsReconnectTimer: null,
     wsConnected: false,
+    _dotSet: false,
 
     init(ros) {
+        this._dotSet = false;
         this.freqEl = document.getElementById('imu-freq');
-        // Try WebSocket first, fall back to HTTP
         this.connectWebSocket();
     },
 
-    // --- WebSocket (primary) ---
+    setDot(online) {
+        const dot = document.getElementById('dot-imu');
+        if (dot) dot.className = 'section-dot ' + (online ? 'online' : 'offline-dot');
+    },
 
     connectWebSocket() {
         if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) {
@@ -51,25 +50,18 @@ const IMUStatus = {
                     if (json.ok && json.data) {
                         this.updateFromHttp(json.data);
                     }
-                } catch (e) {
-                    // Ignore parse errors
-                }
+                } catch (e) {}
             };
 
             this.ws.onclose = () => {
                 this.wsConnected = false;
                 this.ws = null;
-                // Fall back to HTTP polling
                 this.startHttpPoll();
-                // Auto-reconnect WebSocket after 3 seconds
                 this.scheduleWsReconnect();
             };
 
-            this.ws.onerror = () => {
-                // onclose will fire after this, which handles fallback
-            };
+            this.ws.onerror = () => {};
         } catch (e) {
-            // WebSocket not supported, use HTTP
             this.startHttpPoll();
         }
     },
@@ -82,13 +74,11 @@ const IMUStatus = {
         }, 3000);
     },
 
-    // --- HTTP polling (fallback) ---
-
     startHttpPoll() {
-        if (this.pollTimer) return;  // Already polling
+        if (this.pollTimer) return;
         this.useHttp = true;
         this._poll();
-        this.pollTimer = setInterval(() => this._poll(), 100);  // 10Hz
+        this.pollTimer = setInterval(() => this._poll(), 100);
     },
 
     stopHttpPoll() {
@@ -106,12 +96,12 @@ const IMUStatus = {
             if (json.ok && json.data) {
                 this.updateFromHttp(json.data);
             }
-        } catch (e) {
-            // Silently ignore
-        }
+        } catch (e) {}
     },
 
     updateFromHttp(data) {
+        if (!this._dotSet) { this.setDot(true); this._dotSet = true; }
+
         const a = data.accel;
         this.setVal('imu-acc-x', a[0], 3);
         this.setVal('imu-acc-y', a[1], 3);
@@ -130,7 +120,6 @@ const IMUStatus = {
         const temp = document.getElementById('imu-temp');
         if (temp) temp.textContent = data.imu_temp.toFixed(1) + ' °C';
 
-        // Frequency estimation
         this.count++;
         const now = performance.now();
         if (this.lastTime > 0 && now - this.lastTime >= 1000) {
@@ -144,9 +133,11 @@ const IMUStatus = {
     },
 
     disable() {
+        this.setDot(false);
+        this._dotSet = false;
         this.stopHttpPoll();
         if (this.ws) {
-            this.ws.onclose = null;  // Prevent reconnect on intentional close
+            this.ws.onclose = null;
             this.ws.close();
             this.ws = null;
         }

@@ -16,6 +16,10 @@ const HardwareStatus = {
         d405_2:   { label: 'D405 #2', icon: '\uD83D\uDCF7', status: 'offline' },
         zed:      { label: 'ZED 2i', icon: '\uD83C\uDF9E', status: 'offline' },
         imu:      { label: 'IMU', icon: '\uD83E\uDDED', status: 'offline' },
+        arm_left: { label: '\u5DE6\u81C2', icon: '\uD83E\uDDBE', status: 'offline' },
+        arm_right:{ label: '\u53F3\u81C2', icon: '\uD83E\uDDBE', status: 'offline' },
+        hand_left:{ label: '\u5DE6\u624B', icon: '\uD83E\uDD1A', status: 'offline' },
+        hand_right:{label: '\u53F3\u624B', icon: '\uD83E\uDD1A', status: 'offline' },
     },
 
     init(ros) {
@@ -47,7 +51,11 @@ const HardwareStatus = {
                     var nodes = result.nodes;
                     self._setStatus('chassis', nodes.includes('/chassis_control'));
                     self._setStatus('lift', nodes.includes('/lift_control'));
+                    self._setStatus('arm_left', nodes.includes('/left_forward_position_controller'));
+                    self._setStatus('arm_right', nodes.includes('/right_forward_position_controller'));
                     self._checkTopic('/f710/status', 'f710');
+                    self._checkTopic('/cb_left_hand_state', 'hand_left');
+                    self._checkTopic('/cb_right_hand_state', 'hand_right');
                 });
             } catch (e) {}
         };
