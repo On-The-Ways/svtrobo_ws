@@ -473,16 +473,19 @@ class F710TeleopNode(Node):
         self._prev_lt_pressed = lt_pressed
         self._prev_rt_pressed = rt_pressed
 
+    def _smooth_and_deadzone(self, key: str, raw: float) -> float:
+        """低通滤波 + 死区，滤波值落入死区时强制归零，避免边界跳变引起底盘振荡。"""
+        smoothed = self._smooth_axis(key, raw)
+        result = self._apply_deadzone(smoothed)
+        if result == 0.0:
+            # 滤波值已在死区内，重置滤波器状态，防止后续帧缓慢衰减又跳出死区
+            self._filt_axis[key] = 0.0
+        return result
+
     def _compute_cmd_vel(self) -> Twist:
-        left_y = self._apply_deadzone(
-            self._smooth_axis("ly", self._get_axis(self.axis_left_y))
-        )
-        left_x = self._apply_deadzone(
-            self._smooth_axis("lx", self._get_axis(self.axis_left_x))
-        )
-        right_x = self._apply_deadzone(
-            self._smooth_axis("rx", self._get_axis(self.axis_right_x))
-        )
+        left_y = self._smooth_and_deadzone("ly", self._get_axis(self.axis_left_y))
+        left_x = self._smooth_and_deadzone("lx", self._get_axis(self.axis_left_x))
+        right_x = self._smooth_and_deadzone("rx", self._get_axis(self.axis_right_x))
 
         # 底盘速度根据当前 speed_scale 进行缩放
         # 这里对前后方向取反，使“推前为正”（根据当前手柄坐标系调整）
