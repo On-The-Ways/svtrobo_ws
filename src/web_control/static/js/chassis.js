@@ -6,7 +6,7 @@
 const Chassis = {
     cmdTopic: null,
     feedbackTopic: null,
-    speed: 0.3,
+    speed: 0.05,
     rotSpeed: 0.5,
     activeKeys: new Set(),
     publishInterval: null,
