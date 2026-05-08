@@ -182,7 +182,7 @@ class F710TeleopNode(Node):
         device_path = self.get_parameter("device_path").get_parameter_value().string_value
         self.deadzone = float(self.get_parameter("deadzone").value)
         self.deadzone_remap = bool(self.get_parameter("deadzone.remap").value)
-        publish_rate = float(self.get_parameter("publish_rate").value)
+        self.publish_rate = float(self.get_parameter("publish_rate").value)
         self.startup_zero_cmd_sec = float(self.get_parameter("startup.zero_cmd_sec").value)
         self.axis_smoothing_alpha = float(self.get_parameter("axis.smoothing_alpha").value)
         self.max_linear_accel = float(self.get_parameter("acceleration.max_linear_accel").value)
@@ -269,7 +269,7 @@ class F710TeleopNode(Node):
         self.joy_pub = self.create_publisher(Joy, "/f710/joy", 10)
 
         # 发布频率
-        self.timer = self.create_timer(1.0 / publish_rate, self._on_timer)
+        self.timer = self.create_timer(1.0 / self.publish_rate, self._on_timer)
         self._t_mono_start = time.monotonic()
 
         # 升降状态，仅在变化时发布
@@ -291,7 +291,7 @@ class F710TeleopNode(Node):
         self._armed = False  # 已按过至少一次 A，允许发速度/升降
 
         self.get_logger().info(
-            f"F710TeleopNode 已启动，设备: {device_path}, 频率: {publish_rate} Hz, "
+            f"F710TeleopNode 已启动，设备: {device_path}, 频率: {self.publish_rate} Hz, "
             f"gate_until_first_a={self.gate_until_first_a}, require_deadman={self.require_deadman}, "
             f"estop_latch={self.estop_latch}, recording={self.recording_enabled}"
         )
@@ -649,7 +649,7 @@ class F710TeleopNode(Node):
             # 发布底盘速度（静止时数值归零，避免 linear.x: -0.0 等）
             twist = self._compute_cmd_vel()
             # 加速度限制：平滑加减速，避免起步/转向冲击
-            self._apply_acceleration_limit(twist, 1.0 / publish_rate)
+            self._apply_acceleration_limit(twist, 1.0 / self.publish_rate)
             self._sanitize_twist(twist)
             idle = self._twist_is_idle(twist)
             if self.cmd_vel_publish_always:
