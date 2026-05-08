@@ -474,13 +474,16 @@ class F710TeleopNode(Node):
         self._prev_rt_pressed = rt_pressed
 
     def _smooth_and_deadzone(self, key: str, raw: float) -> float:
-        """低通滤波 + 死区，滤波值落入死区时强制归零，避免边界跳变引起底盘振荡。"""
-        smoothed = self._smooth_axis(key, raw)
-        result = self._apply_deadzone(smoothed)
-        if result == 0.0:
-            # 滤波值已在死区内，重置滤波器状态，防止后续帧缓慢衰减又跳出死区
+        """先死区再平滑：raw 在死区内直接归零并清滤波器，避免边界跳变引起底盘振荡。"""
+        a = abs(raw)
+        if a < self.deadzone:
             self._filt_axis[key] = 0.0
-        return result
+            return 0.0
+        # raw 已在死区外，remap 后平滑
+        if self.deadzone_remap and self.deadzone < 1.0 - 1e-9:
+            sign = 1.0 if raw > 0 else -1.0
+            raw = sign * (a - self.deadzone) / (1.0 - self.deadzone)
+        return self._smooth_axis(key, raw)
 
     def _compute_cmd_vel(self) -> Twist:
         left_y = self._smooth_and_deadzone("ly", self._get_axis(self.axis_left_y))
