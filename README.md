@@ -39,13 +39,17 @@ svtrobo_ws/
 │   │       └── CAMERA_DRIVER_GUIDE.md                 #   摄像头驱动 API 文档
 │   ├── openarm_can/                                  # OpenArm CAN-FD 驱动层
 │   ├── openarm_description/                          # OpenArm URDF/xacro 模型
+│   ├── linker_hand_ros2_sdk/                         # Linker Hand 灵巧手 (Python)
+│   │   ├── linker_hand_ros2_sdk/linker_hand.py        #   灵巧手 ROS2 节点
+│   │   ├── linker_hand_ros2_sdk/LinkerHand/           #   灵巧手 SDK API
+│   │   └── launch/linker_hand.launch.py              #   灵巧手启动文件
 │   └── openarm_ros2/                                 # OpenArm ros2_control 接口
 ├── scripts/                                          # 运维脚本
 │   ├── chassis_watchdog.sh                           #   底盘节点存活监控
 │   └── pcan_monitor.sh                               #   PCAN/CAN 状态监控
 ├── systemd/                                          # systemd service 文件备份
 ├── recordings/                                       # 录制数据存储（含 README 格式说明）
-├── SYSTEM_CONFIG.md                                  # 系统配置文档 (10个systemd服务)
+├── SYSTEM_CONFIG.md                                  # 系统配置文档 (11个systemd服务)
 ├── ROBOT_SYSTEM_GUIDE.md                             # 系统完整技术文档
 └── README.md                                         # 本文件
 ```
@@ -80,14 +84,22 @@ svtrobo_ws/
 │   CAN0 右臂 (openarm_right)    CAN1 左臂 (openarm_left)  │
 │   7 DOF + 夹爪                 7 DOF + 夹爪              │
 └───────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────┐
+│             灵巧手 (Linker Hand O6)                │
+│  /cb_*_hand_control_cmd → LinkerHand SDK → CAN    │
+│                                                     │
+│   CAN0 右手 (0x27)            CAN1 左手 (0x28 待接) │
+│   O6 (6 DOF)                  O6 (6 DOF)            │
+└───────────────────────────────────────────────────┘
 ```
 
 ## CAN 总线分配
 
 | 接口 | 模式 | Bitrate | 用途 |
 |------|------|---------|------|
-| can0 | CAN FD | 1M/5M | 右臂 (openarm_right) |
-| can1 | CAN FD | 1M/5M | 左臂 (openarm_left) |
+| can0 | CAN FD | 1M/5M | 右臂 (openarm_right) + 右灵巧手 O6 (0x27) |
+| can1 | CAN FD | 1M/5M | 左臂 (openarm_left) + 左灵巧手 O6 (0x28 待接) |
 | can2 | CAN 2.0 | 1M | 底盘转向电机 (RobStride ×4) |
 | can3 | CAN 2.0 | 1M | 底盘轮电机 (ZLAC8015D ×2) |
 | can4 | CAN 2.0 | 500K | 扩展 |
@@ -98,6 +110,12 @@ svtrobo_ws/
 ### arm_preset_manager — 双臂预设姿态管理
 
 基于 OpenArm 硬件的 bimanual 双臂控制包，通过 CAN-FD 驱动双臂。
+
+### linker_hand_ros2_sdk — 灵巧手控制
+
+Linker Hand 系列灵巧手 ROS2 驱动包，通过 CAN 总线控制 O6 灵巧手（6 自由度）。
+- 右手 O6 (can0, ID 0x27) — 已部署
+- 左手 O6 (can1, ID 0x28) — 待接入
 
 - **bimanual 双臂模式**：右臂 can0、左臂 can1，各 7 DOF + 夹爪
 - **6 个 ros2_control controller**：joint_state_broadcaster + 左右位置控制 + 左右夹爪
@@ -214,6 +232,9 @@ bash src/stop_all.sh
 # 仅双臂
 ros2 launch arm_preset_manager arm_preset_manager.launch.py
 
+# 仅灵巧手（右手 O6）
+ros2 launch linker_hand_ros2_sdk linker_hand.launch.py
+
 # 仅底盘 + 升降
 ros2 launch chassis_control svtrobo_bringup.launch.py
 
@@ -259,6 +280,17 @@ source install/setup.bash
 | `/left_gripper_controller/commands` | Float64MultiArray | 控制 → 左夹爪 | 0.0=闭合, 0.044=全开 |
 | `/right_gripper_controller/commands` | Float64MultiArray | 控制 → 右夹爪 | 0.0=闭合, 0.044=全开 |
 | `/arm/preset_cmd` | std_msgs/String | 外部 → 双臂 | 文本指令（预设名/gripper_open/close/emergency） |
+
+### 灵巧手
+
+| 话题 | 类型 | 方向 | 说明 |
+|------|------|------|------|
+| `/cb_right_hand_control_cmd` | sensor_msgs/JointState | 控制 → 右手 | 右手手指位置/速度指令 (O6, 6 DOF) |
+| `/cb_left_hand_control_cmd` | sensor_msgs/JointState | 控制 → 左手 | 左手手指位置/速度指令 (O6, 6 DOF, 待接) |
+| `/cb_right_hand_state` | sensor_msgs/JointState | 右手 → 外部 | 右手关节状态 (~60 Hz) |
+| `/cb_left_hand_state` | sensor_msgs/JointState | 左手 → 外部 | 左手关节状态 (~60 Hz, 待接) |
+| `/cb_right_hand_info` | std_msgs/String (JSON) | 右手 → 外部 | 右手信息（版本/速度/电流/温度/力矩） |
+| `/cb_hand_setting_cmd` | std_msgs/String (JSON) | 外部 → 手 | 设置指令（速度/力矩/清故障） |
 
 ## 数据录制
 
@@ -306,3 +338,4 @@ recordings/YYYYMMDD_HHMMSS/
 | [src/web_control/WEB_CONTROL_GUIDE.md](src/web_control/WEB_CONTROL_GUIDE.md) | Web 控制台使用说明 |
 | [src/camera_driver/CAMERA_DRIVER_GUIDE.md](src/camera_driver/CAMERA_DRIVER_GUIDE.md) | 摄像头驱动 API 文档 |
 | [src/f710_teleop/手柄操作指导说明.md](src/f710_teleop/手柄操作指导说明.md) | 手柄按键说明 |
+| [src/linker_hand_ros2_sdk/README.md](src/linker_hand_ros2_sdk/README.md) | 灵巧手控制使用文档 |

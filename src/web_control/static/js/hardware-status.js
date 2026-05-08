@@ -54,8 +54,8 @@ const HardwareStatus = {
                     self._setStatus('arm_left', nodes.includes('/left_forward_position_controller'));
                     self._setStatus('arm_right', nodes.includes('/right_forward_position_controller'));
                     self._checkTopic('/f710/status', 'f710');
-                    self._checkTopic('/cb_left_hand_state', 'hand_left');
-                    self._checkTopic('/cb_right_hand_state', 'hand_right');
+                    self._checkPublishers('/cb_left_hand_state', 'hand_left');
+                    self._checkPublishers('/cb_right_hand_state', 'hand_right');
                 });
             } catch (e) {}
         };
@@ -74,6 +74,22 @@ const HardwareStatus = {
             svc.callService(
                 new ROSLIB.ServiceRequest({ topic: topicName }),
                 function(result) { self._setStatus(deviceKey, !!(result && result.type)); },
+                function() { self._setStatus(deviceKey, false); }
+            );
+        } catch (e) { this._setStatus(deviceKey, false); }
+    },
+
+    _checkPublishers(topicName, deviceKey) {
+        var self = this;
+        try {
+            var svc = new ROSLIB.Service({
+                ros: self.ros,
+                name: '/rosapi/publishers',
+                serviceType: 'rosapi/Publishers',
+            });
+            svc.callService(
+                new ROSLIB.ServiceRequest({ topic: topicName }),
+                function(result) { self._setStatus(deviceKey, !!(result && result.publishers && result.publishers.length > 0)); },
                 function() { self._setStatus(deviceKey, false); }
             );
         } catch (e) { this._setStatus(deviceKey, false); }

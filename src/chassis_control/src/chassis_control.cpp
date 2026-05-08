@@ -13,10 +13,7 @@ ChassisControlNode::ChassisControlNode(void):rclcpp::Node("chassis_control_node"
                                         fr_rate_limiter(MAX_ANGLE_RATE),
                                         rl_rate_limiter(MAX_ANGLE_RATE),
                                         rr_rate_limiter(MAX_ANGLE_RATE),
-                                        fl_speed_limiter(MAX_WHEEL_SPEED_RATE),
-                                        fr_speed_limiter(MAX_WHEEL_SPEED_RATE),
-                                        rl_speed_limiter(MAX_WHEEL_SPEED_RATE),
-                                        rr_speed_limiter(MAX_WHEEL_SPEED_RATE){
+                                        speed_limiter(1.0){
     this->declare_parameter<double>("robot.chassis_radius");
     this->declare_parameter<double>("robot.wheel_perimeter");
 
@@ -25,6 +22,9 @@ ChassisControlNode::ChassisControlNode(void):rclcpp::Node("chassis_control_node"
     this->declare_parameter<double>("robot.rl_motor_start_angle");
     this->declare_parameter<double>("robot.rr_motor_start_angle");
 
+    this->declare_parameter<double>("limit.max_angle_rate");
+    this->declare_parameter<double>("limit.max_wheel_speed_rate");
+
     this->get_parameter("robot.chassis_radius", chassis_param.chassis_radius);
     this->get_parameter("robot.wheel_perimeter",chassis_param.wheel_perimeter);
 
@@ -32,6 +32,38 @@ ChassisControlNode::ChassisControlNode(void):rclcpp::Node("chassis_control_node"
     this->get_parameter("robot.fr_motor_start_angle", chassis_param.fr_motor_start_angle);
     this->get_parameter("robot.rl_motor_start_angle", chassis_param.rl_motor_start_angle);
     this->get_parameter("robot.rr_motor_start_angle", chassis_param.rr_motor_start_angle);
+
+    // 读取速率限制参数
+    double angle_rate, speed_rate;
+    this->get_parameter("limit.max_angle_rate", angle_rate);
+    this->get_parameter("limit.max_wheel_speed_rate", speed_rate);
+    fl_rate_limiter = RateLimiter(angle_rate);
+    fr_rate_limiter = RateLimiter(angle_rate);
+    rl_rate_limiter = RateLimiter(angle_rate);
+    rr_rate_limiter = RateLimiter(angle_rate);
+    speed_limiter = VectorRateLimiter(speed_rate);
+
+    // 运行时动态调参回调
+    param_callback_handle_ = this->add_on_set_parameters_callback(
+        [this](const std::vector<rclcpp::Parameter>& params) {
+            rcl_interfaces::msg::SetParametersResult result;
+            result.successful = true;
+            for (const auto& param : params) {
+                if (param.get_name() == "limit.max_angle_rate") {
+                    double v = param.as_double();
+                    fl_rate_limiter = RateLimiter(v);
+                    fr_rate_limiter = RateLimiter(v);
+                    rl_rate_limiter = RateLimiter(v);
+                    rr_rate_limiter = RateLimiter(v);
+                    RCLCPP_INFO(this->get_logger(), "max_angle_rate updated: %.2f rad/s", v);
+                } else if (param.get_name() == "limit.max_wheel_speed_rate") {
+                    double v = param.as_double();
+                    speed_limiter.set_max_rate(v);
+                    RCLCPP_INFO(this->get_logger(), "max_wheel_speed_rate updated: %.2f RPM/s", v);
+                }
+            }
+            return result;
+        });
 
     svtrobot_cmd_sub = this->create_subscription<geometry_msgs::msg::Twist>("/svtrobot_cmd", 10,
                        std::bind(&ChassisControlNode::svtrobot_cmd_callback, this, std::placeholders::_1));
@@ -237,25 +269,26 @@ void ChassisControlNode::excute_loop(void)
         && fabs(chassis_control_para.front_right_angle-motor2.position_)<=0.1
         && fabs(chassis_control_para.front_left_angle-motor1.position_)<=0.1)
       {
-          // 舵角到位：通过 RateLimiter 平滑输出轮速（从 0 渐增，不会突变）
-          double fl_spd = fl_speed_limiter.limit(chassis_control_para.front_left_speed, dt);
-          double fr_spd = fr_speed_limiter.limit(chassis_control_para.front_right_speed, dt);
-          double rl_spd = rl_speed_limiter.limit(chassis_control_para.rear_left_speed, dt);
-          double rr_spd = rr_speed_limiter.limit(chassis_control_para.rear_right_speed, dt);
+          // 舵角到位：合成矢量限制轮速变化率（4轮同步缩放，保持运动方向）
+          double speeds[4] = {
+            chassis_control_para.front_left_speed,
+            chassis_control_para.front_right_speed,
+            chassis_control_para.rear_left_speed,
+            chassis_control_para.rear_right_speed
+          };
+          speed_limiter.limit(speeds, 4, dt);
 
-          front_->set_target_speed_lr_rpm(fr_spd*WHEEL_FR_DIRETION,
-                                        fl_spd*WHEEL_FL_DIRETION);
-          rear_->set_target_speed_lr_rpm(rl_spd*WHEEL_RL_DIRETION,
-                                        rr_spd*WHEEL_RR_DIRETION);
+          front_->set_target_speed_lr_rpm(speeds[1]*WHEEL_FR_DIRETION,
+                                        speeds[0]*WHEEL_FL_DIRETION);
+          rear_->set_target_speed_lr_rpm(speeds[2]*WHEEL_RL_DIRETION,
+                                        speeds[3]*WHEEL_RR_DIRETION);
 
       }
       else
       {
-        // 舵角未到位：轮速强制为 0，同时喂 0 给 RateLimiter 使其跟踪实际发送值
-        fl_speed_limiter.limit(0.0, dt);
-        fr_speed_limiter.limit(0.0, dt);
-        rl_speed_limiter.limit(0.0, dt);
-        rr_speed_limiter.limit(0.0, dt);
+        // 舵角未到位：轮速强制为 0，同时喂 0 给 VectorRateLimiter 使其跟踪实际发送值
+        double zero_speeds[4] = {0.0, 0.0, 0.0, 0.0};
+        speed_limiter.limit(zero_speeds, 4, dt);
 
         front_->set_target_speed_lr_rpm(0,0);
         rear_->set_target_speed_lr_rpm(0,0);

@@ -3,6 +3,7 @@
 
 #include <rclcpp/node.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <rcl_interfaces/msg/set_parameters_result.hpp>
 #include <std_msgs/msg/string.hpp>
 #include <std_msgs/msg/float64.hpp>
 #include <std_msgs/msg/int32.hpp>
@@ -98,10 +99,8 @@ private:
     RateLimiter rl_rate_limiter;
     RateLimiter rr_rate_limiter;
 
-    RateLimiter fl_speed_limiter;
-    RateLimiter fr_speed_limiter;
-    RateLimiter rl_speed_limiter;
-    RateLimiter rr_speed_limiter;
+    VectorRateLimiter speed_limiter;
+    rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr param_callback_handle_;
 
     std::unique_ptr<ZLAC8015D> front_;
     std::unique_ptr<ZLAC8015D> rear_;

@@ -52,3 +52,47 @@ void RateLimiter::reset(void)
 }
 
 
+
+void VectorRateLimiter::limit(double targets[], int n, double dt)
+{
+    if (n <= 0 || dt <= 0.0) return;
+
+    if (!initialized_) {
+        for (int i = 0; i < n && i < MAX_WHEEL_COUNT; i++) {
+            last_output_[i] = targets[i];
+        }
+        initialized_ = true;
+        return;
+    }
+
+    // 计算 delta 向量范数
+    double delta_sq = 0.0;
+    for (int i = 0; i < n && i < MAX_WHEEL_COUNT; i++) {
+        double d = targets[i] - last_output_[i];
+        delta_sq += d * d;
+    }
+    double delta_mag = std::sqrt(delta_sq);
+
+    double max_delta = max_rate_ * dt;
+
+    if (delta_mag > max_delta && delta_mag > 1e-9) {
+        // 超限：等比缩放所有 delta
+        double scale = max_delta / delta_mag;
+        for (int i = 0; i < n && i < MAX_WHEEL_COUNT; i++) {
+            double d = targets[i] - last_output_[i];
+            last_output_[i] += d * scale;
+            targets[i] = last_output_[i];
+        }
+    } else {
+        // 未超限：直接跟踪目标
+        for (int i = 0; i < n && i < MAX_WHEEL_COUNT; i++) {
+            last_output_[i] = targets[i];
+        }
+    }
+}
+
+void VectorRateLimiter::reset(void)
+{
+    initialized_ = false;
+    memset(last_output_, 0, sizeof(last_output_));
+}

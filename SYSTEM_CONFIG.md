@@ -33,6 +33,7 @@ sysinit.target
             │         └─ svtrobo-nodeapi.service (Node.js API :28181)
             └─ pcan-monitor.service (每10秒检查 CAN 状态 + err-71 检测)
             └─ svtrobo-arm.service (双臂控制, bimanual, ROS_LOCALHOST_ONLY=1)
+            └─ svtrobo-linker-hand.service (灵巧手 O6, ROS_LOCALHOST_ONLY=1)
             └─ (以上均 Wants=svtrobo-can.service)
 ```
 
@@ -119,8 +120,8 @@ WantedBy=multi-user.target
 
 | 接口 | 模式 | Bitrate | 用途 |
 |------|------|---------|------|
-| can0 | CAN FD | 1M/5M | 右臂 (openarm_right) |
-| can1 | CAN FD | 1M/5M | 左臂 (openarm_left) |
+| can0 | CAN FD | 1M/5M | 右臂 (openarm_right) + 右灵巧手 O6 (0x27) |
+| can1 | CAN FD | 1M/5M | 左臂 (openarm_left) + 左灵巧手 O6 (0x28 待接) |
 | can2 | CAN 2.0 | 1M | 底盘转向电机 (RobStride) |
 | can3 | CAN 2.0 | 1M | 底盘轮电机 (ZLAC8015D) |
 | can4 | CAN 2.0 | 500K | 扩展 |
@@ -177,7 +178,42 @@ WantedBy=multi-user.target
 
 **注意**: 必须设置 `ROS_LOCALHOST_ONLY=1`，局域网有多个 ROS2 设备，否则 DDS 发现会失败。
 
-### 2.5 svtrobo-chassis.service
+### 2.5 svtrobo-linker-hand.service
+
+**用途**: Linker Hand O6 灵巧手控制，通过 CAN 总线驱动右手灵巧手（6 自由度）。
+
+```ini
+[Unit]
+Description=Linker Hand O6 dexterous hand control
+After=svtrobo-can.service
+Wants=svtrobo-can.service
+
+[Service]
+Type=simple
+User=svt
+Environment=ROS_DOMAIN_ID=0
+Environment=ROS_LOCALHOST_ONLY=1
+ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/svt/svtrobo_ws/install/setup.bash && exec ros2 launch linker_hand_ros2_sdk linker_hand.launch.py"
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**启动节点**: linker_hand_sdk (LinkerHand)
+
+**CAN 接口**: can0（右手 O6, ID 0x27），与右臂机械臂共用 CAN 总线
+
+**ROS2 话题**:
+- 发布: `/cb_right_hand_state` (JointState, ~60Hz), `/cb_right_hand_info` (JSON)
+- 订阅: `/cb_right_hand_control_cmd` (JointState), `/cb_hand_setting_cmd` (JSON)
+
+**注意**:
+- 需要 `python-can >= 4.0`（系统自带 3.3.2 不支持 CAN-FD）
+- 灵巧手与机械臂共用 can0/can1，使用不同 CAN ID，不冲突
+
+### 2.6 svtrobo-chassis.service
 
 ```ini
 [Unit]
@@ -201,7 +237,7 @@ WantedBy=multi-user.target
 
 **已知问题**: chassis_control_node crash 时 ros2 launch 父进程不退出，systemd 不会触发 Restart。现已通过 chassis-watchdog 自动恢复（见 2.5）。
 
-### 2.6 svtrobo-chassis-watchdog.service
+### 2.7 svtrobo-chassis-watchdog.service
 
 **用途**: 每5秒检查 chassis_control_node 是否存活，连续2次检测失败则自动 restart svtrobo-chassis 服务。
 **原理**: 通过 `ros2 node list` 检查 `/chassis_control` 是否存在，解决 ros2 launch 父进程不退出导致 systemd 无法自动恢复的问题。
@@ -226,7 +262,7 @@ WantedBy=multi-user.target
 
 **检测逻辑**: 每5秒轮询一次，连续2次未发现 `/chassis_control` 节点 → 执行 `systemctl restart svtrobo-chassis`。
 
-### 2.7 pcan-monitor.service
+### 2.8 pcan-monitor.service
 
 **用途**: 每10秒检查 CAN 接口状态 + PCAN err-71 检测，自动尝试恢复。
 **原理**: 监控 `ip link show canX` 状态和 dmesg 中的 PCAN 错误，检测到异常时执行 modprobe 重载和服务重启。
@@ -250,7 +286,7 @@ WantedBy=multi-user.target
 
 **检测逻辑**: 每10秒检查一次 CAN 接口状态和 dmesg 中 pcan err-71 错误计数。
 
-### 2.8 svtrobo-f710.service
+### 2.9 svtrobo-f710.service
 
 ```ini
 [Unit]
@@ -275,7 +311,7 @@ WantedBy=multi-user.target
 
 **ExecStartPre**: 等待 /dev/input/js0 出现（最多30秒）
 
-### 2.9 svtrobo-web.service
+### 2.10 svtrobo-web.service
 
 ```ini
 [Unit]
@@ -297,7 +333,7 @@ WantedBy=multi-user.target
 
 **端口**: 8080 (HTTP)
 
-### 2.10 svtrobo-nodeapi.service
+### 2.11 svtrobo-nodeapi.service
 
 ```ini
 [Unit]
