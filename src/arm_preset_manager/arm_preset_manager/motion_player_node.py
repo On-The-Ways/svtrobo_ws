@@ -11,8 +11,8 @@ from rclpy.node import Node
 from sensor_msgs.msg import Joy
 from std_msgs.msg import Float64MultiArray, String
 
-DPAD_H_AXIS = 6
-DPAD_V_AXIS = 7
+DPAD_H_AXIS = 0
+DPAD_V_AXIS = 1
 BUTTON_A = 1
 
 LEFT_ORDER = [
@@ -132,6 +132,7 @@ class ArmMotionPlayer(Node):
         msg = String()
         msg.data = text
         self.status_pub.publish(msg)
+        self.get_logger().info(f"发布状态: {text}")
 
     def joy_callback(self, msg: Joy):
         buttons = list(msg.buttons)

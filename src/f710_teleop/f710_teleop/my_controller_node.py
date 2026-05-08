@@ -560,9 +560,19 @@ class F710TeleopNode(Node):
         # 发布原始手柄状态（始终发布，供录制使用）
         joy_msg = Joy()
         joy_msg.header.stamp = self.get_clock().now().to_msg()
-        joy_msg.axes = list(self.joy.axes)
-        joy_msg.buttons = list(self.joy.buttons)
+        axes_snapshot = list(self.joy.axes)
+        buttons_snapshot = list(self.joy.buttons)
+        joy_msg.axes = axes_snapshot
+        joy_msg.buttons = buttons_snapshot
         self.joy_pub.publish(joy_msg)
+
+        if not hasattr(self, '_last_debug_axes'):
+            self._last_debug_axes = None
+            self._last_debug_buttons = None
+        if axes_snapshot != self._last_debug_axes or buttons_snapshot != self._last_debug_buttons:
+            self.get_logger().info(f"JOY changed axes={axes_snapshot} buttons={buttons_snapshot}")
+            self._last_debug_axes = axes_snapshot
+            self._last_debug_buttons = buttons_snapshot
 
         # 定期检测并发布手柄模式
         self._publish_mode()
