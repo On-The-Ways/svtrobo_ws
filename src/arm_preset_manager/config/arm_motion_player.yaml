@@ -1,0 +1,22 @@
+
+/**:
+  ros__parameters:
+    joy_topic: /f710/joy
+    command_topic: /arm/motion_cmd
+    status_topic: /arm/motion_status
+    left_arm_topic: /left_forward_position_controller/commands
+    right_arm_topic: /right_forward_position_controller/commands
+    data_dir: /home/svt/svtrobo_ws/src/arm_motion_data
+    dpad_deadzone: 0.5
+    playback_speed: 0.3
+    require_a_to_arm: true
+    button_a: 1
+
+    dpad_map.up: walk
+    dpad_map.down: grasp
+    dpad_map.left: turn
+    dpad_map.right: stop
+
+    motion_files.walk: walk.csv
+    motion_files.grasp: grasp.csv
+    motion_files.turn: turn.csv
