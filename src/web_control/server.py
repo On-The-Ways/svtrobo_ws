@@ -92,6 +92,17 @@ class CameraManager:
 
                 cam.start()
 
+                # Save ZED intrinsics to shared memory for inference pipeline
+                if name == 'zed':
+                    try:
+                        import json as _json
+                        _intr = cam.get_intrinsics()
+                        if _intr:
+                            with open('/dev/shm/zed_intrinsics.json', 'w') as _inf:
+                                _json.dump(_intr, _inf)
+                    except Exception:
+                        pass
+
                 stop_event = threading.Event()
                 frame_queue = queue.Queue(maxsize=2)
                 right_queue = queue.Queue(maxsize=2) if (name == 'zed') else None
@@ -280,6 +291,23 @@ class CameraManager:
                         depth_queue.put((depth_raw, timestamp_us))
                     except Exception as e:
                         logger.debug(f"Camera {name} depth queue error: {e}")
+
+                # Write raw data to shared memory for DiffusionVN inference pipeline
+                if name == 'zed' and color is not None:
+                    try:
+                        import json as _json
+                        color.tofile('/dev/shm/zed_color.raw')
+                        if depth_raw is not None:
+                            depth_raw.tofile('/dev/shm/zed_depth.raw')
+                        with open('/dev/shm/zed_meta.json', 'w') as _mf:
+                            _json.dump({
+                                'color_shape': list(color.shape),
+                                'depth_shape': list(depth_raw.shape) if depth_raw is not None else None,
+                                'depth_dtype': str(depth_raw.dtype) if depth_raw is not None else None,
+                                'timestamp': timestamp_us,
+                            }, _mf)
+                    except Exception as e:
+                        logger.debug(f"ZED shared memory write error: {e}")
 
                 frame_count += 1
 

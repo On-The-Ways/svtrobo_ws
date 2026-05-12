@@ -241,21 +241,13 @@ class LinkerHand(Node):
 
 
     def pub_state(self):
+        hb = 0
         while True:
-            if self.hand_state_pub.get_subscription_count() > 0:
-                msg = self.joint_state_msg(self.last_hand_state, self.last_hand_vel)
-                self.hand_state_pub.publish(msg)
-            if self.is_touch == True and self.touch_type == 1 and self.modbus == "None" and self.touch_pub.get_subscription_count() > 0:
-                msg = Float32MultiArray()
-                msg.data = [float(val) for sublist in self.force for val in sublist]
-                self.touch_pub.publish(msg)
-            if self.is_touch == True and (self.touch_type > 1 or self.modbus != "None") and (self.matrix_touch_pub.get_subscription_count() > 0 or self.matrix_touch_mass_pub.get_subscription_count() > 0 or self.matrix_touch_pub_pc.get_subscription_count() > 0):
-                # 发布矩阵压感数据JSON格式
-                self.pub_matrix_dic()
-                # 发布矩阵压感和值JSON格式
-                self.pub_matrix_mass(dic=self.matrix_dic)
-                # 发布矩阵压感点云格式
-                self.pub_matrix_point_cloud()
+            hb += 1
+            if hb % 60 == 0:
+                print(f'pub_state heartbeat {self.hand_type}: pose={self.last_hand_state} vel={self.last_hand_vel}', flush=True)
+            msg = self.joint_state_msg(self.last_hand_state, self.last_hand_vel)
+            self.hand_state_pub.publish(msg)
             if self.hand_info_pub.get_subscription_count() > 0:
                 msg = String()
                 msg.data = json.dumps(self.last_hand_info)
@@ -397,18 +389,21 @@ def main(args=None):
         rclpy.init(args=args)
         node = LinkerHand("linker_hand_sdk")
         embedded_version = node.embedded_version
-        if len(embedded_version) == 3 or node.hand_joint.upper() == "O6" or node.hand_joint.upper() == "L6" or node.hand_joint.upper() == "G20":
+        if (embedded_version is not None and len(embedded_version) == 3) or node.hand_joint.upper() == "O6" or node.hand_joint.upper() == "L6" or node.hand_joint.upper() == "G20":
             ColorMsg(msg=f"New Matrix Touch For SDK V2", color="green")
             node.sdk_v = 2
-        elif len(embedded_version) == 6 and node.hand_joint == "L10":
+        elif embedded_version is not None and len(embedded_version) == 6 and node.hand_joint == "L10":
             ColorMsg(msg=f"New Matrix Touch For SDK V2", color="green")
             node.sdk_v = 2
-        elif len(embedded_version) > 4 and ((embedded_version[0]==10 and embedded_version[4]>35) or (embedded_version[0]==7 and embedded_version[4]>50) or (embedded_version[0] == 6)):
+        elif embedded_version is not None and len(embedded_version) > 4 and ((embedded_version[0]==10 and embedded_version[4]>35) or (embedded_version[0]==7 and embedded_version[4]>50) or (embedded_version[0] == 6)):
             ColorMsg(msg=f"New Matrix Touch For SDK V2", color="green")
             node.sdk_v = 2
         else:
-            ColorMsg(msg=f"SDK V1", color="green")
-            node.sdk_v = 1
+            if embedded_version is None:
+                ColorMsg(msg=f"Warning: embedded_version is None, defaulting to SDK V2", color="yellow")
+            else:
+                ColorMsg(msg=f"SDK V1", color="green")
+            node.sdk_v = 2
         rclpy.spin(node)         # 主循环，监听 ROS 回调
     except KeyboardInterrupt:
         print("收到 Ctrl+C，准备退出...")

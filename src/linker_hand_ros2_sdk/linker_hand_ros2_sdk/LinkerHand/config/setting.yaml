@@ -1,7 +1,7 @@
 VERSION: 3.1.0
 LINKER_HAND:
   LEFT_HAND:
-    EXISTS: False
+    EXISTS: True
     TOUCH: False
     CAN: "can1"
     MODBUS: "None"
