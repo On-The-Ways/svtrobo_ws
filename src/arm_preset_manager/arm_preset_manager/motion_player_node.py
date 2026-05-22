@@ -394,8 +394,9 @@ class ArmMotionPlayer(Node):
         target_right = frames[0][2]
 
         # --- 阶段1：过渡插值（从当前姿态到新动作首帧） ---
-        start_left = self.last_left if self.last_left else target_left
-        start_right = self.last_right if self.last_right else target_right
+        # 第一次播放时 last_left/right 为 None，用 home_joints 作为起点以触发减速过渡
+        start_left = self.last_left if self.last_left else self.home_joints[:]
+        start_right = self.last_right if self.last_right else self.home_joints[:]
 
         # 判断是否需要过渡：当前姿态和新动作首帧差距较大时才做过渡
         max_diff = 0.0
