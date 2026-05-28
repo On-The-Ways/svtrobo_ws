@@ -53,8 +53,8 @@ const HardwareStatus = {
                     var nodes = result.nodes;
                     self._setStatus('chassis', nodes.includes('/chassis_control'));
                     self._setStatus('lift', nodes.includes('/lift_control'));
-                    self._setStatus('arm_left', nodes.includes('/left_forward_position_controller'));
-                    self._setStatus('arm_right', nodes.includes('/right_forward_position_controller'));
+                    self._checkPublishers('/left_forward_position_controller/commands', 'arm_left');
+                    self._checkPublishers('/right_forward_position_controller/commands', 'arm_right');
                     self._checkTopic('/f710/status', 'f710');
                     self._checkPublishers('/cb_left_hand_state', 'hand_left');
                     self._checkPublishers('/cb_right_hand_state', 'hand_right');

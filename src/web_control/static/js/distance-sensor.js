@@ -47,7 +47,8 @@ const DistanceSensor = {
     _updateUI(data) {
         var dot = document.getElementById('dot-distance');
         var sensors = ['front', 'right', 'rear', 'left'];
-        var hasData = data && data.ok;
+        var readings = (data && data.data) ? data.data : null;
+        var hasData = data && data.ok && readings;
 
         if (dot) {
             if (hasData) {
@@ -63,8 +64,8 @@ const DistanceSensor = {
             var name = sensors[i];
             var valEl = document.getElementById('dist-' + name);
             if (valEl) {
-                if (hasData && data[name] !== undefined && data[name] !== null) {
-                    valEl.textContent = data[name];
+                if (hasData && readings[name] !== undefined && readings[name] !== null) {
+                    valEl.textContent = readings[name];
                     valEl.classList.add('dist-active');
                 } else {
                     valEl.textContent = '--';
