@@ -130,6 +130,14 @@ ros2 launch arm_preset_manager arm_preset_manager.launch.py
 
 > 详见 [arm_preset_manager/README.md](src/arm_preset_manager/README.md)
 
+### 传感器 — 测距
+
+4 路 SEN0492 激光测距传感器（前/右/后/左），通过 RS485/Modbus RTU 接入 `/dev/ttyACM1`。
+- 地址：前(0x51)、右(0x52)、后(0x53)、左(0x54)
+- 采样率 ~5Hz，API 推送 ~10Hz
+- 随 `svtrobo-web` 服务自动启动，串口打开失败自动重试
+- REST: `/api/sensors/distance`，WebSocket: `/ws/distance`
+
 ### chassis_control — 底盘与升降控制
 
 核心 C++ 控制节点，1kHz 控制循环。
@@ -173,12 +181,22 @@ ros2 launch f710_teleop f710_teleop.launch.py
 - 数据采集：彩色图(13.5fps) + 深度图 + 点云(~1.3Hz) + IMU(~70Hz) + ROS2 bag
 - **录制结束后自动转换**：bag (.db3) → JSONL 格式，方便深度学习训练
 - IMU 实时 WebSocket 推送 (/ws/imu) + HTTP 回退 (/api/imu)
+- 测距传感器 4 路 SEN0492 激光测距（前/右/后/左），REST + WebSocket 实时推送
 - ROS 连接断开时统一清理所有模块状态（摄像头、底盘、诊断面板归位）
 
 ```
 python3 src/web_control/server.py          # Web 服务 (8080)
 ros2 launch rosbridge_server rosbridge_websocket_launch.py  # rosbridge (9090)
 ```
+
+**测距传感器 API：**
+
+| 端点 | 方法 | 说明 |
+|------|------|------|
+| `/api/sensors/distance` | GET | 4 路测距数据（mm）|
+| `/ws/distance` | WebSocket | 测距实时推送 ~10Hz |
+
+> 4 路 SEN0492 激光测距（RS485/Modbus RTU，/dev/ttyACM1），随 web 服务自动启动。
 
 ### camera_driver — 摄像头驱动
 
@@ -201,7 +219,7 @@ ros2 launch rosbridge_server rosbridge_websocket_launch.py  # rosbridge (9090)
 | svtrobo-chassis.service | 底盘+升降控制 | - |
 | svtrobo-chassis-watchdog.service | 底盘节点存活监控 | - |
 | svtrobo-f710.service | F710 手柄遥操作 | - |
-| svtrobo-web.service | Web 控制台 | 8080 |
+| svtrobo-web.service | Web 控制台 + 测距传感器 | 8080 |
 | svtrobo-nodeapi.service | Node.js API | 28181 |
 | pcan-monitor.service | PCAN/CAN 状态监控 | - |
 
@@ -302,6 +320,7 @@ Web 控制台右下角录制按钮或 F710 手柄 X/Y 按钮，自动采集：
 | ZED 深度图 | JPEG (JET colormap) | 13.5 fps | 归一化着色后保存 |
 | ZED 点云 | npz | ~1.3 fps | 全分辨率(720x1280) float16, ~7MB/帧 |
 | IMU | imu.jsonl | ~70 Hz | accel/gyro/mag/pressure/temp |
+| 测距传感器 | distance.jsonl | ~5 Hz | front/right/rear/left 距离(mm) |
 | ROS2 bag | db3 | 原始频率 | 5个话题，录制结束自动转JSONL |
 | 录制摘要 | summary.json | - | 时长/帧数/大小 |
 

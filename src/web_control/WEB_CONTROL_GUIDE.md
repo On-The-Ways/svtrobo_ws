@@ -30,6 +30,7 @@ Web 控制台提供以下功能：
 - **底盘控制**：浏览器端 WASD/Q/E 键盘控制，支持速度调节
 - **升降机构**：竖向滑条控制升降速度，上升/下降/停止按钮
 - **电机状态**：实时显示 4 个舵向电机的角度/速度/力矩及轮速（目标 vs 实际）
+- **测距传感器**：4 路 SEN0492 激光测距（前/右/后/左），REST API + WebSocket 实时推送
 - **电池与诊断**：总线电压（VBUS）、电量估算、电机温度、错误码
 
 所有底盘控制通过 **rosbridge WebSocket** 转发 ROS2 Topic 消息，无需在机器人上安装桌面环境。
@@ -166,6 +167,7 @@ http://<机器人IP>:8080
 | MasterLock | `master-lock.js` | 主控锁：手柄/Web 模式互斥切换 |
 | HardwareStatus | `hardware-status.js` | 硬件在线检测（不依赖 ROS 连接） |
 | ImuStatus | `imu-status.js` | IMU 实时数据 WebSocket 显示 |
+| DistanceSensor | `distance-status.js` | 测距传感器实时数据 WebSocket 显示 |
 
 ---
 
@@ -392,6 +394,7 @@ web_control/
         ├── hardware-status.js # 硬件在线状态检测（ZED/D405/IMU/底盘/手柄）
         ├── imu-status.js      # IMU 实时数据 WebSocket 显示
         ├── imu-status.js      # IMU 实时状态显示（WebSocket + HTTP 回退）
+        ├── distance-status.js # 测距传感器实时数据 WebSocket 显示
         ├── lift.js            # 升降机构控制
         └── status.js          # ROS Topic 列表显示
 ```
@@ -409,6 +412,50 @@ Web 控制台提供 IMU 数据的实时查看接口（ZED 2i 内置 IMU）：
 | `/api/imu` | GET | IMU 当前数据 JSON（accel, gyro_dps, gyro_rad, mag, imu_temp, pressure, env_temp） |
 | `/ws/imu` | WebSocket | IMU 实时推送 ~20Hz（前端优先使用 WebSocket，自动回退 HTTP polling） |
 
+### 测距传感器接口
+
+4 路 SEN0492 激光测距传感器，通过 RS485/Modbus RTU 接入 RainbowLink（/dev/ttyACM1），传感器地址 0x51~0x54。
+
+**硬件参数：**
+- 型号：SEN0492 激光测距传感器
+- 接口：RS485 → RainbowLink USB 转换器（/dev/ttyACM1）
+- 协议：Modbus RTU，波特率 115200
+- 地址：前(0x51)、右(0x52)、后(0x53)、左(0x54)
+- 寄存器：0x34（距离值，单位 mm）
+- 采样率：约5Hz（后台 daemon 线程轮询）
+- 开机自启：随 svtrobo-web 服务启动，串口打开失败自动重试（每 5 秒，最多 30 次）
+
+**API 端点：**
+
+| 端点 | 方法 | 说明 |
+|------|------|------|
+| `/api/sensors/distance` | GET | 测距当前数据 JSON |
+| `/ws/distance` | WebSocket | 测距实时推送 约10Hz |
+
+**REST 响应格式：**
+
+```json
+{
+  "ok": true,
+  "data": {
+    "front": 169,
+    "right": 154,
+    "rear": 432,
+    "left": 235,
+    "unit": "mm"
+  },
+  "timestamp": 1779934254.321
+}
+```
+
+- `ok`: true 表示至少一个传感器在线
+- 各方向值：距离（mm），null 表示该传感器离线
+- `timestamp`: Unix 时间戳（秒）
+
+**WebSocket 推送格式与 REST 响应一致**，以约10Hz 频率推送，前端优先使用 WebSocket，可回退到 HTTP polling。
+
+> 传感器线程随 svtrobo-web 服务自动启动（After=svtrobo-can.service），无需单独配置。
+
 ### 录制数据内容
 
 录制时自动采集以下数据：
@@ -422,6 +469,7 @@ Web 控制台提供 IMU 数据的实时查看接口（ZED 2i 内置 IMU）：
 | D405 深度图 | JPEG q95 JET colormap (depth/d405_*/) | 2 Hz | 1280x720 |
 | ZED 点云 | npz float16 (pointcloud/zed/) | 2 Hz | XYZRGBA, 全分辨率1280x720, ~7MB/帧 |
 | IMU | imu.jsonl | ~15 Hz (native grab rate) | accel/gyro/mag/pressure/temp |
+| 测距传感器 | distance.jsonl | ~5 Hz | front/right/rear/left 距离(mm) |
 | ROS2 bag | rosbag/*.db3 | 原始频率 | 5个话题 |
 | 录制摘要 | summary.json | - | 时长/帧数/大小 |
 | JSONL传感器 | *.jsonl | 10-50 Hz | bag自动转换 |

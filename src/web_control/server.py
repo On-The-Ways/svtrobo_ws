@@ -1231,6 +1231,119 @@ _imu_thread = None
 _imu_stop = threading.Event()
 
 
+# --- Distance Sensor (SEN0492 Laser Range Finder via RS485/Modbus RTU) ---
+
+distance_cache = {
+    'data': {'front': None, 'right': None, 'rear': None, 'left': None},
+    'timestamp': 0,
+    'lock': threading.Lock(),
+    'ok': False,
+}
+
+DISTANCE_PORT = '/dev/ttyACM1'
+DISTANCE_BAUD = 115200
+DISTANCE_SENSORS = {
+    'front': 0x51,
+    'right': 0x52,
+    'rear': 0x53,
+    'left': 0x54,
+}
+DISTANCE_READ_INTERVAL = 0.2  # 5 Hz polling
+
+
+def _crc16(buf):
+    """Modbus CRC16."""
+    crc = 0xFFFF
+    for b in buf:
+        crc ^= b
+        for _ in range(8):
+            if crc & 1:
+                crc = (crc >> 1) ^ 0xA001
+            else:
+                crc >>= 1
+    return crc
+
+
+def _read_distance_sensor(ser, addr):
+    """Read distance (mm) from a single SEN0492 sensor via Modbus RTU."""
+    cmd = bytes([addr, 0x03, 0x00, 0x34, 0x00, 0x01])
+    c = _crc16(cmd)
+    cmd += bytes([c & 0xFF, (c >> 8) & 0xFF])
+    try:
+        ser.reset_input_buffer()
+        ser.write(cmd)
+        time.sleep(0.08)
+        data = ser.read(32)
+        if data and len(data) >= 7 and data[0] == addr and data[1] == 0x03:
+            return data[3] * 256 + data[4]
+    except Exception:
+        pass
+    return None
+
+
+def _distance_reader_loop():
+    """Background thread: continuously poll all 4 distance sensors at ~5Hz."""
+    logger.info('Distance sensor reader thread starting')
+    import serial
+    ser = None
+    max_retries = 30
+    for attempt in range(1, max_retries + 1):
+        try:
+            ser = serial.Serial(
+                port=DISTANCE_PORT,
+                baudrate=DISTANCE_BAUD,
+                bytesize=8,
+                parity='N',
+                stopbits=1,
+                timeout=0.15,
+            )
+            logger.info(f'Distance sensor: opened {DISTANCE_PORT} on attempt {attempt}')
+            break
+        except Exception as e:
+            logger.warning(f'Distance sensor: attempt {attempt}/{max_retries} failed to open {DISTANCE_PORT}: {e}')
+            if attempt >= max_retries:
+                logger.error(f'Distance sensor: giving up after {max_retries} retries')
+                return
+            time.sleep(5)
+
+    sensor_names = list(DISTANCE_SENSORS.keys())
+    sensor_addrs = list(DISTANCE_SENSORS.values())
+    fail_count = {n: 0 for n in sensor_names}
+
+    while True:
+        try:
+            readings = {}
+            any_ok = False
+            for i, name in enumerate(sensor_names):
+                val = _read_distance_sensor(ser, sensor_addrs[i])
+                readings[name] = val
+                if val is not None:
+                    any_ok = True
+                    fail_count[name] = 0
+                else:
+                    fail_count[name] += 1
+
+            with distance_cache['lock']:
+                distance_cache['data'] = readings
+                distance_cache['timestamp'] = time.time()
+                distance_cache['ok'] = any_ok
+
+            time.sleep(DISTANCE_READ_INTERVAL)
+        except Exception as e:
+            logger.debug(f'Distance sensor read error: {e}')
+            time.sleep(1.0)
+
+    try:
+        ser.close()
+    except Exception:
+        pass
+
+
+# Start distance sensor reader thread at module load
+_distance_thread = threading.Thread(target=_distance_reader_loop, daemon=True, name='distance-sensor')
+_distance_thread.start()
+
+
 async def index_handler(request):
     return web.FileResponse(STATIC_DIR / 'index.html')
 
@@ -1428,6 +1541,25 @@ async def imu_data_handler(request):
     return web.json_response({'ok': True, 'data': data})
 
 
+async def distance_sensor_handler(request):
+    """Return latest distance sensor readings (SEN0492 laser range finders)."""
+    with distance_cache['lock']:
+        data = dict(distance_cache['data'])
+        ok = distance_cache['ok']
+        ts = distance_cache['timestamp']
+    return web.json_response({
+        'ok': ok,
+        'data': {
+            'front': data.get('front'),
+            'right': data.get('right'),
+            'rear': data.get('rear'),
+            'left': data.get('left'),
+            'unit': 'mm',
+        },
+        'timestamp': ts,
+    })
+
+
 
 
 async def imu_ws_handler(request):
@@ -1454,6 +1586,44 @@ async def imu_ws_handler(request):
         logger.info("IMU WebSocket client disconnected")
 
     return ws
+
+
+async def distance_ws_handler(request):
+    """WebSocket endpoint to push distance sensor data at ~10Hz."""
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
+
+    logger.info("Distance WebSocket client connected")
+
+    try:
+        while not ws.closed:
+            with distance_cache['lock']:
+                data = dict(distance_cache['data'])
+                ok = distance_cache['ok']
+                ts = distance_cache['timestamp']
+            payload = json.dumps({
+                'ok': ok,
+                'data': {
+                    'front': data.get('front'),
+                    'right': data.get('right'),
+                    'rear': data.get('rear'),
+                    'left': data.get('left'),
+                    'unit': 'mm',
+                },
+                'timestamp': ts,
+            })
+            try:
+                await ws.send_str(payload)
+            except Exception:
+                break
+            await asyncio.sleep(0.1)  # 10Hz push rate
+    except Exception as e:
+        logger.debug(f"Distance WebSocket error: {e}")
+    finally:
+        logger.info("Distance WebSocket client disconnected")
+
+    return ws
+
 
 async def on_shutdown(app):
     f710_mgr.stop()
@@ -1618,6 +1788,7 @@ def create_app():
     app.router.add_post('/f710/stop', f710_stop_handler)
     app.router.add_get('/f710/status', f710_status_handler)
     app.router.add_get('/api/imu', imu_data_handler)
+    app.router.add_get('/api/sensors/distance', distance_sensor_handler)
     app.router.add_post("/api/exit-kiosk", exit_kiosk_handler)
     # Start standalone IMU reader (lightweight, no video/depth)
     start_imu_reader()
@@ -1626,6 +1797,7 @@ def create_app():
     app.router.add_get('/api/master/status', master_status_handler)
     app.router.add_get('/ws', rosbridge_proxy_handler)
     app.router.add_get('/ws/imu', imu_ws_handler)
+    app.router.add_get('/ws/distance', distance_ws_handler)
 
     return app
 

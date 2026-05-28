@@ -39,6 +39,8 @@ const App = {
         }
         // Hardware status: show all devices immediately (HTTP-only polling)
         HardwareStatus.initStandalone();
+        // Distance sensors: standalone, no ROS dependency
+        DistanceSensor.initStandalone();
         // IMU: initialized on connect, disabled on disconnect
 
         // Auto-connect on page load

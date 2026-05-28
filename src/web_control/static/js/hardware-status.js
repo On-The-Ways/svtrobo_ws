@@ -16,6 +16,7 @@ const HardwareStatus = {
         d405_2:   { label: 'D405 #2', icon: '\uD83D\uDCF7', status: 'offline' },
         zed:      { label: 'ZED 2i', icon: '\uD83C\uDF9E', status: 'offline' },
         imu:      { label: 'IMU', icon: '\uD83E\uDDED', status: 'offline' },
+        laser:    { label: '\u6D4B\u8DDD', icon: '\uD83D\uDCA0', status: 'offline' },
         arm_left: { label: '\u5DE6\u81C2', icon: '\uD83E\uDDBE', status: 'offline' },
         arm_right:{ label: '\u53F3\u81C2', icon: '\uD83E\uDDBE', status: 'offline' },
         hand_left:{ label: '\u5DE6\u624B', icon: '\uD83E\uDD1A', status: 'offline' },
@@ -28,6 +29,7 @@ const HardwareStatus = {
         this._startNodeMonitor();
         this._startCameraPoll();
         this._startImuPoll();
+        this._startDistancePoll();
         this.render();
     },
 
@@ -108,6 +110,19 @@ const HardwareStatus = {
         this._timers.push(setInterval(poll, 3000));
     },
 
+    _startDistancePoll() {
+        var self = this;
+        var poll = async function() {
+            try {
+                var resp = await fetch('/api/sensors/distance');
+                var json = await resp.json();
+                self._setStatus('laser', json.ok === true);
+            } catch { self._setStatus('laser', false); }
+        };
+        poll();
+        this._timers.push(setInterval(poll, 3000));
+    },
+
     _startCameraPoll() {
         var self = this;
         var poll = async function() {
@@ -143,6 +158,7 @@ const HardwareStatus = {
     initStandalone() {
         this._startCameraPoll();
         this._startImuPoll();
+        this._startDistancePoll();
         this.render();
     },
 
