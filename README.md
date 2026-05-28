@@ -115,7 +115,7 @@ svtrobo_ws/
 
 Linker Hand 系列灵巧手 ROS2 驱动包，通过 CAN 总线控制 O6 灵巧手（6 自由度）。
 - 右手 O6 (can0, ID 0x27) — 已部署
-- 左手 O6 (can1, ID 0x28) — 已接入
+- 左手 O6 (can1, ID 0x28) — 已部署
 
 - **bimanual 双臂模式**：右臂 can0、左臂 can1，各 7 DOF + 夹爪
 - **6 个 ros2_control controller**：joint_state_broadcaster + 左右位置控制 + 左右夹爪
@@ -129,14 +129,6 @@ ros2 launch arm_preset_manager arm_preset_manager.launch.py
 ```
 
 > 详见 [arm_preset_manager/README.md](src/arm_preset_manager/README.md)
-
-### 传感器 — 测距
-
-4 路 SEN0492 激光测距传感器（前/右/后/左），通过 RS485/Modbus RTU 接入 `/dev/ttyACM1`。
-- 地址：前(0x51)、右(0x52)、后(0x53)、左(0x54)
-- 采样率 ~5Hz，API 推送 ~10Hz
-- 随 `svtrobo-web` 服务自动启动，串口打开失败自动重试
-- REST: `/api/sensors/distance`，WebSocket: `/ws/distance`
 
 ### chassis_control — 底盘与升降控制
 
@@ -173,40 +165,51 @@ ros2 launch f710_teleop f710_teleop.launch.py
 
 基于 aiohttp + roslibjs 的浏览器控制界面。
 
-- 实时 MJPEG 摄像头画面（D405 ×2, ZED 2i）
+![Web 控制台](docs/web_control_screenshot.jpg)
+
+**控制功能：**
 - WASD/Q/E 键盘控制底盘
 - 升降控制、电机状态、电池/温度诊断
 - 手柄/Web 模式一键切换（默认手柄模式）
 - X 模式手柄自动检测与前端警告横幅
-- 数据采集：彩色图(13.5fps) + 深度图 + 点云(~1.3Hz) + IMU(~70Hz) + ROS2 bag
-- **录制结束后自动转换**：bag (.db3) → JSONL 格式，方便深度学习训练
-- IMU 实时 WebSocket 推送 (/ws/imu) + HTTP 回退 (/api/imu)
-- 测距传感器 4 路 SEN0492 激光测距（前/右/后/左），REST + WebSocket 实时推送
 - ROS 连接断开时统一清理所有模块状态（摄像头、底盘、诊断面板归位）
+
+**数据采集：**
+- 实时 MJPEG 摄像头画面（D405 ×2, ZED 2i）
+- 彩色图(13.5fps) + 深度图 + 点云(~1.3Hz) + IMU(~70Hz) + ROS2 bag
+- **录制结束后自动转换**：bag (.db3) → JSONL 格式，方便深度学习训练
+
+**传感器接口：**
+- IMU：WebSocket 实时推送 `/ws/imu`，HTTP 回退 `/api/imu`
+- 测距：4 路 SEN0492 激光测距（前/右/后/左），RS485/Modbus RTU，`/dev/ttyACM1`
+  - 地址：前(0x51)、右(0x52)、后(0x53)、左(0x54)，采样率 ~5Hz，推送 ~10Hz
+  - 随 web 服务自动启动，串口打开失败自动重试
+
+| 端点 | 方法 | 说明 |
+|------|------|------|
+| `/api/sensors/distance` | GET | 4 路测距数据（mm）|
+| `/ws/distance` | WebSocket | 测距实时推送 ~10Hz |
+| `/api/imu` | GET | IMU 数据（accel/gyro/mag）|
+| `/ws/imu` | WebSocket | IMU 实时推送 ~70Hz |
 
 ```
 python3 src/web_control/server.py          # Web 服务 (8080)
 ros2 launch rosbridge_server rosbridge_websocket_launch.py  # rosbridge (9090)
 ```
 
-**测距传感器 API：**
-
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/api/sensors/distance` | GET | 4 路测距数据（mm）|
-| `/ws/distance` | WebSocket | 测距实时推送 ~10Hz |
-
-> 4 路 SEN0492 激光测距（RS485/Modbus RTU，/dev/ttyACM1），随 web 服务自动启动。
+> 详见 [WEB_CONTROL_GUIDE.md](src/web_control/WEB_CONTROL_GUIDE.md)
 
 ### camera_driver — 摄像头驱动
 
 支持 RealSense D405 和 ZED 2i 的 Python 采集模块。
 
-- **ZED SDK 模式**：HD720 彩色图 + NEURAL 深度 + XYZRGBA 点云 + IMU (~70Hz)
+- **ZED SDK 模式**：HD720 彩色图 + NEURAL 深度 + XYZRGBA 点云
 - **RealSense D405**：彩色图 + 深度图，快速设备检测避免阻塞
 - sl.Mat 对象复用，减少每帧 C++ 堆分配开销
 - 相机内参获取、点云全分辨率 float16
-- IMU 独立线程读取，前端 WebSocket 实时推送
+- IMU 数据独立线程读取（~70Hz），通过 web_control 服务推送
+
+> 详见 [CAMERA_DRIVER_GUIDE.md](src/camera_driver/CAMERA_DRIVER_GUIDE.md)
 
 ## systemd 服务 (12个)
 
@@ -353,7 +356,7 @@ recordings/YYYY-MM-DD/HHMMSS/
 | 文档 | 内容 |
 |------|------|
 | [ROBOT_SYSTEM_GUIDE.md](ROBOT_SYSTEM_GUIDE.md) | 系统完整技术文档 |
-| [SYSTEM_CONFIG.md](SYSTEM_CONFIG.md) | 系统配置文档 (10个 systemd 服务) |
+| [SYSTEM_CONFIG.md](SYSTEM_CONFIG.md) | 系统配置文档 (12个 systemd 服务) |
 | [recordings/README.md](recordings/README.md) | 录制数据格式与 JSONL 字段说明 |
 | [src/arm_preset_manager/README.md](src/arm_preset_manager/README.md) | 双臂控制使用文档 |
 | [src/chassis_control/PYTHON_API_GUIDE.md](src/chassis_control/PYTHON_API_GUIDE.md) | Python 控制接口文档 |
