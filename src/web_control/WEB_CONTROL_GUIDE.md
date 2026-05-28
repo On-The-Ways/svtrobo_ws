@@ -104,7 +104,7 @@ pip3 install pyrealsense2
 Web 控制台依赖底盘 C++ 节点发布的状态数据：
 
 ```bash
-cd /home/openarm/svtrobo_ws
+cd /home/svt/svtrobo_ws
 colcon build --packages-select chassis_control
 source install/setup.bash
 ros2 launch chassis_control svtrobo_bringup.launch.py
@@ -117,7 +117,7 @@ ros2 launch chassis_control svtrobo_bringup.launch.py
 ### 方式一：一键启动（推荐）
 
 ```bash
-cd /home/openarm/svtrobo_ws/web_control
+cd /home/svt/svtrobo_ws/web_control
 bash start_web.sh
 ```
 
@@ -130,7 +130,7 @@ bash start_web.sh
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml port:=9090
 
 # 终端 2：启动 Web 服务器
-cd /home/openarm/svtrobo_ws/web_control
+cd /home/svt/svtrobo_ws/src/web_control
 python3 server.py --host 0.0.0.0 --port 8080
 ```
 
@@ -167,7 +167,8 @@ http://<机器人IP>:8080
 | MasterLock | `master-lock.js` | 主控锁：手柄/Web 模式互斥切换 |
 | HardwareStatus | `hardware-status.js` | 硬件在线检测（不依赖 ROS 连接） |
 | ImuStatus | `imu-status.js` | IMU 实时数据 WebSocket 显示 |
-| DistanceSensor | `distance-status.js` | 测距传感器实时数据 WebSocket 显示 |
+| DistanceSensor | `distance-sensor.js` | 测距传感器 HTTP polling 显示 |
+| JointDisplay | `joint-display.js` | 机械臂关节角度实时显示 |
 
 ---
 
@@ -196,8 +197,8 @@ Web 控制台通过 rosbridge WebSocket 订阅和发布以下 ROS2 Topic：
 
 | 名称 | 类型 | 分辨率 | FPS |
 |------|------|--------|-----|
-| D405 #1 | RealSense | 1280x720 | 6 |
-| D405 #2 | RealSense | 1280x720 | 6 |
+| D405 #1 | RealSense | 1280x720 | 5 |
+| D405 #2 | RealSense | 1280x720 | 5 |
 | ZED 2i | ZED SDK | 1280x720 (HD720) | 15 |
 
 ### 操作方式
@@ -215,6 +216,25 @@ Web 控制台通过 rosbridge WebSocket 订阅和发布以下 ROS2 Topic：
 | `/camera/start` | POST | 启动相机（body: `{"camera": "d405_1"}`） |
 | `/camera/stop` | POST | 停止相机（body: `{"camera": "d405_1"}`） |
 | `/camera/status` | GET | 获取所有相机状态 |
+
+### 主控锁 API
+
+Web 和手柄模式互斥，确保同一时间只有一个控制源。
+
+| 端点 | 方法 | 说明 |
+|------|------|------|
+| `/api/master/request` | POST | 请求主控锁（body: `{"source": "web"}`） |
+| `/api/master/release` | POST | 释放主控锁 |
+| `/api/master/status` | GET | 查询当前主控锁状态 |
+
+> 前端每次请求时自动附带 master request，确保控制权归属。
+
+### 其他端点
+
+| 端点 | 方法 | 说明 |
+|------|------|------|
+| `/api/exit-kiosk` | POST | 退出 Firefox kiosk 全屏模式 |
+| `/ws` | WebSocket | rosbridge WebSocket 代理（转发到 localhost:9090） |
 
 > 相机采集线程以后台守护线程运行，帧通过有界队列传递，MJPEG 编码质量为 95。
 
@@ -379,7 +399,11 @@ web_control/
 └── static/
     ├── index.html             # 控制台主页面
     ├── css/
-    │   └── style.css          # 样式表
+    │   ├── style.css          # 主样式表
+│   ├── distance-sensor.css # 测距传感器面板样式
+│   ├── hardware-status.css # 硬件状态面板样式
+│   ├── joint-display.css   # 关节显示样式
+│   └── rec-panel.css       # 录制面板样式
     └── js/
         ├── roslib.min.js      # roslibjs 库（WebSocket ROS 通信）
         ├── app.js             # 主应用（rosbridge 连接管理、模块初始化）
@@ -392,9 +416,9 @@ web_control/
         ├── rec-panel.js       # 录制面板 v3c（按钮触发弹窗，ROS topic 计数，SQLite 统计）
         ├── master-lock.js     # 主控锁（手柄/Web 模式互斥切换）
         ├── hardware-status.js # 硬件在线状态检测（ZED/D405/IMU/底盘/手柄）
-        ├── imu-status.js      # IMU 实时数据 WebSocket 显示
-        ├── imu-status.js      # IMU 实时状态显示（WebSocket + HTTP 回退）
-        ├── distance-status.js # 测距传感器实时数据 WebSocket 显示
+        ├── imu-status.js      # IMU 实时数据 WebSocket 显示（ws/imu + HTTP 回退）
+        ├── distance-sensor.js # 测距传感器 HTTP polling 显示（REST /api/sensors/distance）
+        ├── joint-display.js   # 机械臂关节角度实时显示
         ├── lift.js            # 升降机构控制
         └── status.js          # ROS Topic 列表显示
 ```
@@ -469,7 +493,6 @@ Web 控制台提供 IMU 数据的实时查看接口（ZED 2i 内置 IMU）：
 | D405 深度图 | JPEG q95 JET colormap (depth/d405_*/) | 2 Hz | 1280x720 |
 | ZED 点云 | npz float16 (pointcloud/zed/) | 2 Hz | XYZRGBA, 全分辨率1280x720, ~7MB/帧 |
 | IMU | imu.jsonl | ~15 Hz (native grab rate) | accel/gyro/mag/pressure/temp |
-| 测距传感器 | distance.jsonl | ~5 Hz | front/right/rear/left 距离(mm) |
 | ROS2 bag | rosbag/*.db3 | 原始频率 | 5个话题 |
 | 录制摘要 | summary.json | - | 时长/帧数/大小 |
 | JSONL传感器 | *.jsonl | 10-50 Hz | bag自动转换 |

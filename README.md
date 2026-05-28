@@ -208,7 +208,7 @@ ros2 launch rosbridge_server rosbridge_websocket_launch.py  # rosbridge (9090)
 - 相机内参获取、点云全分辨率 float16
 - IMU 独立线程读取，前端 WebSocket 实时推送
 
-## systemd 服务 (10个)
+## systemd 服务 (12个)
 
 | 服务 | 说明 | 端口 |
 |------|------|------|
@@ -219,6 +219,8 @@ ros2 launch rosbridge_server rosbridge_websocket_launch.py  # rosbridge (9090)
 | svtrobo-chassis.service | 底盘+升降控制 | - |
 | svtrobo-chassis-watchdog.service | 底盘节点存活监控 | - |
 | svtrobo-f710.service | F710 手柄遥操作 | - |
+| svtrobo-linker-hand.service | Linker Hand 灵巧手控制 (左+右) | - |
+| svtrobo-motion-player.service | 机械臂动作回放节点 | - |
 | svtrobo-web.service | Web 控制台 + 测距传感器 | 8080 |
 | svtrobo-nodeapi.service | Node.js API | 28181 |
 | pcan-monitor.service | PCAN/CAN 状态监控 | - |
@@ -280,6 +282,7 @@ source install/setup.bash
 | 话题 | 类型 | 方向 | 说明 |
 |------|------|------|------|
 | `/svtrobot_cmd` | geometry_msgs/Twist | 控制 → 底盘 | 线速度 x/y + 角速度 z |
+| `/chassis/cmd_feedback` | geometry_msgs/Twist | 底盘 → 外部 | 速度反馈 (100Hz) |
 | `/lift_control_cmd` | std_msgs/Int32MultiArray | 控制 → 升降 | [方向, 速度] |
 | `/f710/joy` | sensor_msgs/Joy | 手柄 → 外部 | 原始摇杆/按钮状态 |
 | `/f710/enable` | std_msgs/Bool | Web → 手柄 | 启停手柄控制 |
@@ -316,23 +319,23 @@ Web 控制台右下角录制按钮或 F710 手柄 X/Y 按钮，自动采集：
 
 | 数据 | 格式 | 频率 | 说明 |
 |------|------|------|------|
-| ZED 彩色图 | JPEG | 13.5 fps | 1280x720, ~49KB/帧 |
-| ZED 深度图 | JPEG (JET colormap) | 13.5 fps | 归一化着色后保存 |
-| ZED 点云 | npz | ~1.3 fps | 全分辨率(720x1280) float16, ~7MB/帧 |
-| IMU | imu.jsonl | ~70 Hz | accel/gyro/mag/pressure/temp |
-| 测距传感器 | distance.jsonl | ~5 Hz | front/right/rear/left 距离(mm) |
+| ZED 彩色图 | JPEG | 2 fps | 1280x720, ~49KB/帧 |
+| ZED 深度图 | JPEG (JET colormap) | 2 fps | 归一化着色后保存 |
+| ZED 点云 | npz | ~2 fps | 全分辨率(720x1280) float16, ~7MB/帧 |
+| IMU | imu.jsonl | ~15 Hz | accel/gyro/mag/pressure/temp |
 | ROS2 bag | db3 | 原始频率 | 5个话题，录制结束自动转JSONL |
 | 录制摘要 | summary.json | - | 时长/帧数/大小 |
 
-> **前端只显示彩色流**，深度/点云数据仅在后台录制保存。每小时约 20GB。
+> **前端只显示彩色流**，深度/点云数据仅在后台录制保存。每小时约 5GB。
 
-保存路径：`~/svtrobo_ws/recordings/<时间戳>/`
+保存路径：`/svtrobo_data/recordings/<日期>/<时间>/`（`~/svtrobo_ws/recordings` 为符号链接）
 
 ```
-recordings/YYYYMMDD_HHMMSS/
-├── images/zed/                  # 彩色图 JPEG (13.5fps)
-├── depth/zed/                   # 深度图 JET colormap JPEG (13.5fps)
-├── pointcloud/zed/              # 点云 npz (全分辨率 float16, ~1.3Hz)
+recordings/YYYY-MM-DD/HHMMSS/
+├── images/zed/                  # ZED 左眼彩色图 JPEG (2fps)
+├── images/zed_right/             # ZED 右眼彩色图 JPEG (2fps)
+├── depth/zed/                   # 深度图 JET colormap JPEG (2fps)
+├── pointcloud/zed/              # 点云 npz (全分辨率 float16, ~2fps)
 ├── rosbag/                      # ROS2 bag (5个话题)
 ├── imu.jsonl                    # IMU数据 (~70Hz)
 ├── summary.json                 # 录制摘要
