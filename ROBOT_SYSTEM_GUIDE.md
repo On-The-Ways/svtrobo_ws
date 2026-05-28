@@ -646,7 +646,7 @@ svt(Jetson Orin)使用10个systemd服务开机自启，按顺序依赖启动：
 | 6 | svtrobo-f710.service | F710手柄遥控(含X/Y采集) | svtrobo-chassis |
 | 7 | svtrobo-nodeapi.service | Node.js API(28181) | svtrobo-web |
 | 8 | svtrobo-chassis-watchdog.service | chassis存活检测 | svtrobo-chassis |
-| 9 | svtrobo-arm.service | 双臂控制(bimanual), ROS_LOCALHOST_ONLY=1 | svtrobo-can |
+| 9 | svtrobo-arm.service | 双臂控制(bimanual) | svtrobo-can |
 | 10 | pcan-monitor.service | CAN状态监控 | svtrobo-can |
 
 管理命令：

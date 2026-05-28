@@ -1,8 +1,8 @@
 # svt 服务器系统配置文档
 
-> 最后更新: 2026-04-18
+> 最后更新: 2026-05-28
 > 硬件: Jetson Orin (aarch64), L4T 5.15.185-tegra
-> IP: 10.0.0.56 (eno1), 用户: svt
+> IP: 192.168.3.56 (WiFi ELWG), 10.0.0.56 (eno1), 用户: svt
 
 ---
 
@@ -17,7 +17,7 @@
 | Node.js | v22.22.2 |
 | pnpm | /usr/bin/pnpm |
 
-## 2. systemd 自启服务 (共10个, 全部 enabled)
+## 2. systemd 自启服务 (共11个, 全部 enabled)
 
 ### 启动顺序与依赖链
 
@@ -32,14 +32,15 @@ sysinit.target
             │         ├─ svtrobo-web.service (web_control :8080)
             │         └─ svtrobo-nodeapi.service (Node.js API :28181)
             └─ pcan-monitor.service (每10秒检查 CAN 状态 + err-71 检测)
-            └─ svtrobo-arm.service (双臂控制, bimanual, ROS_LOCALHOST_ONLY=1)
-            └─ svtrobo-linker-hand.service (灵巧手 O6, ROS_LOCALHOST_ONLY=1)
+            └─ svtrobo-arm.service (双臂控制, bimanual)
+            └─ svtrobo-linker-hand.service (灵巧手 O6)
+            └─ svtrobo-motion-player.service (外骨骼动作回放, 不自启 disabled)
             └─ (以上均 Wants=svtrobo-can.service)
 ```
 
 所有服务均 `Restart=on-failure, RestartSec=5`（f710-fix 和 svtrobo-can 除外，它们是 oneshot）。
 
-**ROS_LOCALHOST_ONLY**: svtrobo-arm 服务设置了 `ROS_LOCALHOST_ONLY=1`，限制 DDS 通讯仅在本机回环接口，防止局域网其他 ROS2 设备干扰。
+**ROS2 环境集中管理**: 所有 ROS2 服务通过 EnvironmentFile=/home/svt/svtrobo_ws/ros_env (ROS_DOMAIN_ID=56 + ROS_LOCALHOST_ONLY=1) 统一管理。.bashrc 也 export 了这两个变量。
 
 ### 2.1 f710-fix.service
 
@@ -121,7 +122,7 @@ WantedBy=multi-user.target
 | 接口 | 模式 | Bitrate | 用途 |
 |------|------|---------|------|
 | can0 | CAN FD | 1M/5M | 右臂 (openarm_right) + 右灵巧手 O6 (0x27) |
-| can1 | CAN FD | 1M/5M | 左臂 (openarm_left) + 左灵巧手 O6 (0x28 待接) |
+| can1 | CAN FD | 1M/5M | 左臂 (openarm_left) + 左灵巧手 O6 (0x28) |
 | can2 | CAN 2.0 | 1M | 底盘转向电机 (RobStride) |
 | can3 | CAN 2.0 | 1M | 底盘轮电机 (ZLAC8015D) |
 | can4 | CAN 2.0 | 500K | 扩展 |
@@ -138,7 +139,7 @@ Wants=svtrobo-can.service
 [Service]
 Type=simple
 User=svt
-Environment=ROS_DOMAIN_ID=0
+EnvironmentFile=/home/svt/svtrobo_ws/ros_env
 ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/svt/svtrobo_ws/install/setup.bash && exec ros2 launch rosbridge_server rosbridge_websocket_launch.xml"
 Restart=on-failure
 RestartSec=5
@@ -162,8 +163,7 @@ Wants=svtrobo-can.service
 [Service]
 Type=simple
 User=svt
-Environment=ROS_DOMAIN_ID=0
-Environment=ROS_LOCALHOST_ONLY=1
+EnvironmentFile=/home/svt/svtrobo_ws/ros_env
 ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/svt/svtrobo_ws/install/setup.bash && exec ros2 launch arm_preset_manager arm_preset_manager.launch.py"
 Restart=on-failure
 RestartSec=5
@@ -176,7 +176,7 @@ WantedBy=multi-user.target
 
 **Controller 启动时序**: joint_state_broadcaster(1s) → left/right_forward_position_controller(1.5s) → left/right_gripper_controller(2s) → preset_manager(5s)
 
-**注意**: 必须设置 `ROS_LOCALHOST_ONLY=1`，局域网有多个 ROS2 设备，否则 DDS 发现会失败。
+**注意**: 所有服务已通过 ros_env 统一设置 ROS_DOMAIN_ID=56 和 ROS_LOCALHOST_ONLY=1，无需单独配置。
 
 ### 2.5 svtrobo-linker-hand.service
 
@@ -191,8 +191,7 @@ Wants=svtrobo-can.service
 [Service]
 Type=simple
 User=svt
-Environment=ROS_DOMAIN_ID=0
-Environment=ROS_LOCALHOST_ONLY=1
+EnvironmentFile=/home/svt/svtrobo_ws/ros_env
 ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/svt/svtrobo_ws/install/setup.bash && exec ros2 launch linker_hand_ros2_sdk linker_hand.launch.py"
 Restart=on-failure
 RestartSec=5
@@ -224,7 +223,7 @@ Wants=svtrobo-rosbridge.service svtrobo-can.service
 [Service]
 Type=simple
 User=svt
-Environment=ROS_DOMAIN_ID=0
+EnvironmentFile=/home/svt/svtrobo_ws/ros_env
 ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/svt/svtrobo_ws/install/setup.bash && exec ros2 launch chassis_control svtrobo_bringup.launch.py"
 Restart=on-failure
 RestartSec=5
@@ -251,7 +250,7 @@ Wants=svtrobo-chassis.service
 [Service]
 Type=simple
 User=svt
-Environment=ROS_DOMAIN_ID=0
+EnvironmentFile=/home/svt/svtrobo_ws/ros_env
 ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/svt/svtrobo_ws/install/setup.bash && exec python3 /home/svt/svtrobo_ws/src/chassis_control/scripts/chassis_watchdog.py"
 Restart=on-failure
 RestartSec=5
@@ -297,7 +296,7 @@ Wants=svtrobo-chassis.service f710-fix.service
 [Service]
 Type=simple
 User=svt
-Environment=ROS_DOMAIN_ID=0
+EnvironmentFile=/home/svt/svtrobo_ws/ros_env
 ExecStartPre=/bin/bash -c "for i in $(seq 1 30); do [ -e /dev/input/js0 ] && exit 0; sleep 1; done; exit 1"
 ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/svt/svtrobo_ws/install/setup.bash && exec ros2 launch f710_teleop f710_teleop.launch.py"
 Restart=on-failure
@@ -322,7 +321,7 @@ After=svtrobo-chassis.service
 Type=simple
 User=svt
 WorkingDirectory=/home/svt/svtrobo_ws/src/web_control
-Environment=ROS_DOMAIN_ID=0
+EnvironmentFile=/home/svt/svtrobo_ws/ros_env
 ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/svt/svtrobo_ws/install/setup.bash && exec python3 server.py --host 0.0.0.0 --port 8080"
 Restart=on-failure
 RestartSec=5

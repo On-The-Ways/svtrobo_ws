@@ -89,7 +89,7 @@ svtrobo_ws/
 │             灵巧手 (Linker Hand O6)                │
 │  /cb_*_hand_control_cmd → LinkerHand SDK → CAN    │
 │                                                     │
-│   CAN0 右手 (0x27)            CAN1 左手 (0x28 待接) │
+│   CAN0 右手 (0x27)            CAN1 左手 (0x28) │
 │   O6 (6 DOF)                  O6 (6 DOF)            │
 └───────────────────────────────────────────────────┘
 ```
@@ -99,7 +99,7 @@ svtrobo_ws/
 | 接口 | 模式 | Bitrate | 用途 |
 |------|------|---------|------|
 | can0 | CAN FD | 1M/5M | 右臂 (openarm_right) + 右灵巧手 O6 (0x27) |
-| can1 | CAN FD | 1M/5M | 左臂 (openarm_left) + 左灵巧手 O6 (0x28 待接) |
+| can1 | CAN FD | 1M/5M | 左臂 (openarm_left) + 左灵巧手 O6 (0x28) |
 | can2 | CAN 2.0 | 1M | 底盘转向电机 (RobStride ×4) |
 | can3 | CAN 2.0 | 1M | 底盘轮电机 (ZLAC8015D ×2) |
 | can4 | CAN 2.0 | 500K | 扩展 |
@@ -115,7 +115,7 @@ svtrobo_ws/
 
 Linker Hand 系列灵巧手 ROS2 驱动包，通过 CAN 总线控制 O6 灵巧手（6 自由度）。
 - 右手 O6 (can0, ID 0x27) — 已部署
-- 左手 O6 (can1, ID 0x28) — 待接入
+- 左手 O6 (can1, ID 0x28) — 已接入
 
 - **bimanual 双臂模式**：右臂 can0、左臂 can1，各 7 DOF + 夹爪
 - **6 个 ros2_control controller**：joint_state_broadcaster + 左右位置控制 + 左右夹爪
@@ -307,9 +307,9 @@ source install/setup.bash
 | 话题 | 类型 | 方向 | 说明 |
 |------|------|------|------|
 | `/cb_right_hand_control_cmd` | sensor_msgs/JointState | 控制 → 右手 | 右手手指位置/速度指令 (O6, 6 DOF) |
-| `/cb_left_hand_control_cmd` | sensor_msgs/JointState | 控制 → 左手 | 左手手指位置/速度指令 (O6, 6 DOF, 待接) |
+| `/cb_left_hand_control_cmd` | sensor_msgs/JointState | 控制 → 左手 | 左手手指位置/速度指令 (O6, 6 DOF) |
 | `/cb_right_hand_state` | sensor_msgs/JointState | 右手 → 外部 | 右手关节状态 (~60 Hz) |
-| `/cb_left_hand_state` | sensor_msgs/JointState | 左手 → 外部 | 左手关节状态 (~60 Hz, 待接) |
+| `/cb_left_hand_state` | sensor_msgs/JointState | 左手 → 外部 | 左手关节状态 (~60 Hz) |
 | `/cb_right_hand_info` | std_msgs/String (JSON) | 右手 → 外部 | 右手信息（版本/速度/电流/温度/力矩） |
 | `/cb_hand_setting_cmd` | std_msgs/String (JSON) | 外部 → 手 | 设置指令（速度/力矩/清故障） |
 
