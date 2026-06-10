@@ -190,9 +190,9 @@ main() {
                 log "CRITICAL: Recovery failed ($recovery_failed_count consecutive failures)"
 
                 if [[ $recovery_failed_count -ge 2 ]]; then
-                    log "FATAL: Multiple recovery failures, triggering REBOOT"
+                    log "FATAL: Multiple recovery failures, giving up (auto-reboot disabled)"
                     sleep 3
-                    echo '123456' | sudo -S reboot
+                    # auto-reboot disabled
                     exit 1
                 fi
             else

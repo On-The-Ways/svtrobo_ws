@@ -462,6 +462,7 @@ class RecordingManager:
         self.bag_process = None
         self.save_thread = None
         self.imu_save_thread = None
+        self.distance_save_thread = None
         self.stop_event = threading.Event()
         self.output_dir = None
         self.start_time = None
@@ -496,7 +497,7 @@ class RecordingManager:
             bag_dir = self.output_dir / 'rosbag'
             try:
                 cmd = (
-                    'source /opt/ros/humble/setup.bash && '
+                    'source /opt/ros/humble/setup.bash && export ROS_DOMAIN_ID=56 && export ROS_LOCALHOST_ONLY=1 && '
                     'source /home/svt/svtrobo_ws/install/setup.bash && '
                     'exec ros2 bag record ' + ' '.join(RECORD_TOPICS) + f' -o {bag_dir}'
                 )
@@ -634,6 +635,10 @@ class RecordingManager:
                 target=self._save_imu_loop, daemon=True)
             self.imu_save_thread.start()
 
+            self.distance_save_thread = threading.Thread(
+                target=self._save_distance_loop, daemon=True)
+            self.distance_save_thread.start()
+
             # Start recording watchdog (monitors ZED + rosbag + disk)
             self._watchdog_abort = False
             self.watchdog_thread = threading.Thread(
@@ -665,6 +670,8 @@ class RecordingManager:
                 self.save_thread.join(timeout=5)
             if self.imu_save_thread:
                 self.imu_save_thread.join(timeout=3)
+            if self.distance_save_thread:
+                self.distance_save_thread.join(timeout=3)
 
             # Join watchdog thread
             if hasattr(self, 'watchdog_thread') and self.watchdog_thread:
@@ -751,11 +758,19 @@ class RecordingManager:
                     total_bytes += f.stat().st_size
             total_size_mb = round(total_bytes / (1024 * 1024), 2)
 
+            # Distance sensor count
+            distance_count = 0
+            dist_file = output_path / 'distance.jsonl'
+            if dist_file.is_file():
+                with open(dist_file) as df:
+                    distance_count = sum(1 for _ in df)
+
             summary = {
                 "timestamp": full_timestamp,
                 "duration_seconds": round(duration, 2),
                 "cameras": cameras,
                 "pointcloud": pointcloud,
+                "distance_sensor": {"samples": distance_count},
                 "rosbag_size_mb": rosbag_size_mb,
                 "total_size_mb": total_size_mb,
                 "created_at": datetime.now(timezone.utc).isoformat(),
@@ -901,6 +916,15 @@ class RecordingManager:
                 for fkey in ros_topic_map:
                     sources[fkey] = {'status': 'error', 'count': 0}
 
+            # Distance sensor
+            dist_file = d / 'distance.jsonl'
+            if dist_file.exists():
+                try:
+                    dist_count = sum(1 for _ in open(dist_file))
+                except Exception:
+                    dist_count = 0
+                sources['distance'] = {'status': 'ok' if dist_count > 0 else 'idle', 'count': dist_count}
+
             result['sources'] = sources
 
         return result
@@ -964,7 +988,7 @@ class RecordingManager:
                 bag_dir = self.output_dir / f'rosbag_{self._bag_restart_idx}'
                 try:
                     cmd = (
-                        'source /opt/ros/humble/setup.bash && '
+                        'source /opt/ros/humble/setup.bash && export ROS_DOMAIN_ID=56 && export ROS_LOCALHOST_ONLY=1 && '
                         'source /home/svt/svtrobo_ws/install/setup.bash && '
                         'exec ros2 bag record ' + ' '.join(RECORD_TOPICS) + f' -o {bag_dir}'
                     )
@@ -1164,6 +1188,32 @@ class RecordingManager:
 
         logger.info(f"IMU saver exiting, saved {count} samples")
 
+    def _save_distance_loop(self):
+        """Dedicated thread: poll distance_cache and write to distance.jsonl at ~5Hz."""
+        dist_path = self.output_dir / 'distance.jsonl'
+        count = 0
+
+        with open(dist_path, 'w') as f:
+            while not self.stop_event.is_set():
+                with distance_cache['lock']:
+                    data = dict(distance_cache['data'])
+                    ok = distance_cache['ok']
+                    ts = distance_cache['timestamp']
+                if ok and any(v is not None for v in data.values()):
+                    record = {
+                        'timestamp': round(ts, 6),
+                        'front': data.get('front'),
+                        'right': data.get('right'),
+                        'rear': data.get('rear'),
+                        'left': data.get('left'),
+                    }
+                    f.write(json.dumps(record) + chr(10))
+                    f.flush()
+                    count += 1
+                self.stop_event.wait(0.2)  # 5Hz
+
+        logger.info(f"Distance saver exiting, saved {count} samples")
+
 
 class F710Manager:
     """Manages the f710_teleop node lifecycle."""
@@ -1180,7 +1230,7 @@ class F710Manager:
 
             try:
                 cmd = (
-                    'source /opt/ros/humble/setup.bash && '
+                    'source /opt/ros/humble/setup.bash && export ROS_DOMAIN_ID=56 && export ROS_LOCALHOST_ONLY=1 && '
                     'source /home/svt/svtrobo_ws/install/setup.bash && '
                     'exec ros2 launch f710_teleop f710_teleop.launch.py'
                 )
@@ -1240,7 +1290,7 @@ distance_cache = {
     'ok': False,
 }
 
-DISTANCE_PORT = '/dev/ttyACM1'
+DISTANCE_PORT = '/dev/distance_sensor'
 DISTANCE_BAUD = 115200
 DISTANCE_SENSORS = {
     'front': 0x51,

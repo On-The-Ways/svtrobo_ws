@@ -31,7 +31,7 @@ pip install numpy
 ROS2 环境（`rclpy`、`geometry_msgs`、`sensor_msgs`、`std_msgs`）需要已安装并 source：
 
 ```bash
-source /home/svt/svtrobo_ws/install/setup.bash
+source /home/openarm/svtrobo_ws/install/setup.bash
 ```
 
 ### 启动底盘节点
@@ -40,7 +40,7 @@ Python 脚本依赖底盘 C++ 节点发布的状态数据，必须先启动底�
 
 ```bash
 # 终端 1：启动底盘
-cd /home/svt/svtrobo_ws
+cd /home/openarm/svtrobo_ws
 colcon build --packages-select chassis_control
 source install/setup.bash
 ros2 launch chassis_control svtrobo_bringup.launch.py
@@ -50,7 +50,7 @@ ros2 launch chassis_control svtrobo_bringup.launch.py
 
 ```python
 import sys
-sys.path.append("/home/svt/svtrobo_ws/src/chassis_control/scripts")
+sys.path.append("/home/openarm/svtrobo_ws/src/chassis_control/scripts")
 
 from svtrobo_controller import SVTROBOController
 ```
@@ -794,7 +794,7 @@ Python 节点 (svtrobo_controller)          C++ 底盘节点 (chassis_control_no
 ROS2 环境未 source。执行：
 
 ```bash
-source /home/svt/svtrobo_ws/install/setup.bash
+source /home/openarm/svtrobo_ws/install/setup.bash
 ```
 
 ### Q2: `wait_for_state()` 一直超时
@@ -835,7 +835,7 @@ ros2 topic pub --once /svtrobot_cmd geometry_msgs/msg/Twist "{linear: {x: 0, y: 
 ```python
 # 方式 1: 添加路径
 import sys
-sys.path.append("/home/svt/svtrobo_ws/src/chassis_control/scripts")
+sys.path.append("/home/openarm/svtrobo_ws/src/chassis_control/scripts")
 from svtrobo_controller import SVTROBOController
 
 # 方式 2: 复制文件到你的项目目录
@@ -859,7 +859,7 @@ from svtrobo_controller import SVTROBOController
 ### 12.1 启动
 
 ```bash
-cd /home/svt/svtrobo_ws
+cd /home/openarm/svtrobo_ws
 source install/setup.bash
 python3 src/chassis_control/scripts/test_chassis.py
 ```

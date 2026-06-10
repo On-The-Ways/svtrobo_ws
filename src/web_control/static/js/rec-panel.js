@@ -19,7 +19,8 @@ const RecPanel = {
     ROWS: [
         ['zed_color', 'd405_1', 'd405_2'],
         ['zed_depth', 'pointcloud', 'imu'],
-        ['ros_cmd', 'ros_lift', 'ros_joy', 'ros_chassis', 'ros_diag'],
+        ['ros_cmd', 'ros_lift', 'ros_joy'],
+        ['ros_chassis', 'ros_diag', 'distance'],
     ],
 
     SOURCE_CFG: {
@@ -34,6 +35,7 @@ const RecPanel = {
         'ros_lift':    { label: '升降控制',   unit: '条' },
         'ros_chassis': { label: '底盘状态',   unit: '条' },
         'ros_diag':    { label: '诊断信息',   unit: '条' },
+        'distance':    { label: '测距传感器', unit: '条' },
     },
 
     init() {
@@ -66,7 +68,7 @@ const RecPanel = {
 
             const items = document.createElement('div');
             items.className = 'rec-row-items';
-            if (i === 2) items.classList.add('ros-row');
+            // All rows use default 3-column grid — no special class needed
             for (const key of this.ROWS[i]) {
                 const cfg = this.SOURCE_CFG[key];
                 const item = document.createElement('div');
@@ -315,6 +317,9 @@ const RecPanel = {
                 }
             }
         }
+
+        // Distance sensor
+        this._updateSimpleSource('distance', sources['distance']);
 
         if (hasError && !this.abortDetected) {
             const dot = this.panel.querySelector('.rec-dot');
